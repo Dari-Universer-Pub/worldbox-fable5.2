@@ -82,7 +82,9 @@
     const done = id => { let c = 0; for (const b of town.blds) if (sim.B.type[b] === id && sim.B.state[b] === 1) c++; return c; };
     const foodPer = st[AL.RES.food] / Math.max(1, town.pop), farms = done(BT.farm), meat = AL.KINDS[town.people].diet === 'meat';
     want[J.builder] = town.sites ? Math.max(1, Math.min(4, Math.ceil(pop / 8))) : 0;
-    want[J.farmer] = Math.min(farms * 3, Math.ceil(pop * (foodPer < 4 ? 0.4 : 0.25)));
+    want[J.farmer] = Math.min(farms * 3, Math.ceil(pop * (foodPer < 4 ? 0.4 : foodPer > 14 ? 0.1 : 0.25)));
+    // granaries are finite: what exceeds the storage spoils slowly
+    const cap = 40 + town.pop * 12 + (cnt[BT.warehouse] || 0) * 150; if (st[AL.RES.food] > cap) st[AL.RES.food] -= (st[AL.RES.food] - cap) * 0.02;
     want[J.hunter] = Math.ceil(pop * (meat ? 0.22 : 0.06)) + (farms ? 0 : 1);
     want[J.gatherer] = farms ? (foodPer < 2 ? Math.ceil(pop * 0.2) : 0) : Math.ceil(pop * 0.35);
     want[J.fisher] = done(BT.port) ? Math.min(4, Math.ceil(pop * 0.1)) : 0;
@@ -105,6 +107,9 @@
   // ---------------------------------------------------------------- module
   AL.Sim.modules.push({
     name: 'towns',
+    // crops ripen on their own in about a year (tending speeds them up); berries and mushrooms regrow
+    tile(sim, i, x, y, g) { const W = sim.world, f = W.feature[i]; if (!f) return; if (f === AL.F.wheat) { const v = W.fgrow[i]; if (v < 250) { const nv = Math.min(250, v + 7); W.fgrow[i] = nv; if ((nv >> 6) !== (v >> 6) || nv === 250) W.mark(x, y); } }
+      else if ((f === AL.F.berry || f === AL.F.mushroom) && W.fgrow[i] < 255) { const v = W.fgrow[i], nv = Math.min(255, v + 4); W.fgrow[i] = nv; if (v <= 200 && nv > 200) W.mark(x, y); } },
     init(sim) { sim.B = new Blds(); sim.towns = []; sim.bmap = new Int16Array(sim.world.n * sim.world.n); sim.ownerDirty = true; },
     tick(sim) { const towns = sim.towns, B = sim.B;
       for (let k = 0; k < towns.length; k++) { const town = towns[k]; if (!town.alive) continue; const ph = (sim.tick + k * 7) % 40;

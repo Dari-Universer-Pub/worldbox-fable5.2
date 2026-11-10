@@ -6,9 +6,12 @@
     this.cfg = cfg; this.rng = new AL.Rng((cfg.seed >>> 0) ^ 0x5bd1e995); this.tick = 0; this.speed = 1; this.acc = 0; this.events = []; this.effSpeed = 1;
     this.world = AL.World.generate(cfg); this.world.computeRegions();
     for (const m of Sim.modules) if (m.init) m.init(this);
+    this.tileMods = Sim.modules.filter(m => m.tile);
   }
   Sim.modules = []; // later steps register systems here: {init, tick, save, load, command, query}
   const P = Sim.prototype;
+  // per-tile systems (crops, flora, fire…) called by the world sweep: every tile once per 32 ticks
+  P.tileSystems = function (i, x, y, g) { const tm = this.tileMods; for (let k = 0; k < tm.length; k++) tm[k].tile(this, i, x, y, g); };
   P.step = function () {
     this.tick++; const w = this.world;
     w.tick(this);
@@ -44,10 +47,11 @@
 
   // ---- host: message protocol (worker, or main-thread fallback through the same functions)
   AL.SimHost = function (post) {
-    let sim = null, last = Sim.now(), lastSnap = 0, timer = null;
+    let sim = null, last = Sim.now(), lastSnap = 0, lastOwner = 0, timer = null;
     function send(msg) { const tr = msg._tr; delete msg._tr; post(msg, tr || []); }
     function loop() { const now = Sim.now(), dt = Math.min(0.25, (now - last) / 1000); last = now; if (!sim) return;
       const ran = sim.advance(dt, 12); sim.effSpeed = sim.effSpeed * 0.9 + (dt > 0 ? ran / (dt * AL.TICK_HZ) : 0) * 0.1;
+      if (sim.ownerDirty && now - lastOwner >= 500) { lastOwner = now; sim.ownerDirty = false; const o = sim.world.owner.slice(); send({ t: 'owner', n: sim.world.n, owner: o, towns: sim.towns ? sim.towns.map(t => t.alive ? [t.kingdom, t.people, t.cx, t.cy] : null) : [], _tr: [o.buffer] }); }
       if (now - lastSnap >= 33) { lastSnap = now; const tl = sim.takeTiles(false); if (tl) send(tl); for (const m of Sim.modules) if (m.snapshot) { const s = m.snapshot(sim); if (s) send(s); }
         send({ t: 'hud', tick: sim.tick, speed: sim.speed, eff: sim.effSpeed, hud: sim.hud ? sim.hud() : null, ev: sim.events.splice(0) }); } }
     return { message(m) {

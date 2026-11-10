@@ -40,8 +40,10 @@
     if (E.cool[i] > 0) { E.cool[i] = E.cool[i] > 8 ? E.cool[i] - 8 : 0; if (E.act[i] === ACT.NONE) { E.anim[i] = AL.ANIM.idle; } return; }
     if (!town || !town.alive) return U.thinkNomad(sim, i);
     const h = E.hunger[i], en = E.energy[i], child = fl & F.CHILD;
-    sc[0] = h > 55 ? (h / 100) * (h / 100) * 1.5 : 0; sc[1] = (night ? 0.55 : 0) + (en < 35 ? (1 - en / 100) * 1.1 : 0); sc[6] = E.carryN[i] ? 0.95 : 0;
-    sc[2] = (!child && !night) ? 0.5 + (E.job[i] ? 0.1 : 0) : 0; sc[3] = (1 - E.social[i] / 100) * (night ? 0.2 : 0.45); sc[4] = town.temple ? (1 - E.faith[i] / 100) * 0.35 : 0; sc[5] = child ? 0.3 : 0.12;
+    const dp = U.dayPhase(sim), evening = dp > 0.56 && dp <= 0.72;
+    // hunger grows into the strongest drive: a villager eats before sleeping and never works on an empty stomach
+    sc[0] = h > 45 ? 0.3 + (h - 45) / 55 * 1.3 : 0; sc[1] = (night ? 0.55 : 0) + (en < 35 ? (1 - en / 100) * 1.1 : 0); sc[6] = E.carryN[i] ? 0.95 : 0;
+    sc[2] = (!child && !night) ? (E.job[i] ? (evening ? 0.45 : 0.6) : 0.3) : 0; sc[3] = (1 - E.social[i] / 100) * (night ? 0.2 : 0.75) + (evening ? 0.22 : 0); sc[4] = town.temple ? (1 - E.faith[i] / 100) * 0.35 : 0; sc[5] = child ? 0.3 : 0.12;
     let b = 0; for (let k = 1; k < 7; k++) if (sc[k] > sc[b]) b = k; E.lastScore = b;
     if (b === 0) return U.startEat(sim, i, town); if (b === 6) return U.startHaul(sim, i, town); if (b === 1) return U.startSleep(sim, i, town);
     if (b === 2) { if (U.startWork(sim, i, town)) return; b = 5; }
@@ -70,10 +72,10 @@
     if (task === 'mine') { t = pickTarget(sim, town.rocks, x, y, t => AL.fKind[W.feature[t]] === 4); if (t >= 0) { const s = standBy(sim, t, x, y); if (s >= 0 && begin(sim, i, ACT.WORK, s % n, (s / n) | 0)) { E.tE[i] = t; return true; } }
       const mb = T.findType(sim, town, AL.BT.mine, x, y); if (mb >= 0 && begin(sim, i, ACT.WORK, T.doorX(B, mb), T.doorY(B, mb))) { E.tE[i] = -1; E.tB[i] = mb; return true; } return false; }
     if (task === 'farm') { let fb = E.work[i]; if (fb < 0 || !B.alive[fb] || B.type[fb] !== AL.BT.farm || B.state[fb] !== 1) { fb = -1; let bw = 99; for (const b of town.blds) if (B.type[b] === AL.BT.farm && B.state[b] === 1 && B.workers[b] < bw) { bw = B.workers[b]; fb = b; } if (fb < 0) return false; E.work[i] = fb; B.workers[fb]++; }
-      const f = B.aux[fb]; if (!f || !f.length) return false; let best = -1, bg = -1; for (let k = 0; k < 4; k++) { const tt = f[sim.rng.int(f.length)]; const g = W.feature[tt] === AL.F.wheat ? (W.fgrow[tt] >= 250 ? 600 : 255 - W.fgrow[tt]) : 400; if (g > bg) { bg = g; best = tt; } }
+      const f = B.aux[fb]; if (!f || !f.length) return false; let best = -1, bg = -1; const o = sim.rng.int(f.length); for (let k = 0; k < f.length; k++) { const tt = f[(k + o) % f.length]; const g = W.feature[tt] === AL.F.wheat ? (W.fgrow[tt] >= 250 ? 600 : 255 - W.fgrow[tt]) : 400; if (g > bg) { bg = g; best = tt; } }
       if (best >= 0 && begin(sim, i, ACT.WORK, best % n, (best / n) | 0)) { E.tE[i] = best; return true; } return false; }
     if (task === 'build') { let sb = -1, bd = 1e9; for (const b of town.blds) if (B.state[b] === 0) { const d = Math.abs(B.x[b] - x) + Math.abs(B.y[b] - y); if (d < bd) { bd = d; sb = b; } } if (sb < 0) return false; if (begin(sim, i, ACT.BUILD, T.doorX(B, sb), T.doorY(B, sb))) { E.tB[i] = sb; return true; } return false; }
-    if (task === 'gather' || task === 'hunt' || task === 'herd') { if (task !== 'gather' && AL.Creatures && AL.Creatures.startHunt(sim, i, town, task)) return true;
+    if (task === 'gather' || task === 'hunt' || task === 'herd' || task === 'idle') { if (task !== 'gather' && task !== 'idle' && AL.Creatures && AL.Creatures.startHunt(sim, i, town, task)) return true;
       t = town.berries && town.berries.length ? pickTarget(sim, town.berries, x, y, t => W.fgrow[t] > 200) : -1; if (t >= 0 && begin(sim, i, ACT.WORK, t % n, (t / n) | 0)) { E.tE[i] = t; return true; }
       const r = U.randomNear(sim, town.cx, town.cy, town.radius + 4); if (r >= 0 && AL.gFert[W.ground[r]] > 0.3 && begin(sim, i, ACT.WORK, r % n, (r / n) | 0)) { E.tE[i] = -2; return true; } return false; }
     if (task === 'fish') { if (!town.shore || !town.shore.length) return false; t = pickTarget(sim, town.shore, x, y, t => !(W.flags[t] & 2)); if (t >= 0 && begin(sim, i, ACT.WORK, t % n, (t / n) | 0)) { E.tE[i] = -3; return true; } return false; }
@@ -92,10 +94,10 @@
     switch (a) {
       case ACT.WANDER: E.anim[i] = A.idle; if (tm > 20 + (E.seed[i] & 31)) E.act[i] = ACT.NONE; break;
       case ACT.GOTO: E.act[i] = ACT.NONE; break;
-      case ACT.EAT: E.anim[i] = A.idle; if (tm > 14) { if (town && town.stock[R.food] >= 1) { town.stock[R.food] -= 1; E.hunger[i] = Math.max(0, E.hunger[i] - 78); E.mood[i] = Math.min(100, E.mood[i] + 4); } else E.cool[i] = 8; E.act[i] = ACT.NONE; } break;
+      case ACT.EAT: E.anim[i] = A.idle; if (tm > 14) { if (town && town.stock[R.food] >= 1) { town.stock[R.food] -= 1; E.hunger[i] = Math.max(0, E.hunger[i] - 60); if (E.hunger[i] > 35 && town.stock[R.food] >= 1) { town.stock[R.food] -= 1; E.hunger[i] = Math.max(0, E.hunger[i] - 60); } E.mood[i] = Math.min(100, E.mood[i] + 4); } else E.cool[i] = 8; E.act[i] = ACT.NONE; } break;
       case ACT.FORAGE: E.anim[i] = A.work; if (tm > 30) { const t = (E.y[i] | 0) * n + (E.x[i] | 0), f = W.feature[t]; if ((f === AL.F.berry || f === AL.F.mushroom) && W.fgrow[t] > 200) { W.fgrow[t] = 20; W.mark(t % n, (t / n) | 0); E.hunger[i] = Math.max(0, E.hunger[i] - 45); } E.act[i] = ACT.NONE; } break;
       case ACT.SLEEP: { E.anim[i] = A.sleep; E.flags[i] |= F.ASLEEP; E.energy[i] = Math.min(100, E.energy[i] + (E.tB[i] >= 0 ? 0.55 : 0.35)); if (E.hp[i] < E.hpMax[i]) E.hp[i] += 0.05;
-        if ((E.energy[i] >= 99 && !U.isNight(sim)) || E.hunger[i] > 88 || tm > 260) { E.flags[i] &= ~F.ASLEEP; E.act[i] = ACT.NONE; if (E.tB[i] < 0) E.mood[i] = Math.max(0, E.mood[i] - 6); } break; }
+        if ((E.energy[i] >= 99 && !U.isNight(sim)) || E.hunger[i] > 78 || tm > 260) { E.flags[i] &= ~F.ASLEEP; E.act[i] = ACT.NONE; if (E.tB[i] < 0) E.mood[i] = Math.max(0, E.mood[i] - 6); } break; }
       case ACT.SOCIAL: E.anim[i] = (tm % 50) > 38 ? A.joy : A.idle; E.social[i] = Math.min(100, E.social[i] + 0.7); if (tm === 30) U.socialize(sim, i); if (tm > 70) E.act[i] = ACT.NONE; break;
       case ACT.PRAY: E.anim[i] = A.pray; E.faith[i] = Math.min(100, E.faith[i] + 0.8); if (tm > 80) { E.act[i] = ACT.NONE; if (AL.Faith) AL.Faith.onPray(sim, i, town); } break;
       case ACT.GUARD: E.anim[i] = A.idle; if (tm > 40) E.act[i] = ACT.NONE; break;
@@ -111,8 +113,8 @@
         else if (task === 'mine') { let ore = -1; if (tgt >= 0 && AL.fKind[W.feature[tgt]] === 4) { const f = AL.FLORA[W.feature[tgt]]; if (f.ore) ore = R[f.ore]; if (W.feature[tgt] !== AL.F.peak && W.feature[tgt] !== AL.F.snowpeak) { if (W.fgrow[tgt] <= 70) { W.feature[tgt] = 0; W.mark(tgt % n, (tgt / n) | 0); } else W.fgrow[tgt] -= 64; } }
           else if (sim.rng.chance(0.3)) ore = sim.rng.chance(0.55) ? R.iron : sim.rng.chance(0.75) ? R.copper : sim.rng.chance(0.85) ? R.gold : R.aetherite;
           if (ore >= 0 && sim.rng.chance(0.6)) { E.carry[i] = ore; E.carryN[i] = 1; town.stock[R.stone] += 1; } else { E.carry[i] = R.stone; E.carryN[i] = Math.round(3 * E.mod(i, 'mine')); } }
-        else if (task === 'farm') { if (tgt >= 0 && (W.flags[tgt] & 8)) { if (W.feature[tgt] !== AL.F.wheat) { W.feature[tgt] = AL.F.wheat; W.fgrow[tgt] = 0; } else if (W.fgrow[tgt] >= 250) { W.fgrow[tgt] = 0; E.carry[i] = R.food; E.carryN[i] = Math.round(5 * E.mod(i, 'farm') * (sim.cropMul || 1)); } else W.fgrow[tgt] = Math.min(255, W.fgrow[tgt] + 46); W.mark(tgt % n, (tgt / n) | 0); } }
-        else if (task === 'gather' || task === 'hunt' || task === 'herd') { if (tgt >= 0 && W.fgrow[tgt] > 200) { W.fgrow[tgt] = 20; W.mark(tgt % n, (tgt / n) | 0); E.carry[i] = R.food; E.carryN[i] = 3; } else if (tgt === -2 && sim.rng.chance(0.6)) { E.carry[i] = R.food; E.carryN[i] = 1; } }
+        else if (task === 'farm') { if (tgt >= 0 && (W.flags[tgt] & 8)) { if (W.feature[tgt] !== AL.F.wheat) { W.feature[tgt] = AL.F.wheat; W.fgrow[tgt] = 0; } else if (W.fgrow[tgt] >= 250) { W.fgrow[tgt] = 0; E.carry[i] = R.food; E.carryN[i] = Math.round(6 * E.mod(i, 'farm') * (sim.cropMul || 1)); } else W.fgrow[tgt] = Math.min(250, W.fgrow[tgt] + 40); W.mark(tgt % n, (tgt / n) | 0); } }
+        else if (task === 'gather' || task === 'hunt' || task === 'herd' || task === 'idle') { if (tgt >= 0 && W.fgrow[tgt] > 200) { W.fgrow[tgt] = 20; W.mark(tgt % n, (tgt / n) | 0); E.carry[i] = R.food; E.carryN[i] = 3; } else if (tgt === -2 && sim.rng.chance(0.6)) { E.carry[i] = R.food; E.carryN[i] = 1; } }
         else if (task === 'fish') { E.carry[i] = R.food; E.carryN[i] = Math.round(3 * E.mod(i, 'fish')); sim.emit('splash', E.x[i], E.y[i]); }
         else if (task === 'smith') { const st = town.stock; const ore = st[R.iron] >= 1 ? R.iron : st[R.copper] >= 1 ? R.copper : -1; if (ore >= 0 && st[R.wood] >= 1) { st[ore] -= 1; st[R.wood] -= 1; const k = st[R.tools] < town.pop * 0.3 ? R.tools : st[R.weapons] <= st[R.armor] ? R.weapons : R.armor; st[k] += ore === R.iron ? 2 : 1; sim.emit('anvil', E.x[i], E.y[i]); } }
         else if (task === 'study') { town.knowledge += 1 * E.mod(i, 'learn'); }
@@ -147,7 +149,7 @@
     // births
     if (E.preg[i] >= 0 && sim.tick >= E.preg[i]) { E.preg[i] = -1; E.flags[i] &= ~F.PREGNANT; const town = sim.towns[E.town[i]]; if (town && town.alive) U.birth(sim, i, E.spouse[i], town); }
     else if (E.sex[i] === 1 && E.spouse[i] >= 0 && E.preg[i] < 0 && !(fl & (F.CHILD | F.ELDER)) && E.town[i] >= 0) { const town = sim.towns[E.town[i]], sp = E.spouse[i];
-      if (!E.alive[sp] || (E.flags[sp] & F.DEAD)) { E.spouse[i] = -1; } else if (town.alive && town.pop < town.popCap && town.stock[AL.RES.food] > town.pop * 1.5 && E.count < E.cap - 200) { const p = 0.11 * (K.fertility || 1) * E.mod(i, 'fertility') * (sim.fertMul || 1) * (town.pop < 12 ? 1.8 : 1); if (sim.rng.chance(p)) { E.preg[i] = sim.tick + 300; E.flags[i] |= F.PREGNANT; } } } };
+      if (!E.alive[sp] || (E.flags[sp] & F.DEAD)) { E.spouse[i] = -1; } else if (town.alive && town.pop < town.popCap && town.pop - town.adults < town.adults * 0.7 + 1 && town.stock[AL.RES.food] > town.pop * 1.5 && E.count < E.cap - 200) { const p = 0.06 * (K.fertility || 1) * E.mod(i, 'fertility') * (sim.fertMul || 1) * (town.pop < 12 ? 1.8 : 1); if (sim.rng.chance(p)) { E.preg[i] = sim.tick + 300; E.flags[i] |= F.PREGNANT; } } } };
   U.birth = function (sim, mother, father, town) { const E = sim.E, rng = sim.rng; const c = E.spawn(sim, E.kind[mother], E.x[mother], E.y[mother], { age: 0, town: town.id, kingdom: town.kingdom, mother, father, culture: E.culture[mother], religion: E.religion[mother], traits: [0, 0] }); if (c < 0) return -1;
     // inheritance: each parental inborn trait passes with 45%; 3% mutation adds a random inborn trait
     for (let t = 0; t < 48; t++) { const m = E.hasTrait(mother, t), f = father >= 0 && E.alive[father] ? E.hasTrait(father, t) : 0; if ((m && rng.chance(0.45)) || (f && rng.chance(0.45))) E.addTrait(c, t, true); } if (rng.chance(0.03 * (sim.mutMul || 1))) E.addTrait(c, rng.int(48), true); if (rng.chance(0.004 * (sim.mutMul || 1))) E.addTrait(c, AL.TRAIT.mutant, true);
@@ -162,7 +164,7 @@
         if (E.flags[i] & F.DEAD) { if (--E.timer[i] <= 0) E.remove(i); continue; }
         // needs
         const asleep = E.flags[i] & F.ASLEEP; E.hunger[i] += asleep ? 0.1 : 0.2; if (!asleep) E.energy[i] -= 0.13; E.social[i] -= 0.04; E.faith[i] -= 0.015;
-        if (E.hunger[i] >= 100) { E.hunger[i] = 100; E.hp[i] -= 0.35; if (E.hp[i] <= 0) { sim.stats.starved++; E.kill(sim, i, 'hunger'); continue; } } else if (E.hp[i] < E.hpMax[i] && E.hunger[i] < 60) E.hp[i] += 0.02;
+        if (E.hunger[i] >= 100) { E.hunger[i] = 100; E.hp[i] -= 0.15; if (E.hp[i] <= 0) { sim.stats.starved++; E.kill(sim, i, 'hunger'); continue; } } else if (E.hp[i] < E.hpMax[i] && E.hunger[i] < 60) E.hp[i] += 0.02;
         if (E.energy[i] < 0) E.energy[i] = 0; if (E.social[i] < 0) E.social[i] = 0; if (E.faith[i] < 0) E.faith[i] = 0;
         if (((i + tk) & 63) === 0) { U.lifeTick(sim, i); if (E.flags[i] & F.DEAD) continue; }
         if (E.flags[i] & F.CONTROLLED) { if (U.moving(E, i)) U.move(sim, i); else if (E.act[i] === ACT.NONE) E.anim[i] = AL.ANIM.idle; else U.act(sim, i); continue; }
