@@ -40,7 +40,7 @@ shots/              screenshots and sheets that were looked at (evidence)
 - Tile = 8×8 px. Sprite cells (one size per entity class, identical in every document):
   - people unit **24×24**; humanoid monster **24×24**; small animal **16×16**; large animal **24×24**; great animal **32×32**; large monster **48×48**; colossus **64×64**
   - building **48×48**; great building **64×64**; tree **24×32**; small flora/decor **16×16**; icon **16×16**; effect frame **16×16**, **32×32** or **64×64**
-- Every pixel of every asset is an index into the 96-color palette (`tools/art/palette.json`). Atlases are indexed (1 byte per pixel): 0–95 palette, 128–133 team ramp tones, 144–149 emissive (night-lit) tones, 255 transparent.
+- Every pixel of every asset is an index into the 96-color palette (`tools/art/palette.json`). Atlases are indexed (1 byte per pixel): 0–95 palette, 128–133 team ramp tones, 144–149 emissive tones, 150–155 window tones (lit at night), 255 transparent.
 - A single light direction for all assets: from the **top-left** (screen space), elevation 50°.
 - Camera for all 3D bakes: orthographic, looking down 35° below the horizontal.
 

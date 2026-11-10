@@ -69,12 +69,13 @@ void main(){
   const FS_S = `#version 300 es
 precision highp float; precision highp int;
 in vec2 vUV; flat in vec4 vP; flat in float vAlpha; out vec4 o;
-uniform sampler2D uPage,uPal; uniform int uShadow; uniform int uEm;
+uniform sampler2D uPage,uPal; uniform int uShadow; uniform int uEm; uniform int uGlass;
 void main(){
   int idx=int(texelFetch(uPage,ivec2(vUV),0).r*255.+.5); if(idx==255) discard;
   if(uShadow==1){ o=vec4(.075,.065,.12,.34); return; }
   int flags=int(vP.y+.5); float em=0.;
-  if(idx>=144){ idx=uEm*6+(idx-144); em=1.; } else if(idx>=128){ idx=int(vP.x+.5)*6+(idx-128); }
+  if(idx>=150){ if((flags/64)%2==1){ idx=uGlass*6+(idx-150)-2; } else { idx=uEm*6+(idx-150); em=1.; } }
+  else if(idx>=144){ idx=uEm*6+(idx-144); em=1.; } else if(idx>=128){ idx=int(vP.x+.5)*6+(idx-128); }
   int tone=int(vP.z+.5)-8; if(tone!=0){ int r=idx/6, t=idx-r*6; idx=r*6+clamp(t+tone,0,5); }
   vec3 col=texelFetch(uPal,ivec2(idx,0),0).rgb;
   if((flags/2)%2==1){ col=mix(col,vec3(.99,.96,.59),.75); em=1.; }       // white-hot flash
@@ -180,7 +181,7 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=texture(uScene,q); vec3 l=texture(uLi
     // sort sprites by y
     if (nSpr) { const ks = keys.subarray(0, nSpr); ks.sort(); for (let i = 0; i < nSpr; i++) { const s = (ks[i] % 32768) * FL, d = i * FL; for (let k = 0; k < FL; k++) sorted[d + k] = inst[s + k]; }
       p = progS; gl.useProgram(p); gl.bindVertexArray(vaoS); gl.bindBuffer(gl.ARRAY_BUFFER, instBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, sorted, 0, nSpr * FL);
-      bind(0, texPage, p.u.uPage); bind(1, texPal, p.u.uPal); gl.uniform2f(p.u.uCam, cam.x, cam.y); gl.uniform2f(p.u.uRes, W, H); gl.uniform1f(p.u.uZoom, cam.z); gl.uniform1i(p.u.uEm, AL.Assets.palette.emissiveRamp);
+      bind(0, texPage, p.u.uPage); bind(1, texPal, p.u.uPal); gl.uniform2f(p.u.uCam, cam.x, cam.y); gl.uniform2f(p.u.uRes, W, H); gl.uniform1f(p.u.uZoom, cam.z); gl.uniform1i(p.u.uEm, AL.Assets.palette.emissiveRamp); gl.uniform1i(p.u.uGlass, AL.Assets.palette.ramps.water);
       if (env.sun && cam.z >= 0.74) { gl.enable(gl.BLEND); gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE); gl.uniform1i(p.u.uShadow, 1); gl.uniform2f(p.u.uSun, env.sun[0], env.sun[1]); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, nSpr); gl.disable(gl.BLEND); }
       gl.uniform1i(p.u.uShadow, 0); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, nSpr); }
     // lights

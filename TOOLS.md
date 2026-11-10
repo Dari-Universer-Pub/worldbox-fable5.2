@@ -24,3 +24,13 @@
 
 Self-test of the viewer and measures: `shots/tooltest-diff.png`, `shots/tooltest-sil.png` (looked at).
 Added in later steps: bakers per category, `bake-all.js`, `build.js`, `validate-data.js`, screenshot measures.
+
+| `tools/bake-terrain.js`, `tools/bake-flora.js` | pipeline C generators: 32×32 seamless grounds, 47-case transition masks, trees, small flora, rocks, peaks | `node tools/bake-terrain.js` | `assets/terrain.*`, `tmask.*`, `flora.*` |
+| `tools/bake-people.js` + `tools/art/peoples.js` | every people × look × animation × direction from the humanoid rig (4 worker threads, cache in `tools/.cache`); decals for eyes (front and profile) and tusks; patches from `tools/art/patches/people.json` | `node tools/bake-people.js [human orc]` | `assets/people_<people>.*` |
+| `tools/bake-buildings.js` + `tools/art/buildings.js` | SDF construction kit (boxes, cylinders, prisms, pyramids, cones, material patterns: thatch, shingles, tiles, planks, stone…), 16 types × 3 stages; per sprite: finished, 2 construction frames (clip plane + scaffolding), ruin (jagged clip, rubble, soot); site markers; automatic 48→64 cell when a sprite does not fit; smoke/light anchors in the frame data | `node tools/bake-buildings.js` | `assets/buildings.*` |
+| `tools/bake-ui.js` | font atlases and far-view marks | `node tools/bake-ui.js` | `assets/font*.*`, `marks.*` |
+| `tools/bake-all.js` | runs every baker then the build | `node tools/bake-all.js` | `assets/`, `game/` |
+| `tools/build.js` | concatenates sources per `tools/build-manifest.json`, embeds data and atlases, writes `game/` and `tests/sim-bundle.js` | `node tools/build.js` | `game/` |
+| `tools/people-sheet.js`, `tools/reference-sheet.js` | overview sheets (all looks; `--sil` silhouettes) | `node tools/people-sheet.js human,orc out.png` | `shots/*.png` |
+| `tests/town-run.js` | headless town survival run with stocks, jobs wanted/held and buildings printed every 1,000 ticks | `node tests/town-run.js 30000 <seed> 12 [--quiet]` | TOWN OK / FAIL |
+| `tests/step4.js`, `tests/step5.js`, `tests/shot.js`, `tests/run-all.js` | browser robots (real mouse/keyboard), screenshot helper, everything at once | `node tests/run-all.js` | `shots/step*.png` |

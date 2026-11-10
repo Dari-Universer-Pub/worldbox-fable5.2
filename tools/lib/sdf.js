@@ -23,12 +23,21 @@ class Scene {
   box(c, h, mat, o = {}) { this.p.push({ t: 2, c, h, rd: o.round || 0, m: o.rot ? transpose(o.rot) : null, mat, k: o.k || 0, g: o.g || 0, pri: o.pri || 0 }); return this; }
   // vertical cylinder (axis z) centre c, radius r, half height hh
   cyl(c, r, hh, mat, o = {}) { this.p.push({ t: 3, c, r, hh, rd: o.round || 0, mat, k: o.k || 0, g: o.g || 0, pri: o.pri || 0 }); return this; }
+  // triangular prism (roof): base centre c, ridge along x (ax 0) or y (ax 1), half length L, half width hw, height hh
+  prism(c, ax, L, hw, hh, mat, o = {}) { this.p.push({ t: 4, c, ax, L, hw, hh, il: 1 / Math.hypot(hw, hh), rd: o.round || 0, mat, k: o.k || 0, g: o.g || 0, pri: o.pri || 0 }); return this; }
+  // pyramid (hip roof): base centre c, half sizes hw (x) and hd (y), height hh
+  pyr(c, hw, hd, hh, mat, o = {}) { this.p.push({ t: 5, c, hw, hd, hh, ix: 1 / Math.hypot(hw, hh), iy: 1 / Math.hypot(hd, hh), rd: o.round || 0, mat, k: o.k || 0, g: o.g || 0, pri: o.pri || 0 }); return this; }
+  // vertical cone with a flat base: base centre c, radius r, height hh
+  cone(c, r, hh, mat, o = {}) { this.p.push({ t: 6, c, r, hh, il: 1 / Math.hypot(r, hh), rd: o.round || 0, mat, k: o.k || 0, g: o.g || 0, pri: o.pri || 0 }); return this; }
   add(s) { for (const q of s.p) this.p.push(q); return this; }
   finalize() {
     for (const q of this.p) {
       if (q.t === 0) { const dx = q.b[0] - q.a[0], dy = q.b[1] - q.a[1], dz = q.b[2] - q.a[2]; q.d = [dx, dy, dz]; q.l2 = dx * dx + dy * dy + dz * dz || 1e-9; q.bc = [(q.a[0] + q.b[0]) / 2, (q.a[1] + q.b[1]) / 2, (q.a[2] + q.b[2]) / 2]; q.br = Math.sqrt(q.l2) / 2 + Math.max(q.ra, q.rb); }
       else if (q.t === 1) { q.bc = q.c; q.br = Math.max(q.r[0], q.r[1], q.r[2]); }
       else if (q.t === 3) { q.bc = q.c; q.br = Math.hypot(q.r, q.hh) + q.rd; }
+      else if (q.t === 4) { q.bc = [q.c[0], q.c[1], q.c[2] + q.hh / 2]; q.br = Math.hypot(q.L, q.hw, q.hh / 2) + q.rd; }
+      else if (q.t === 5) { q.bc = [q.c[0], q.c[1], q.c[2] + q.hh / 2]; q.br = Math.hypot(q.hw, q.hd, q.hh / 2) + q.rd; }
+      else if (q.t === 6) { q.bc = [q.c[0], q.c[1], q.c[2] + q.hh / 2]; q.br = Math.hypot(q.r, q.hh / 2) + q.rd; }
       else { q.bc = q.c; q.br = Math.hypot(q.h[0], q.h[1], q.h[2]) + q.rd; }
     }
     return this;
@@ -42,6 +51,9 @@ function distPrim(q, x, y, z) {
     return Math.sqrt(ex * ex + ey * ey + ez * ez) - (q.ra + (q.rb - q.ra) * h);
   }
   let px = x - q.c[0], py = y - q.c[1], pz = z - q.c[2];
+  if (q.t === 4) { const a = Math.abs(q.ax ? py : px) - q.L, b = (Math.abs(q.ax ? px : py) * q.hh + pz * q.hw - q.hw * q.hh) * q.il; return Math.max(a, b, -pz) - q.rd; }
+  if (q.t === 5) { const a = (Math.abs(px) * q.hh + pz * q.hw - q.hw * q.hh) * q.ix, b = (Math.abs(py) * q.hh + pz * q.hd - q.hd * q.hh) * q.iy; return Math.max(a, b, -pz) - q.rd; }
+  if (q.t === 6) { return Math.max((Math.sqrt(px * px + py * py) * q.hh + pz * q.r - q.r * q.hh) * q.il, -pz) - q.rd; }
   if (q.t === 3) { const dr = Math.sqrt(px * px + py * py) - q.r, dz = Math.abs(pz) - q.hh, ox = Math.max(dr, 0), oz = Math.max(dz, 0); return Math.sqrt(ox * ox + oz * oz) + Math.min(Math.max(dr, dz), 0) - q.rd; }
   if (q.m) { const m = q.m, a = px * m[0] + py * m[1] + pz * m[2], b = px * m[3] + py * m[4] + pz * m[5], c = px * m[6] + py * m[7] + pz * m[8]; px = a; py = b; pz = c; }
   if (q.t === 1) {

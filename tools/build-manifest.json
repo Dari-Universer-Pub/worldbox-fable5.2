@@ -16,6 +16,7 @@
   "src/client/audio.js",
   "src/client/main.js",
   "src/client/tools.js",
+  "src/client/scene.js",
   "src/client/boot.js"
  ],
  "atlases": [
@@ -23,6 +24,8 @@
   "tmask",
   "flora",
   "people_human",
-  "people_orc"
+  "people_orc",
+  "buildings",
+  "marks"
  ]
 }

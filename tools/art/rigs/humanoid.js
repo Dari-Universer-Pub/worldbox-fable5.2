@@ -90,16 +90,18 @@ function build(specIn, pose = {}) {
   if (sp.ears) for (const s of [-1, 1]) sc.cap(HL([s * hr[0] * 0.85, -0.2, 0.2 * k]), HL([s * (hr[0] + sp.ears * k), -0.6 * k, 1.1 * k]), 0.7 * k, 0.25 * k, 'skin', { k: 0.3 });
   if (sp.hair === 'short' || sp.hair === 'long' || sp.hair === 'top') {
     // cap over the top of the skull + volume at the back; the face (front-lower part) stays free
-    sc.ell(HL([0, -hr[1] * 0.26, hr[2] * 0.58]), [hr[0] * 1.05, hr[1] * 0.86, hr[2] * 0.56], 'hair', { rot: headR, pri: 2 });
-    sc.ell(HL([0, -hr[1] * 0.58, -hr[2] * 0.02]), [hr[0] * 1.0, hr[1] * 0.6, hr[2] * 0.92], 'hair', { rot: headR, pri: 2 });
+    sc.ell(HL([0, -hr[1] * 0.36, hr[2] * 0.64]), [hr[0] * 1.05, hr[1] * 0.74, hr[2] * 0.5], 'hair', { rot: headR, pri: 2 });
+    sc.ell(HL([0, -hr[1] * 0.66, hr[2] * 0.04]), [hr[0] * 1.0, hr[1] * 0.5, hr[2] * 0.9], 'hair', { rot: headR, pri: 2 });
     if (sp.hair === 'long') sc.cap(HL([0, -hr[1] * 0.75, 0]), HL([0, -hr[1] * 0.9, -2.4 * k]), hr[0] * 0.85, hr[0] * 0.6, 'hair', { pri: 2 });
   } else if (sp.hair === 'crest') sc.ell(HL([0, -0.3 * k, hr[2] * 0.95]), [0.6 * k, hr[1] * 0.9, 1.0 * k], 'hair', { rot: headR, pri: 2 });
   else if (sp.hair === 'knot') { sc.ell(HL([0, -0.55 * k, 0.75 * k]), [hr[0] * 1.0, hr[1] * 0.96, hr[2] * 0.8], 'hair', { rot: headR, pri: 2 }); sc.ell(HL([0, -0.6 * k, hr[2] + 0.5 * k]), [0.9 * k, 0.9 * k, 0.8 * k], 'hair', { pri: 2 }); }
   if (sp.beard) sc.ell(HL([0, hr[1] * 0.62, -hr[2] * (0.55 + 0.3 * sp.beard)]), [hr[0] * 0.72, hr[1] * 0.5, hr[2] * (0.45 + 0.35 * sp.beard)], 'hair', { rot: headR, pri: 3 });
   if (sp.jaw) sc.ell(HL([0, hr[1] * 0.35, -hr[2] * 0.55]), [hr[0] * 0.95, hr[1] * 0.8, hr[2] * 0.6], 'skin', { rot: headR, k: 0.5, pri: 1 });
+  if (!sp.noNose) sc.ell(HL([0, hr[1] * 0.98, -hr[2] * 0.16]), [0.5 * k, 0.5 * k, 0.45 * k], 'skin', { rot: headR, pri: 1 });
   // face decals
   const eyeY = hr[1] * 0.92, eyeZ = (sp.eyeZ == null ? -0.15 : sp.eyeZ) * k, eyeX = (sp.eyeX || 1.0) * k;
   decals.push({ p: HL([-eyeX, eyeY, eyeZ]), idx: 'eye', on: ['skin'], tag: 'eyeL' }, { p: HL([eyeX, eyeY, eyeZ]), idx: 'eye', on: ['skin'], tag: 'eyeR' });
+  decals.push({ p: HL([hr[0] * 0.9, hr[1] * 0.5, eyeZ + 0.1 * k]), idx: 'eye', on: ['skin'], tag: 'sideeye' });
   if (sp.tusks) for (const s of [-1, 1]) decals.push({ p: HL([s * hr[0] * 0.5, hr[1] * 0.95, -hr[2] * 0.62]), idx: 'tusk', on: ['skin'], tag: s < 0 ? 'tuskL' : 'tuskR' });
   // ---- arms
   const hands = {};
@@ -138,7 +140,7 @@ const ACC = {
   hammer(sc, b, a) { const h = b.hands.R, d = toolAxis(b, 'R'), k = b.k, tip = add(h.pos, scl(d, 2.8 * k)), n = [0, -d[2], d[1]];
     sc.cap(b.U(add(h.pos, scl(d, -0.6 * k))), b.U(tip), 0.4 * k, 0.4 * k, 'wood', { pri: 2 }); sc.cap(b.U(add(tip, scl(n, -1.0 * k))), b.U(add(tip, scl(n, 1.0 * k))), 0.75 * k, 0.75 * k, a.mat || 'steel', { pri: 3 }); },
   sword(sc, b, a) { const h = b.hands.R, d = toolAxis(b, 'R'), k = b.k;
-    sc.cap(b.U(add(h.pos, scl(d, 0.6 * k))), b.U(add(h.pos, scl(d, (a.len || 4.6) * k))), 0.5 * k, 0.3 * k, a.mat || 'steel', { pri: 3 });
+    sc.cap(b.U(add(h.pos, scl(d, 0.6 * k))), b.U(add(h.pos, scl(d, (a.len || 5.4) * k))), 0.62 * k, 0.42 * k, a.mat || 'blade', { pri: 6 });
     sc.cap(b.U(add(h.pos, [-0.9 * k, 0, 0].map((v, i) => v + d[i] * 0.6 * k))), b.U(add(h.pos, [0.9 * k, 0, 0].map((v, i) => v + d[i] * 0.6 * k))), 0.35 * k, 0.35 * k, 'gold', { pri: 3 }); },
   club(sc, b, a) { const h = b.hands.R, d = toolAxis(b, 'R'), k = b.k; sc.cap(b.U(add(h.pos, scl(d, -0.5 * k))), b.U(add(h.pos, scl(d, 4.4 * k))), 0.45 * k, 1.15 * k, a.mat || 'wood', { pri: 3 }); },
   cleaver(sc, b, a) { const h = b.hands.R, d = toolAxis(b, 'R'), k = b.k, n = [0, -d[2], d[1]];
@@ -157,9 +159,9 @@ const ACC = {
     const m = add(c, scl(f, 0.5 * k)), t1 = add(add(c, scl(up, 3.0 * k)), scl(f, -0.9 * k)), t2 = add(add(c, scl(up, -3.0 * k)), scl(f, -0.9 * k));
     sc.cap(b.U(m), b.U(t1), 0.45 * k, 0.32 * k, 'wood', { pri: 3 }); sc.cap(b.U(m), b.U(t2), 0.45 * k, 0.32 * k, 'wood', { pri: 3 });
     if (dr > 0.3) { sc.cap(b.U(add(c, scl(f, -2.8 * k * dr))), b.U(add(c, scl(f, 1.6 * k))), 0.3 * k, 0.3 * k, 'steel', { pri: 3 }); } },
-  shield(sc, b, a) { const h = b.hands.L, k = b.k; sc.ell(b.U(add(h.pos, [-0.5 * k, 0.5 * k, 0.6 * k])), [0.7 * k, 2.0 * k, 2.2 * k].map((v, i) => i === 1 && a.round ? v : v), a.mat || 'wood2', { rot: mul(b.upR, rotZ(0.5)), pri: 4 });
-    sc.ell(b.U(add(h.pos, [-0.95 * k, 0.5 * k, 0.6 * k])), [0.5 * k, 0.8 * k, 0.8 * k], 'steel', { rot: mul(b.upR, rotZ(0.5)), pri: 5 }); },
-  helmet(sc, b, a) { const hr = b.hr; sc.ell(b.HL([0, -hr[1] * 0.22, hr[2] * 0.6]), [hr[0] * 1.1, hr[1] * 0.95, hr[2] * 0.62], a.mat || 'steel', { rot: b.headR, pri: 4 });
+  shield(sc, b, a) { const h = b.hands.L, k = b.k, R = mul(b.upR, rotZ(-0.45)); sc.ell(b.U(add(h.pos, [-0.5 * k, 0.9 * k, 0.9 * k])), [2.1 * k, 0.75 * k, 2.4 * k], a.mat || 'wood', { rot: R, pri: 5 });
+    sc.ell(b.U(add(h.pos, [-0.62 * k, 1.5 * k, 0.9 * k])), [0.85 * k, 0.5 * k, 0.95 * k], a.boss || 'steel', { rot: R, pri: 6 }); },
+  helmet(sc, b, a) { const hr = b.hr; sc.ell(b.HL([0, -hr[1] * 0.32, hr[2] * 0.66]), [hr[0] * 1.1, hr[1] * 0.84, hr[2] * 0.54], a.mat || 'steel', { rot: b.headR, pri: 4 }); sc.ell(b.HL([0, -hr[1] * 0.7, hr[2] * 0.1]), [hr[0] * 1.06, hr[1] * 0.46, hr[2] * 0.8], a.mat || 'steel', { rot: b.headR, pri: 4 });
     if (a.crest) sc.ell(b.HL([0, -0.2 * b.k, hr[2] * 1.15]), [0.55 * b.k, hr[1] * 0.9, 0.9 * b.k], a.crest, { rot: b.headR, pri: 5 });
     if (a.horns) for (const s of [-1, 1]) sc.cap(b.HL([s * hr[0] * 0.9, 0, hr[2] * 0.6]), b.HL([s * (hr[0] + 1.3 * b.k), 0, hr[2] * 1.5]), 0.55 * b.k, 0.2 * b.k, 'bone', { pri: 5 }); },
   hat(sc, b, a) { const hr = b.hr, k = b.k; sc.ell(b.HL([0, 0, hr[2] * 0.62]), [hr[0] * 1.55, hr[1] * 1.55, 0.6 * k], a.mat || 'straw', { rot: b.headR, pri: 4 }); sc.ell(b.HL([0, 0, hr[2] * 0.95]), [hr[0] * 0.8, hr[1] * 0.8, 1.0 * k], a.mat || 'straw', { rot: b.headR, pri: 4 }); },

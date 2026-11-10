@@ -96,7 +96,7 @@
       case ACT.GOTO: E.act[i] = ACT.NONE; break;
       case ACT.EAT: E.anim[i] = A.idle; if (tm > 14) { if (town && town.stock[R.food] >= 1) { town.stock[R.food] -= 1; E.hunger[i] = Math.max(0, E.hunger[i] - 60); if (E.hunger[i] > 35 && town.stock[R.food] >= 1) { town.stock[R.food] -= 1; E.hunger[i] = Math.max(0, E.hunger[i] - 60); } E.mood[i] = Math.min(100, E.mood[i] + 4); } else E.cool[i] = 8; E.act[i] = ACT.NONE; } break;
       case ACT.FORAGE: E.anim[i] = A.work; if (tm > 30) { const t = (E.y[i] | 0) * n + (E.x[i] | 0), f = W.feature[t]; if ((f === AL.F.berry || f === AL.F.mushroom) && W.fgrow[t] > 200) { W.fgrow[t] = 20; W.mark(t % n, (t / n) | 0); E.hunger[i] = Math.max(0, E.hunger[i] - 45); } E.act[i] = ACT.NONE; } break;
-      case ACT.SLEEP: { E.anim[i] = A.sleep; E.flags[i] |= F.ASLEEP; E.energy[i] = Math.min(100, E.energy[i] + (E.tB[i] >= 0 ? 0.55 : 0.35)); if (E.hp[i] < E.hpMax[i]) E.hp[i] += 0.05;
+      case ACT.SLEEP: { E.anim[i] = E.tB[i] >= 0 ? A.inside : A.sleep; E.flags[i] |= F.ASLEEP; E.energy[i] = Math.min(100, E.energy[i] + (E.tB[i] >= 0 ? 0.55 : 0.35)); if (E.hp[i] < E.hpMax[i]) E.hp[i] += 0.05;
         if ((E.energy[i] >= 99 && !U.isNight(sim)) || E.hunger[i] > 78 || tm > 260) { E.flags[i] &= ~F.ASLEEP; E.act[i] = ACT.NONE; if (E.tB[i] < 0) E.mood[i] = Math.max(0, E.mood[i] - 6); } break; }
       case ACT.SOCIAL: E.anim[i] = (tm % 50) > 38 ? A.joy : A.idle; E.social[i] = Math.min(100, E.social[i] + 0.7); if (tm === 30) U.socialize(sim, i); if (tm > 70) E.act[i] = ACT.NONE; break;
       case ACT.PRAY: E.anim[i] = A.pray; E.faith[i] = Math.min(100, E.faith[i] + 0.8); if (tm > 80) { E.act[i] = ACT.NONE; if (AL.Faith) AL.Faith.onPray(sim, i, town); } break;
@@ -105,7 +105,7 @@
       case ACT.BUILD: { const b = E.tB[i]; if (b < 0 || !B.alive[b] || B.state[b] !== 0) { E.act[i] = ACT.NONE; break; } E.anim[i] = A.work; U.face(E, i, B.x[b] + B.w[b] / 2, B.y[b]);
         if (tm % 10 === 0) { B.prog[b] += 2.6 * E.workMul[i] * E.mod(i, 'build') * (200 / (AL.BTYPES[B.type[b]].hp + 80)); B.dirty = true; sim.emit('hammer', E.x[i], E.y[i]); if (B.prog[b] >= 100) { T.complete(sim, b); if (town) town.sites = Math.max(0, town.sites - 1); E.act[i] = ACT.NONE; } }
         if (tm > 300) E.act[i] = ACT.NONE; break; }
-      case ACT.WORK: { const job = AL.JOBS[E.job[i]], task = job.task, tgt = E.tE[i]; E.anim[i] = A.work; if (tgt >= 0) U.face(E, i, tgt % n + 0.5, ((tgt / n) | 0) + 0.5);
+      case ACT.WORK: { const job = AL.JOBS[E.job[i]], task = job.task, tgt = E.tE[i]; E.anim[i] = tgt === -4 ? A.inside : A.work; if (tgt >= 0) U.face(E, i, tgt % n + 0.5, ((tgt / n) | 0) + 0.5);
         const need = (WORKT[task] || 60) / (E.workMul[i] * (town && town.stock[R.tools] > 0 ? 1.25 : 1));
         if (task === 'chop' && tm % 17 === 5) sim.emit('chop', E.x[i], E.y[i]); else if (task === 'mine' && tm % 20 === 5) sim.emit('mine', E.x[i], E.y[i]);
         if (tm < need) break; E.act[i] = ACT.NONE; if (!town) break;

@@ -1,7 +1,7 @@
 // People sources: proportions (on the single humanoid rig), materials, equipment per job look, ages.
 'use strict';
 const { mat, team, ix } = require('../lib/mats');
-const BASE_MATS = () => ({ pants: mat('earth', [2, 3, 4]), boot: mat('earth', [0, 1]), wood: mat('sand', [1, 2, 3], { ink: 'earth' }), steel: mat('stone', [3, 4, 5]), gold: mat('fire', [2, 3, 4]), straw: mat('sand', [3, 4, 5]),
+const BASE_MATS = () => ({ pants: mat('earth', [2, 3, 4]), boot: mat('earth', [0, 1]), wood: mat('sand', [1, 2, 3], { ink: 'earth' }), steel: mat('stone', [3, 4, 5]), blade: mat('ice', [3, 4, 5], { ink: 'stone' }), gold: mat('fire', [2, 3, 4]), straw: mat('sand', [3, 4, 5]),
   leather: mat('earth', [2, 3, 4]), wood2: mat('earth', [1, 2, 3]), cloth: team([2, 3, 4], { extra: { th: [-0.1, 0.5] } }), cloth2: mat('stone', [1, 2, 3]), bone: mat('sand', [3, 4, 5]), white: mat('ice', [3, 4, 5]) });
 const PEOPLES = {
   human: { spec: { scale: 1.5 }, mats: () => Object.assign(BASE_MATS(), { skin: mat('skin', [2, 3, 4]), hair: mat('earth', [1, 2, 3]) }), eye: ix('stone', 0), tusk: ix('ice', 5) },
@@ -27,7 +27,7 @@ const LOOKS = {
   merchant: { acc: [{ kind: 'pack' }, { kind: 'hat', mat: 'cloth2' }], work: 'hammer' },
   soldier: { acc: [{ kind: 'sword' }, { kind: 'shield' }, { kind: 'helmet' }], work: 'attack' },
   archer: { acc: [{ kind: 'bow' }, { kind: 'quiver' }, { kind: 'hood' }], work: 'shoot', attack: 'shoot' },
-  knight: { acc: [{ kind: 'sword', len: 5.2 }, { kind: 'shield', mat: 'steel' }, { kind: 'helmet', crest: 'cloth' }, { kind: 'pauldrons' }], work: 'attack' },
+  knight: { acc: [{ kind: 'sword', len: 6 }, { kind: 'shield', mat: 'steel', boss: 'cloth' }, { kind: 'helmet', crest: 'cloth' }, { kind: 'pauldrons' }], work: 'attack' },
   priest: { acc: [{ kind: 'staff' }], spec: { robe: 1, sleeves: 'long' }, mats: { cloth: 'white' }, work: 'pray' },
   scholar: { acc: [{ kind: 'book' }], spec: { robe: 1, sleeves: 'long' }, work: 'hammer' },
   ruler: { acc: [{ kind: 'crown' }, { kind: 'cape' }, { kind: 'staff', mat: 'gold' }], spec: { sleeves: 'long' }, work: 'joy' },

@@ -14,7 +14,7 @@ function palette() {
 function rgbOf(i, teamRamp) {
   const p = palette();
   if (i >= 128 && i < 134) i = (teamRamp == null ? p.teamPreviewRamp : teamRamp) * 6 + (i - 128);
-  else if (i >= 144 && i < 150) i = p.emissiveRamp * 6 + (i - 144);
+  else if (i >= 144 && i < 156) i = p.emissiveRamp * 6 + (i - 144) % 6;
   return p.rgb[i] || [255, 0, 255];
 }
 

@@ -117,6 +117,8 @@
         else if (ph === 20) { T.assign(sim, town); T.plan(sim, town); } }
       // buildings: ruins fade, fires are handled by the disasters module
       if (sim.tick % 16 === 0) for (let b = 0; b < B.hi; b++) { if (!B.alive[b]) continue; if (B.state[b] === 3) { B.timer[b] -= 16; if (B.timer[b] <= 0) T.destroy(sim, b, false); } } },
+    query(sim, m) { if (m.q === 'towns') return sim.towns.filter(t => t.alive).map(t => ({ id: t.id, name: t.name, people: t.people, kingdom: t.kingdom, cx: t.cx, cy: t.cy, pop: t.pop, adults: t.adults, popCap: t.popCap, stage: t.stage, stock: Array.from(t.stock), blds: t.blds.length, done: t.blds.filter(b => sim.B.state[b] === 1).length, founded: t.founded }));
+      if (m.q === 'stats') return Object.assign({ tick: sim.tick, units: sim.E.count, towns: sim.towns.filter(t => t.alive).length }, sim.stats); },
     snapshot(sim) { const B = sim.B; let out = null; if (B.dirty) { B.dirty = false; const n = B.hi; out = { t: 'blds', n, alive: B.alive.slice(0, n), type: B.type.slice(0, n), town: B.town.slice(0, n), x: B.x.slice(0, n), y: B.y.slice(0, n), prog: Uint8Array.from(B.prog.subarray(0, n)), state: B.state.slice(0, n), stage: B.stage.slice(0, n), hp: Uint8Array.from(B.hp.subarray(0, n), (v, i) => Math.max(0, Math.min(255, 255 * v / (B.hpMax[i] || 1)))), fire: B.fire.slice(0, n), tk: sim.towns.map(t => t.kingdom), tp: sim.towns.map(t => t.people) }; }
       return out; },
   });

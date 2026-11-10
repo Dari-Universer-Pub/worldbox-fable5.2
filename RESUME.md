@@ -2,42 +2,38 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current step: 5 / 14 — First complete people (humans) — IN PROGRESS, NOT VERIFIED
+## Current step: 6 / 14 — Fauna, flora, ecosystem, monsters — NOT STARTED
 
-### Finished and verified (steps 1–4, each committed)
-- **Step 1.** Documents (CLAUDE, BIBLE, DECISIONS, STYLE, ARCHITECTURE, TOOLS, IDEAS, PLAYTEST, PROVENANCE, REPORT stub). Browser check (Playwright 1.63 / Chromium 153 headless, WebGL2 = SwiftShader software GL). Rendering bench → own WebGL2 renderer (DECISIONS D1). Asset pipeline bench looked at → D5/D6: people 24×24; pipeline A (SDF rig) for living beings and buildings, C for terrain/flora, B for font/icons/UI.
-- **Step 2.** Tools: `tools/sheet.js` (viewer ×4/×8, silhouette, diff, frames), `tools/measure-sprite.js`, `tools/measure-audio.js`, `tools/validate-palette.js`, `tools/check-provenance.js`, `tools/lib/*` (img/PNG, sdf baker with despeckle + temporal stabilise, atlas, measure, font, text, mats, schema), synth + sequencer `src/client/audio.js`.
-- **Step 3.** Art direction in STYLE.md (96 colours / 16 ramps, ink outlines, ground luminance ≥ 0.20 rule). Bakers: `bake-terrain.js`, `bake-flora.js`, `bake-people.js`, `bake-ui.js` (font). Reference sheet `shots/reference-sheet.png`; contrast ≥ 4:1 measured on 12 grounds.
-- **Step 4.** World generation in the worker, WebGL2 indexed renderer (transitions, relief, foam, far-view LOD, y-sorted sprites, shadows, light/composite passes), camera, brushes. Robot `node tests/step4.js` = STEP4 OK. Screens `shots/step4-*.png`.
+### Finished and verified (steps 1–5, each committed)
+- **Steps 1–4.** Documents, tools, art direction, world + renderer (see git log and DECISIONS/STYLE/TOOLS). Robot `node tests/step4.js` = STEP4 OK.
+- **Step 5.** First people (humans; orcs share the rig and are baked, their buildings come at step 9).
+  - Simulation: `src/sim/{ents,path,towns,units}.js`. Starvation fixed and measured: `node tests/town-run.js 30000 <seed> 12` = TOWN OK on seeds 1,2,3,4,5,7 (12 → 29–41 inhabitants, 0–1 starved), 0.03–0.07 ms/tick.
+  - Worker → client: `ents`, `blds`, `owner` (≤ 2/s, when `sim.ownerDirty`) messages; queries `towns`, `stats`. Per-tile systems go through `module.tile(sim,i,x,y,g)` (crops ripen, berries regrow).
+  - Client: `src/client/scene.js` (interpolated units, frames from the people atlases, buildings with sites/ruins, kingdoms layer on key L, day/night ambience, lit windows at night, default key actions), spawn tool `spawn:<kind>` in `tools.js`.
+  - Art: `tools/bake-buildings.js` + `tools/art/buildings.js` (16 types × 3 stages × finished/2 construction/ruin = 209 sprites, looked at: `shots/buildings-human.png`, `shots/buildings-silhouette.png`). People debts fixed (sword, shield, helmet, profile face and eye): sheets `shots/people-base-human.png` (base model), `shots/people-overview.png` (equipped), `shots/people-silhouette.png` — all three looked at.
+  - Robot `node tests/step5.js` = STEP5 OK (real click with the spawn tool, real keys for speed/layer/pause, wheel zoom; 20,000 ticks at x50 without starvation). Screens looked at: `shots/step5-village.png`, `step5-zoom2.png`, `step5-later.png`.
 
-### Step 5 — what exists (written, only smoke-tested)
-- Data: `src/data/{resources,peoples,jobs,buildings,stages,traits}.json` (60 traits, 21 jobs, 17 buildings, 6 stages).
-- Sim modules (registered in `tools/build-manifest.json`): `src/sim/ents.js` (SoA entity store, spatial hash, traits), `src/sim/path.js` (bounded A* + cached flow fields), `src/sim/towns.js` (buildings SoA, towns, site planner, job assignment, stages), `src/sim/units.js` (movement, utility AI, work tasks, haul, eat, sleep, social, nomads founding towns, life cycle, births, `spawn` command, `ents`/`blds` snapshots).
-- Headless smoke test (Node, `tests/sim-bundle.js`): 12 humans found a town and build 8 buildings in 3,000 ticks, 0.021 ms/tick — **then all 12 starve by tick 6,000 (food 0). This is a real bug, not fixed.**
-
-### Known bugs / debts (do these first)
-1. **Starvation bug**: town food reaches 0. Check in order: (a) `T.assign` — `want[gatherer]`/`farmer`/`hunter` counts with 12 adults, and whether farms get finished (`T.complete` claims fields); (b) `U.startWork` task `gather`/`farm` actually returning carry and `U.startHaul` depositing; (c) hunger rate 0.2/tick vs yields (target: one farmer feeds ~15). Use the Node loop in the smoke test (see command below) and print `town.have`, `town.want`, stock.
-2. `sim.ownerDirty` is set by towns but the host (`src/sim/sim.js` loop) does not yet send the `owner` layer to the client; add an `{t:'owner'}` message (≤ 2/s) and client handling → kingdom layer.
-3. Client has **no Scene yet**: `src/client/main.js` calls `AL.Scene.update/draw` if present. To write: `src/client/scene.js` (receive `ents` and `blds` messages via `Game.on`, interpolate positions, pick frames `people_<people>/<look>/<anim>/<dir>/<i>` from `AL.Assets.anim`, team ramp from kingdom/people, draw buildings), then add it to the manifest before `boot.js`.
-4. **Buildings baker missing**: write `tools/bake-buildings.js` (SDF kit with material patterns — prototype is `houseA()` in `tools/bench/pipeline-bench.js`): 12+ types × 3 stages for humans (orcs at step 9), construction frames via `opt.clip`, ruins, emissive windows (indices 144–149); add atlas name to `atlases` in the manifest.
-5. People art debts: soldier sword/shield readability, side-view face mostly hidden by hair, then the two-validation sheets (base model, then equipped looks, + silhouette) and hand patches in `tools/art/patches/people.json` on key poses. Full bake = `node tools/bake-people.js` (all looks; ~1–2 min, cached in `tools/.cache`).
-6. Small flora: mushrooms are mushy. Audio: `chop` patch fails its centroid window (fix at step 11).
-7. Docs to refresh when step 5 ends: TOOLS.md (bake-terrain/flora/people/ui, build, reference-sheet, people-sheet, tests/shot.js), PROVENANCE.md, PLAYTEST.md.
+### Not verified / known debts
+- **No hand patches on key poses yet** (`tools/art/patches/people.json` does not exist); `tools/measure-sprite.js people_human` still fails its flicker threshold on 299 animations and counts 7.2% isolated pixels. This is an open art debt, not done.
+- `shots/step5-layer.png` (kingdoms layer) was produced by the robot and checked by script only, not looked at.
+- Frame rate in this environment is 16 fps (software GL, SwiftShader); CPU side of a frame is 0.4 ms. Real-GPU numbers are not measured.
+- Tree stumps never regrow (step 6). Small flora: mushrooms are mushy. Audio: `chop` patch fails its centroid window (step 11).
+- `tools/validate-data.js` does not exist yet (step 12); buildings.json/jobs.json are only checked by use.
 
 ### Remaining (in order)
-5 first people (finish) → 6 fauna/flora/ecosystem/monsters (`AL.Creatures` hooks already referenced in units.js) → 7 kingdoms/diplomacy/war/clans (`AL.War`, `AL.Trade` hooks) → 8 powers/disasters/effects/eras/weather/day-night (`AL.Fx`) → 9 second people (orcs), culture, languages, religions (`AL.Faith`), history → 10 full UI (`AL.UI`, canvas 2D overlay with the baked font), saves (`AL.Save`), options → 11 sound and music → 12 data skeleton + provisional assets → 13 title/loading/icons/delivery → 14 final verification, two long playtests, independent sub-agent review, REPORT.md.
+6 fauna/flora/ecosystem/monsters (`AL.Creatures` hooks already referenced in units.js) → 7 kingdoms/diplomacy/war/clans (`AL.War`, `AL.Trade` hooks) → 8 powers/disasters/effects/eras/weather/day-night (`AL.Fx`) → 9 second people (orcs), culture, languages, religions (`AL.Faith`), history → 10 full UI (`AL.UI`, canvas 2D overlay with the baked font), saves (`AL.Save`), options → 11 sound and music → 12 data skeleton + provisional assets → 13 title/loading/icons/delivery → 14 final verification, two long playtests, independent sub-agent review, REPORT.md.
 
 ### Blocked
 - Nothing.
 
 ### Commands
 ```
-node tools/make-palette.js && node tools/bake-terrain.js && node tools/bake-flora.js && node tools/bake-people.js && node tools/bake-ui.js
+node tools/bake-all.js           # every baker + build (people: ~4 min uncached)
 node tools/build.js              # writes game/ and tests/sim-bundle.js
-node tests/step4.js              # robot (real mouse/keyboard)
-node tests/shot.js shots/x.png   # screenshot of the running game
-# headless sim loop: const AL=require('./tests/sim-bundle.js'); const sim=new AL.Sim({size:'medium',seed:7}); sim.command({t:'spawn',kind:'human',x,y,count:12}); sim.step();
+node tests/run-all.js            # town-run + step4 + step5 robots + provenance
+node tests/shot.js shots/x.png "<js>" <wait-ms>   # screenshot of the running game
+node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] --out file.png
 ```
 
 ### Precise next action
-Fix bug 1 with the Node loop until a 12-human town survives and grows for 30,000 ticks, then do items 2–4 so villagers and buildings are visible in the browser, look at a screenshot, and only then commit "Step 5".
+Step 6: write `src/sim/creatures.js` (animals: herbivores, predators, birds, fish; `AL.Creatures.spawn/startHunt` hooks are already called from units.js) and flora growth/regrowth in a `tile()` hook (trees from stumps/saplings, spreading, fire comes at step 8); data `src/data/animals.json`, `monsters.json`; bake 8 animals with `tools/art/rigs/quadruped.js` (+ a bird and a fish rig) and 3 monsters; draw them through `AL.Scene.drawCreature`. Then robot `tests/step6.js`, screenshots looked at, commit "Step 6".

@@ -28,7 +28,7 @@
 - Screenshot rules (script `tools/measure-shot.js`): dominant colour < 40% of pixels, water family < 60%.
 
 ## Indexed pixels
-Every asset pixel is a palette index. Reserved indices: 128–133 **team ramp** (replaced at draw time by the kingdom's ramp), 144–149 **emissive** (fire ramp, glow at night), 255 transparent.
+Every asset pixel is a palette index. Reserved indices: 128–133 **team ramp** (replaced at draw time by the kingdom's ramp), 144–149 **emissive** (fire ramp, always glowing), 150–155 **windows** (lit like the emissive ramp at night, dark glass from the water ramp by day), 255 transparent.
 
 ## Light
 - One light for the whole game: from the **top-left of the screen**, elevation ≈ 50° (baker constant `LIGHT`, used by the SDF baker and by every 2D generator).
@@ -59,8 +59,8 @@ Orthographic, looking down **35°** below the horizontal (vertical scale 0.82, d
 | great animal | **32×32** | bear 22×18 |
 | large monster | **48×48** | dragon |
 | colossus | **64×64** | |
-| building | **48×48** | house 30×32, footprint 4×3 tiles |
-| great building | **64×64** | footprint 6×4 tiles |
+| building | **48×48** | house 30×27, footprint 3×2 tiles (the sprite may overhang its footprint by one tile) |
+| great building | **64×64** | hall, temple, tall towers; footprint up to 4×3 tiles |
 | tree | **24×32** | |
 | small flora / decor | **16×16** | |
 | icon | **16×16** | |

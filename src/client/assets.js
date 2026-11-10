@@ -24,6 +24,6 @@
   A.anim = function (base) { let a = animCache[base]; if (a) return a; a = []; for (let i = 0; ; i++) { const f = A.frames[base + '/' + i]; if (!f) break; a.push(f); } return (animCache[base] = a); };
   // render a frame into a 2D canvas (UI use). team = ramp index
   A.toCanvas = function (f, team, scale) { const c = document.createElement('canvas'); c.width = f[2]; c.height = f[3]; const g = c.getContext('2d'), im = g.createImageData(f[2], f[3]), P = A.PAGE, pb = A.palBytes, er = A.palette.ramps[A.palette.emissiveRamp] !== undefined ? A.palette.emissiveRamp : 10;
-    for (let y = 0; y < f[3]; y++) for (let x = 0; x < f[2]; x++) { let v = A.page[(f[1] + y) * P + f[0] + x]; if (v === 255) continue; if (v >= 144) v = (typeof er === 'number' ? er : 10) * 6 + (v - 144); else if (v >= 128) v = (team == null ? 9 : team) * 6 + (v - 128); const o = (y * f[2] + x) * 4; im.data[o] = pb[v * 4]; im.data[o + 1] = pb[v * 4 + 1]; im.data[o + 2] = pb[v * 4 + 2]; im.data[o + 3] = 255; }
+    for (let y = 0; y < f[3]; y++) for (let x = 0; x < f[2]; x++) { let v = A.page[(f[1] + y) * P + f[0] + x]; if (v === 255) continue; if (v >= 144) v = (typeof er === 'number' ? er : 10) * 6 + (v - 144) % 6; else if (v >= 128) v = (team == null ? 9 : team) * 6 + (v - 128); const o = (y * f[2] + x) * 4; im.data[o] = pb[v * 4]; im.data[o + 1] = pb[v * 4 + 1]; im.data[o + 2] = pb[v * 4 + 2]; im.data[o + 3] = 255; }
     g.putImageData(im, 0, 0); return c; };
 })(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));

@@ -56,7 +56,7 @@ var AL_SIM_BUNDLE=function(){
     AL.TRAIT = {}; AL.TRAITS = []; for (const k in D.traits) { const t = D.traits[k]; t.name = k; AL.TRAIT[k] = t.id; AL.TRAITS[t.id] = t; }
     AL.LOOKS = ['villager', 'lumberjack', 'miner', 'farmer', 'builder', 'hunter', 'fisher', 'herder', 'blacksmith', 'merchant', 'soldier', 'archer', 'knight', 'priest', 'scholar', 'ruler', 'child', 'elder'];
     AL.LOOK = {}; AL.LOOKS.forEach((l, i) => AL.LOOK[l] = i);
-    AL.ANIM = { idle: 0, walk: 1, work: 2, attack: 3, hit: 4, pray: 5, joy: 6, death: 7, sleep: 8, run: 9, eat: 10, fly: 11, swim: 12, special: 13 };
+    AL.ANIM = { idle: 0, walk: 1, work: 2, attack: 3, hit: 4, pray: 5, joy: 6, death: 7, sleep: 8, run: 9, eat: 10, fly: 11, swim: 12, special: 13, inside: 14 };
     AL.ANIMN = Object.keys(AL.ANIM);
   };
 })(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));
@@ -481,6 +481,8 @@ var AL_SIM_BUNDLE=function(){
         else if (ph === 20) { T.assign(sim, town); T.plan(sim, town); } }
       // buildings: ruins fade, fires are handled by the disasters module
       if (sim.tick % 16 === 0) for (let b = 0; b < B.hi; b++) { if (!B.alive[b]) continue; if (B.state[b] === 3) { B.timer[b] -= 16; if (B.timer[b] <= 0) T.destroy(sim, b, false); } } },
+    query(sim, m) { if (m.q === 'towns') return sim.towns.filter(t => t.alive).map(t => ({ id: t.id, name: t.name, people: t.people, kingdom: t.kingdom, cx: t.cx, cy: t.cy, pop: t.pop, adults: t.adults, popCap: t.popCap, stage: t.stage, stock: Array.from(t.stock), blds: t.blds.length, done: t.blds.filter(b => sim.B.state[b] === 1).length, founded: t.founded }));
+      if (m.q === 'stats') return Object.assign({ tick: sim.tick, units: sim.E.count, towns: sim.towns.filter(t => t.alive).length }, sim.stats); },
     snapshot(sim) { const B = sim.B; let out = null; if (B.dirty) { B.dirty = false; const n = B.hi; out = { t: 'blds', n, alive: B.alive.slice(0, n), type: B.type.slice(0, n), town: B.town.slice(0, n), x: B.x.slice(0, n), y: B.y.slice(0, n), prog: Uint8Array.from(B.prog.subarray(0, n)), state: B.state.slice(0, n), stage: B.stage.slice(0, n), hp: Uint8Array.from(B.hp.subarray(0, n), (v, i) => Math.max(0, Math.min(255, 255 * v / (B.hpMax[i] || 1)))), fire: B.fire.slice(0, n), tk: sim.towns.map(t => t.kingdom), tp: sim.towns.map(t => t.people) }; }
       return out; },
   });
@@ -584,7 +586,7 @@ var AL_SIM_BUNDLE=function(){
       case ACT.GOTO: E.act[i] = ACT.NONE; break;
       case ACT.EAT: E.anim[i] = A.idle; if (tm > 14) { if (town && town.stock[R.food] >= 1) { town.stock[R.food] -= 1; E.hunger[i] = Math.max(0, E.hunger[i] - 60); if (E.hunger[i] > 35 && town.stock[R.food] >= 1) { town.stock[R.food] -= 1; E.hunger[i] = Math.max(0, E.hunger[i] - 60); } E.mood[i] = Math.min(100, E.mood[i] + 4); } else E.cool[i] = 8; E.act[i] = ACT.NONE; } break;
       case ACT.FORAGE: E.anim[i] = A.work; if (tm > 30) { const t = (E.y[i] | 0) * n + (E.x[i] | 0), f = W.feature[t]; if ((f === AL.F.berry || f === AL.F.mushroom) && W.fgrow[t] > 200) { W.fgrow[t] = 20; W.mark(t % n, (t / n) | 0); E.hunger[i] = Math.max(0, E.hunger[i] - 45); } E.act[i] = ACT.NONE; } break;
-      case ACT.SLEEP: { E.anim[i] = A.sleep; E.flags[i] |= F.ASLEEP; E.energy[i] = Math.min(100, E.energy[i] + (E.tB[i] >= 0 ? 0.55 : 0.35)); if (E.hp[i] < E.hpMax[i]) E.hp[i] += 0.05;
+      case ACT.SLEEP: { E.anim[i] = E.tB[i] >= 0 ? A.inside : A.sleep; E.flags[i] |= F.ASLEEP; E.energy[i] = Math.min(100, E.energy[i] + (E.tB[i] >= 0 ? 0.55 : 0.35)); if (E.hp[i] < E.hpMax[i]) E.hp[i] += 0.05;
         if ((E.energy[i] >= 99 && !U.isNight(sim)) || E.hunger[i] > 78 || tm > 260) { E.flags[i] &= ~F.ASLEEP; E.act[i] = ACT.NONE; if (E.tB[i] < 0) E.mood[i] = Math.max(0, E.mood[i] - 6); } break; }
       case ACT.SOCIAL: E.anim[i] = (tm % 50) > 38 ? A.joy : A.idle; E.social[i] = Math.min(100, E.social[i] + 0.7); if (tm === 30) U.socialize(sim, i); if (tm > 70) E.act[i] = ACT.NONE; break;
       case ACT.PRAY: E.anim[i] = A.pray; E.faith[i] = Math.min(100, E.faith[i] + 0.8); if (tm > 80) { E.act[i] = ACT.NONE; if (AL.Faith) AL.Faith.onPray(sim, i, town); } break;
@@ -593,7 +595,7 @@ var AL_SIM_BUNDLE=function(){
       case ACT.BUILD: { const b = E.tB[i]; if (b < 0 || !B.alive[b] || B.state[b] !== 0) { E.act[i] = ACT.NONE; break; } E.anim[i] = A.work; U.face(E, i, B.x[b] + B.w[b] / 2, B.y[b]);
         if (tm % 10 === 0) { B.prog[b] += 2.6 * E.workMul[i] * E.mod(i, 'build') * (200 / (AL.BTYPES[B.type[b]].hp + 80)); B.dirty = true; sim.emit('hammer', E.x[i], E.y[i]); if (B.prog[b] >= 100) { T.complete(sim, b); if (town) town.sites = Math.max(0, town.sites - 1); E.act[i] = ACT.NONE; } }
         if (tm > 300) E.act[i] = ACT.NONE; break; }
-      case ACT.WORK: { const job = AL.JOBS[E.job[i]], task = job.task, tgt = E.tE[i]; E.anim[i] = A.work; if (tgt >= 0) U.face(E, i, tgt % n + 0.5, ((tgt / n) | 0) + 0.5);
+      case ACT.WORK: { const job = AL.JOBS[E.job[i]], task = job.task, tgt = E.tE[i]; E.anim[i] = tgt === -4 ? A.inside : A.work; if (tgt >= 0) U.face(E, i, tgt % n + 0.5, ((tgt / n) | 0) + 0.5);
         const need = (WORKT[task] || 60) / (E.workMul[i] * (town && town.stock[R.tools] > 0 ? 1.25 : 1));
         if (task === 'chop' && tm % 17 === 5) sim.emit('chop', E.x[i], E.y[i]); else if (task === 'mine' && tm % 20 === 5) sim.emit('mine', E.x[i], E.y[i]);
         if (tm < need) break; E.act[i] = ACT.NONE; if (!town) break;
@@ -727,7 +729,7 @@ var AL_SIM_BUNDLE=function(){
     AL.TRAIT = {}; AL.TRAITS = []; for (const k in D.traits) { const t = D.traits[k]; t.name = k; AL.TRAIT[k] = t.id; AL.TRAITS[t.id] = t; }
     AL.LOOKS = ['villager', 'lumberjack', 'miner', 'farmer', 'builder', 'hunter', 'fisher', 'herder', 'blacksmith', 'merchant', 'soldier', 'archer', 'knight', 'priest', 'scholar', 'ruler', 'child', 'elder'];
     AL.LOOK = {}; AL.LOOKS.forEach((l, i) => AL.LOOK[l] = i);
-    AL.ANIM = { idle: 0, walk: 1, work: 2, attack: 3, hit: 4, pray: 5, joy: 6, death: 7, sleep: 8, run: 9, eat: 10, fly: 11, swim: 12, special: 13 };
+    AL.ANIM = { idle: 0, walk: 1, work: 2, attack: 3, hit: 4, pray: 5, joy: 6, death: 7, sleep: 8, run: 9, eat: 10, fly: 11, swim: 12, special: 13, inside: 14 };
     AL.ANIMN = Object.keys(AL.ANIM);
   };
 })(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));
@@ -758,7 +760,7 @@ var AL_SIM_BUNDLE=function(){
   A.anim = function (base) { let a = animCache[base]; if (a) return a; a = []; for (let i = 0; ; i++) { const f = A.frames[base + '/' + i]; if (!f) break; a.push(f); } return (animCache[base] = a); };
   // render a frame into a 2D canvas (UI use). team = ramp index
   A.toCanvas = function (f, team, scale) { const c = document.createElement('canvas'); c.width = f[2]; c.height = f[3]; const g = c.getContext('2d'), im = g.createImageData(f[2], f[3]), P = A.PAGE, pb = A.palBytes, er = A.palette.ramps[A.palette.emissiveRamp] !== undefined ? A.palette.emissiveRamp : 10;
-    for (let y = 0; y < f[3]; y++) for (let x = 0; x < f[2]; x++) { let v = A.page[(f[1] + y) * P + f[0] + x]; if (v === 255) continue; if (v >= 144) v = (typeof er === 'number' ? er : 10) * 6 + (v - 144); else if (v >= 128) v = (team == null ? 9 : team) * 6 + (v - 128); const o = (y * f[2] + x) * 4; im.data[o] = pb[v * 4]; im.data[o + 1] = pb[v * 4 + 1]; im.data[o + 2] = pb[v * 4 + 2]; im.data[o + 3] = 255; }
+    for (let y = 0; y < f[3]; y++) for (let x = 0; x < f[2]; x++) { let v = A.page[(f[1] + y) * P + f[0] + x]; if (v === 255) continue; if (v >= 144) v = (typeof er === 'number' ? er : 10) * 6 + (v - 144) % 6; else if (v >= 128) v = (team == null ? 9 : team) * 6 + (v - 128); const o = (y * f[2] + x) * 4; im.data[o] = pb[v * 4]; im.data[o + 1] = pb[v * 4 + 1]; im.data[o + 2] = pb[v * 4 + 2]; im.data[o + 3] = 255; }
     g.putImageData(im, 0, 0); return c; };
 })(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));
 
@@ -833,12 +835,13 @@ void main(){
   const FS_S = `#version 300 es
 precision highp float; precision highp int;
 in vec2 vUV; flat in vec4 vP; flat in float vAlpha; out vec4 o;
-uniform sampler2D uPage,uPal; uniform int uShadow; uniform int uEm;
+uniform sampler2D uPage,uPal; uniform int uShadow; uniform int uEm; uniform int uGlass;
 void main(){
   int idx=int(texelFetch(uPage,ivec2(vUV),0).r*255.+.5); if(idx==255) discard;
   if(uShadow==1){ o=vec4(.075,.065,.12,.34); return; }
   int flags=int(vP.y+.5); float em=0.;
-  if(idx>=144){ idx=uEm*6+(idx-144); em=1.; } else if(idx>=128){ idx=int(vP.x+.5)*6+(idx-128); }
+  if(idx>=150){ if((flags/64)%2==1){ idx=uGlass*6+(idx-150)-2; } else { idx=uEm*6+(idx-150); em=1.; } }
+  else if(idx>=144){ idx=uEm*6+(idx-144); em=1.; } else if(idx>=128){ idx=int(vP.x+.5)*6+(idx-128); }
   int tone=int(vP.z+.5)-8; if(tone!=0){ int r=idx/6, t=idx-r*6; idx=r*6+clamp(t+tone,0,5); }
   vec3 col=texelFetch(uPal,ivec2(idx,0),0).rgb;
   if((flags/2)%2==1){ col=mix(col,vec3(.99,.96,.59),.75); em=1.; }       // white-hot flash
@@ -944,7 +947,7 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=texture(uScene,q); vec3 l=texture(uLi
     // sort sprites by y
     if (nSpr) { const ks = keys.subarray(0, nSpr); ks.sort(); for (let i = 0; i < nSpr; i++) { const s = (ks[i] % 32768) * FL, d = i * FL; for (let k = 0; k < FL; k++) sorted[d + k] = inst[s + k]; }
       p = progS; gl.useProgram(p); gl.bindVertexArray(vaoS); gl.bindBuffer(gl.ARRAY_BUFFER, instBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, sorted, 0, nSpr * FL);
-      bind(0, texPage, p.u.uPage); bind(1, texPal, p.u.uPal); gl.uniform2f(p.u.uCam, cam.x, cam.y); gl.uniform2f(p.u.uRes, W, H); gl.uniform1f(p.u.uZoom, cam.z); gl.uniform1i(p.u.uEm, AL.Assets.palette.emissiveRamp);
+      bind(0, texPage, p.u.uPage); bind(1, texPal, p.u.uPal); gl.uniform2f(p.u.uCam, cam.x, cam.y); gl.uniform2f(p.u.uRes, W, H); gl.uniform1f(p.u.uZoom, cam.z); gl.uniform1i(p.u.uEm, AL.Assets.palette.emissiveRamp); gl.uniform1i(p.u.uGlass, AL.Assets.palette.ramps.water);
       if (env.sun && cam.z >= 0.74) { gl.enable(gl.BLEND); gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE); gl.uniform1i(p.u.uShadow, 1); gl.uniform2f(p.u.uSun, env.sun[0], env.sun[1]); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, nSpr); gl.disable(gl.BLEND); }
       gl.uniform1i(p.u.uShadow, 0); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, nSpr); }
     // lights
@@ -1224,8 +1227,88 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=texture(uScene,q); vec3 l=texture(uLi
   Game.onPress = function (M) { const t = Game.tool; if (T.isBrush(t.id)) { if (t.shape === 'line') { T.lineFrom = [M.tileX, M.tileY]; return; } AL.Link.send({ t: 'brush', op: T.brushOp(M, true) }); M.lastTX = M.tileX; M.lastTY = M.tileY; T.hold = 0; if (AL.Fx) AL.Fx.brushFeedback(t.id, M); } else if (T.onPress) T.onPress(M); };
   Game.onDrag = function (M) { const t = Game.tool; if (T.isBrush(t.id)) { if (t.shape === 'line') return; if (M.tileX === M.lastTX && M.tileY === M.lastTY && !/raise|lower|dig/.test(t.id)) return; AL.Link.send({ t: 'brush', op: T.brushOp(M, false) }); M.lastTX = M.tileX; M.lastTY = M.tileY; if (AL.Fx) AL.Fx.brushFeedback(t.id, M); } else if (T.onDrag) T.onDrag(M); };
   Game.onRelease = function (M) { const t = Game.tool; if (T.isBrush(t.id) && t.shape === 'line' && T.lineFrom) { M.lastTX = T.lineFrom[0]; M.lastTY = T.lineFrom[1]; AL.Link.send({ t: 'brush', op: T.brushOp(M, false) }); T.lineFrom = null; } else if (T.onRelease) T.onRelease(M); };
+  // spawn tools: 'spawn:<kind>' drops a group of creatures or people under the pointer
+  T.onPress = function (M) { const t = Game.tool; if (t.id.startsWith('spawn:')) { AL.Link.send({ t: 'spawn', kind: t.id.slice(6), x: M.wx / 8, y: M.wy / 8, count: t.count || 1 }); if (AL.Fx && AL.Fx.brushFeedback) AL.Fx.brushFeedback(t.id, M); } else if (T.power) T.power(M, true); };
   // holding the button with raise/lower keeps sculpting (called each frame)
   T.frame = function (dt) { const M = Game.mouse, t = Game.tool; if (M.down && /^(raise|lower|dig)$/.test(t.id) && t.shape !== 'line') { T.hold += dt; if (T.hold > 0.09) { T.hold = 0; AL.Link.send({ t: 'brush', op: T.brushOp(M, true) }); } } };
+})(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));
+
+// AL.Scene — what lives on the map: units (interpolated between simulation snapshots, animated from the people atlases),
+// buildings (sites, finished, ruins), the kingdoms layer, the basic day/night ambience and the default key actions.
+(function (AL) {
+  'use strict';
+  const Game = AL.Game, S = AL.Scene = { cur: null, prev: null, t0: 0, dur: 0.1, lastAt: 0, blds: null, nUnits: 0, nBlds: 0, night: 0, layer: 0 };
+  const DIRN = ['down', 'left', 'up', 'right'], CAP = 8192;
+  const animStart = new Float32Array(CAP), lastAnim = new Uint8Array(CAP).fill(255), lastGen = new Uint16Array(CAP), px = new Float32Array(CAP), py = new Float32Array(CAP);
+  // frames[kind][look][anim][dir] -> array of atlas frames (lazy)
+  const cache = [];
+  const ANIM_SRC = { run: 'walk', eat: 'idle', fly: 'idle', swim: 'walk', special: 'joy' }, FPS = { idle: 4, walk: 9, work: 8, attack: 10, hit: 10, pray: 5, joy: 8, death: 9, sleep: 2 };
+  function framesOf(kind, look, anim, dir) {
+    const k0 = cache[kind] || (cache[kind] = []), k1 = k0[look] || (k0[look] = []), k2 = k1[anim] || (k1[anim] = []); let f = k2[dir]; if (f) return f;
+    const K = AL.KINDS[kind], A = AL.Assets; let an = AL.ANIMN[anim] || 'idle'; an = ANIM_SRC[an] || an; const two = an === 'death' || an === 'sleep', d = two ? (dir === 1 || dir === 0 ? 'left' : 'right') : DIRN[dir];
+    f = A.anim(K.name + '/' + AL.LOOKS[look] + '/' + an + '/' + d); if (!f.length) f = A.anim(K.name + '/villager/' + an + '/' + d); if (!f.length) f = A.anim(K.name + '/villager/idle/down'); if (!f.length) f = A.anim('human/villager/idle/down');
+    f.fps = FPS[an] || 6; f.once = an === 'death'; return (k2[dir] = f);
+  }
+  S.teamOf = function (kind, kingdom) { const kr = Game.kingdomRamp; if (kr && kingdom >= 0 && kr[kingdom] != null) return kr[kingdom]; const K = AL.KINDS[kind]; return AL.Assets.palette.ramps[K.team] || 9; };
+  Game.on('ents', m => { if (!m.n) { S.cur = null; S.prev = null; return; } if (S.cur && m.tick === S.cur.tick) return; const now = performance.now() / 1000;
+    S.prev = S.cur; S.cur = m; S.dur = Math.max(0.016, Math.min(0.25, now - S.lastAt)); S.lastAt = now; S.t0 = now; });
+  Game.on('blds', m => { S.blds = m; S.bldFrames = null; });
+  Game.on('owner', m => { if (!Game.map) return; Game.map.owner.set(m.owner); S.towns = m.towns; if (S.layer) S.applyLayer(); });
+  // ---- kingdoms layer: territory tint and borders
+  S.applyLayer = function () { const M = Game.map, G = AL.Gfx, A = AL.Assets; if (!M) return; if (!S.layer) { G.layerOn = 0; return; }
+    const n = M.n, ids = S._ids && S._ids.length === n * n ? S._ids : (S._ids = new Uint8Array(n * n)), o = M.owner, pal = new Uint8Array(1024), tw = S.towns || [];
+    for (let i = 0; i < ids.length; i++) { const v = o[i]; ids[i] = v ? ((v - 1) % 254) + 1 : 0; }
+    for (let t = 0; t < tw.length && t < 254; t++) { if (!tw[t]) continue; const ramp = S.teamOf(tw[t][1], tw[t][0]), c = A.palette.rgb[ramp * 6 + 3]; pal[(t + 1) * 4] = c[0]; pal[(t + 1) * 4 + 1] = c[1]; pal[(t + 1) * 4 + 2] = c[2]; pal[(t + 1) * 4 + 3] = 255; }
+    G.setLayer(ids, pal); G.layerOn = 1; };
+  S.setLayer = function (v) { S.layer = v; S.applyLayer(); };
+  // ---- day / night ambience (refined with weather and ages in the effects module)
+  const KEYS = [[0.00, 0.50, 0.52, 0.80], [0.05, 0.86, 0.72, 0.74], [0.12, 1.0, 0.98, 0.94], [0.50, 1.02, 1.0, 0.96], [0.62, 1.0, 0.86, 0.72], [0.70, 0.78, 0.60, 0.74], [0.76, 0.46, 0.48, 0.78], [1.0, 0.50, 0.52, 0.80]];
+  S.update = function (dt, env) { const p = Game.tick == null ? 0.3 : ((Game.tick + (S.cur && Game.simSpeed ? 0 : 0)) % AL.DAY) / AL.DAY; let k = 0; while (k < KEYS.length - 2 && p > KEYS[k + 1][0]) k++; const a = KEYS[k], b = KEYS[k + 1], f = (p - a[0]) / (b[0] - a[0]);
+    if (!env.lockAmbient) { env.ambient[0] = a[1] + (b[1] - a[1]) * f; env.ambient[1] = a[2] + (b[2] - a[2]) * f; env.ambient[2] = a[3] + (b[3] - a[3]) * f; }
+    S.night = p > 0.72 || p < 0.04 ? 1 : p > 0.66 ? (p - 0.66) / 0.06 : p < 0.08 ? 1 - (p - 0.04) / 0.04 : 0; env.night = S.night; env.sun[0] = 0.55 - (p - 0.4) * 0.5; };
+  // ---- drawing
+  const markUnit = () => S._mk || (S._mk = AL.Assets.frames['mark/unit/0']);
+  S.draw = function (env) { const G = AL.Gfx, c = Game.cam, z = c.z, A = AL.Assets, vx0 = c.x - 40, vy0 = c.y - 40, vx1 = c.x + G.W / z + 40, vy1 = c.y + G.H / z + 70, far = z < 0.74, night = S.night > 0.5;
+    // buildings
+    const B = S.blds; let nb = 0;
+    if (B) { const fr = S.bldFrames || (S.bldFrames = new Array(B.n)); for (let b = 0; b < B.n; b++) { if (!B.alive[b]) continue; const T = AL.BTYPES[B.type[b]], w = T.fp[0], h = T.fp[1], wx = (B.x[b] + w / 2) * 8, wy = (B.y[b] + h) * 8; if (wx < vx0 - 30 || wx > vx1 + 30 || wy < vy0 || wy > vy1 + 20) continue;
+        const st = B.state[b], pr = B.prog[b], v = st === 1 ? 0 : st === 3 ? 3 : pr < 12 ? -1 : pr < 58 ? 1 : 2, key = b * 8 + v + 1 + B.stage[b] * 100; let f = fr[b];
+        if (!f || f.key !== key) { const tp = B.town[b] >= 0 ? B.tp[B.town[b]] : 0, set = (AL.KINDS[tp] && AL.Assets.frames['bld/' + AL.KINDS[tp].buildSet + '/' + T.name + '/0/0']) ? AL.KINDS[tp].buildSet : 'human';
+          f = v < 0 ? A.frames['bld/site/' + w + 'x' + h + '/0'] : A.frames['bld/' + set + '/' + T.name + '/' + B.stage[b] + '/' + v]; if (!f) f = A.frames['bld/human/house/0/0']; f = fr[b] = { f, key, ex: f[6] || null }; }
+        const town = B.town[b], team = town >= 0 ? S.teamOf(B.tp[town], B.tk[town]) : 5, lit = night && st === 1 && (AL.hash2(b, 3, 1) < 0.8);
+        G.spr(f.f, wx, wy, team, lit ? 0 : 64, 0, 1, 1, -2); nb++;
+        if (lit && f.ex && f.ex.light && T.light) G.light(wx + f.ex.light[0], wy + f.ex.light[1] + 4, 26, 0.55 * S.night, 0);
+        if (st === 1 && f.ex && f.ex.light && (T.name === 'forge' || T.name === 'temple') && !lit) G.light(wx + f.ex.light[0], wy + f.ex.light[1] + 2, 12, 0.25, 1);
+        if (st === 1 && f.ex && f.ex.smoke && AL.Fx && AL.Fx.smoke) AL.Fx.smoke(b, wx + f.ex.smoke[0], wy + f.ex.smoke[1], T.name === 'forge'); } }
+    S.nBlds = nb;
+    // units
+    const m = S.cur; let nu = 0; if (!m) { S.nUnits = 0; return; }
+    const pv = S.prev, now = performance.now() / 1000, al = Math.min(1, (now - S.t0) / S.dur), t = Game.time, np = AL.NPEOPLE, mk = far ? markUnit() : null;
+    for (let i = 0; i < m.n; i++) { if (!m.alive[i]) { lastAnim[i] = 255; continue; } let x = m.x[i], y = m.y[i];
+      if (pv && i < pv.n && pv.alive[i] && pv.gen[i] === m.gen[i]) { const ox = pv.x[i], oy = pv.y[i], dx = x - ox, dy = y - oy; if (dx * dx + dy * dy < 9) { x = ox + dx * al; y = oy + dy * al; } }
+      px[i] = x; py[i] = y; const an = m.anim[i]; if (an !== lastAnim[i] || m.gen[i] !== lastGen[i]) { lastAnim[i] = an; lastGen[i] = m.gen[i]; animStart[i] = t; }
+      if (an === 14) continue; // inside a building
+      const wx = x * 8, wy = y * 8 + 2; if (wx < vx0 || wx > vx1 || wy < vy0 || wy > vy1) continue; const kind = m.kind[i]; if (kind >= np && S.drawCreature) { S.drawCreature(m, i, wx, wy, t, far); nu++; continue; }
+      const team = S.teamOf(kind, m.kd[i]), fl = m.flags[i];
+      if (far) { if (mk) G.spr(mk, wx, wy, team, 0, 0, 1, 0.8 / z, 0); nu++; continue; }
+      const fs = framesOf(kind, m.look[i], an, m.dir[i]); let fi; const el = t - animStart[i];
+      if (fs.once) fi = Math.min(fs.length - 1, (el * fs.fps) | 0); else fi = (((an === 1 ? t : el) * fs.fps + (an === 1 ? i * 0.37 : 0)) | 0) % fs.length;
+      const alpha = (fl & 1) && el > 6 ? Math.max(0, 1 - (el - 6) / 2.5) : 1;
+      G.spr(fs[fi], wx, wy, team, ((fl & 8) || (fl & 16) ? 4 : 0) | (S.flash && S.flash[i] > t ? 2 : 0), 0, alpha, 1, 0); nu++;
+      if (S.sel === i) S.selPos = [wx, wy]; }
+    S.nUnits = nu; };
+  // world position of a unit as drawn (for following and picking)
+  S.unitPos = function (i) { const m = S.cur; return m && i < m.n && m.alive[i] ? [px[i] * 8, py[i] * 8] : null; };
+  S.pick = function (wx, wy) { const m = S.cur; if (!m) return -1; let best = -1, bd = 14 * 14; for (let i = 0; i < m.n; i++) { if (!m.alive[i] || m.anim[i] === 14) continue; const dx = px[i] * 8 - wx, dy = py[i] * 8 - 8 - wy, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } } return best; };
+  S.pickBld = function (tx, ty) { const B = S.blds; if (!B) return -1; for (let b = 0; b < B.n; b++) { if (!B.alive[b]) continue; const T = AL.BTYPES[B.type[b]]; if (tx >= B.x[b] && tx < B.x[b] + T.fp[0] && ty >= B.y[b] - 1 && ty < B.y[b] + T.fp[1]) return b; } return -1; };
+  // ---- default actions (the interface module extends this)
+  const SPEEDS = [0.5, 1, 2, 5, 10, 50];
+  Game.onAction = function (a) { if (AL.UI && AL.UI.action && AL.UI.action(a)) return;
+    if (a === 'zoomIn') Game.zoomAt(1); else if (a === 'zoomOut') Game.zoomAt(-1);
+    else if (a === 'pause') { if (Game.speed > 0) { Game.pausedFrom = Game.speed; Game.setSpeed(0); } else Game.setSpeed(Game.pausedFrom || 1); }
+    else if (a === 'faster' || a === 'slower') { const cur = Game.speed > 0 ? Game.speed : (Game.pausedFrom || 1); let i = SPEEDS.indexOf(cur); if (i < 0) i = 1; i = AL.clamp(i + (a === 'faster' ? 1 : -1), 0, SPEEDS.length - 1); Game.setSpeed(SPEEDS[i]); }
+    else if (a === 'layerNext') S.setLayer(S.layer ? 0 : 1);
+    else if (a === 'brushBigger') Game.tool.size = Math.min(40, Game.tool.size + 1); else if (a === 'brushSmaller') Game.tool.size = Math.max(1, Game.tool.size - 1); };
 })(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));
 
 // last file of the bundle: start the game once every module is defined

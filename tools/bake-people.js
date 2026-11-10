@@ -25,7 +25,7 @@ function bakeLook(pid, lid) {
     for (const dir of dirs) {
       const raws = [];
       for (let i = 0; i < A.n; i++) { const { scene, decals } = H.build(spec, A.f(i));
-        const dd = decals.filter(d => dir !== 'up' && (dir === 'down' || (dir === 'left' ? !/R$/.test(d.tag) : !/L$/.test(d.tag)))).map(d => Object.assign({}, d, { idx: d.idx === 'eye' ? P.eye : P.tusk }));
+        const side = dir === 'left' || dir === 'right'; const dd = decals.filter(d => dir !== 'up' && (d.tag === 'sideeye' ? side : /^eye/.test(d.tag) ? !side : (dir === 'down' || (dir === 'left' ? !/R$/.test(d.tag) : !/L$/.test(d.tag))))).map(d => Object.assign({}, d, { idx: d.idx === 'eye' ? P.eye : P.tusk }));
         raws.push(render(scene, { w: CELL, h: CELL, ox: OX, oy: OY, yaw: YAW[dir], mats, decals: dd, ss: 4, raw: true })); }
       for (const r of raws) despeckle(r.img, r.matAt, r.protect);
       stabilize(raws, !/death|hit|attack|work/.test(name));

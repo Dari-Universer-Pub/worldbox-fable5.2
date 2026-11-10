@@ -15,4 +15,6 @@ function mat(ramp, tones, o = {}) {
 function team(tones, o = {}) { return Object.assign({ tones: tones.map(v => 128 + v), outline: ix('earth', 0), outlineLit: ix('earth', 1), ramp: 'team' }, o.extra || {}); }
 // emissive material (144..149): glows at night
 function glow(tones, o = {}) { return Object.assign({ tones: tones.map(v => 144 + v), outline: ix('earth', 0), outlineLit: ix('earth', 1), ramp: 'emissive' }, o.extra || {}); }
-module.exports = { ix, mat, team, glow, P, INK };
+// window material (150..155): lit like the emissive ramp at night, dark glass by day
+function glass(tones, o = {}) { return Object.assign({ tones: tones.map(v => 150 + v), outline: ix('earth', 0), outlineLit: ix('earth', 1), ramp: 'window' }, o.extra || {}); }
+module.exports = { ix, mat, team, glow, glass, P, INK };
