@@ -18,7 +18,7 @@
   // advance along the path / flow field. returns true when the destination tile is reached
   U.move = function (sim, i) { const E = sim.E, W = sim.world, n = W.n; let nt = -1;
     if (E.pathPos[i] < E.pathLen[i]) nt = E.path[i * E.PATH + E.pathPos[i]];
-    else if (E.flow[i] >= 0) { const x = E.x[i] | 0, y = E.y[i] | 0, t = E.flow[i]; if (Math.abs(x - t % n) + Math.abs(y - ((t / n) | 0)) <= 30) { E.flow[i] = -1; const r = U.goTo(sim, i, t % n, (t / n) | 0); if (r === -1) E.flow[i] = t; return r === 1; }
+    else if (E.flow[i] >= 0) { const x = E.x[i] | 0, y = E.y[i] | 0, t = E.flow[i]; if (x === t % n && y === ((t / n) | 0)) { E.flow[i] = -1; return true; } // (a field is followed to its end: retrying A* near the goal failed every tick on long detours)
       if (sim.fieldBudget <= 0 && !(sim.path.fields.get(t) && sim.path.fields.get(t).ver === W.regionVersion)) return false; const had = sim.path.stats.fields, f = sim.path.field(t); if (sim.path.stats.fields !== had) sim.fieldBudget--; nt = sim.path.follow(f, x, y); if (nt < 0) { E.flow[i] = -1; return f.d[y * n + x] === 0; } }
     else return (E.x[i] | 0) === E.tx[i] && (E.y[i] | 0) === E.ty[i];
     const tx = nt % n + 0.5, ty = ((nt / n) | 0) + 0.5, dx = tx - E.x[i], dy = ty - E.y[i], d = Math.sqrt(dx * dx + dy * dy);
@@ -38,6 +38,7 @@
   const sc = U.scores = new Float32Array(8); // eat, sleep, work, social, pray, wander, haul (kept for the debug line of the sheet)
   U.think = function (sim, i) { const E = sim.E, W = sim.world, n = W.n, town = sim.towns[E.town[i]], night = U.isNight(sim), fl = E.flags[i];
     if (E.cool[i] > 0) { E.cool[i] = E.cool[i] > 8 ? E.cool[i] - 8 : 0; if (E.act[i] === ACT.NONE) { E.anim[i] = AL.ANIM.idle; } return; }
+    if (AL.Creatures && AL.Creatures.threat(sim, i)) return;
     if (!town || !town.alive) return U.thinkNomad(sim, i);
     const h = E.hunger[i], en = E.energy[i], child = fl & F.CHILD;
     const dp = U.dayPhase(sim), evening = dp > 0.56 && dp <= 0.72;
@@ -169,13 +170,15 @@
         if (((i + tk) & 63) === 0) { U.lifeTick(sim, i); if (E.flags[i] & F.DEAD) continue; }
         if (E.flags[i] & F.CONTROLLED) { if (U.moving(E, i)) U.move(sim, i); else if (E.act[i] === ACT.NONE) E.anim[i] = AL.ANIM.idle; else U.act(sim, i); continue; }
         if (AL.War && AL.War.unitTick(sim, i)) continue;
-        if (U.moving(E, i)) { if (U.move(sim, i)) { /* arrived: act next tick */ } else if (!U.moving(E, i) && E.act[i] !== ACT.NONE && E.phase[i] === 0) { // path lost before arriving
+        if (E.act[i] === ACT.FIGHT) U.act(sim, i);
+        else if (U.moving(E, i)) { if (U.move(sim, i)) { /* arrived: act next tick */ } else if (!U.moving(E, i) && E.act[i] !== ACT.NONE && E.phase[i] === 0) { // path lost before arriving
             if ((E.x[i] | 0) !== E.tx[i] || (E.y[i] | 0) !== E.ty[i]) { const r = U.goTo(sim, i, E.tx[i], E.ty[i]); if (r === 0) { E.act[i] = ACT.NONE; E.cool[i] = 16; } } } }
         else if (E.act[i] !== ACT.NONE) U.act(sim, i);
         if (((i + tk) & 7) === 0 && E.act[i] === ACT.NONE && !(E.flags[i] & F.DEAD)) U.think(sim, i);
+        else if (((i + tk) & 31) === 0 && AL.Creatures && E.act[i] !== ACT.FIGHT && E.act[i] !== ACT.FLEE && E.act[i] !== 255 && !(E.flags[i] & F.ASLEEP && false) && AL.Creatures.near(sim, i)) { U.stop(E, i); E.flags[i] &= ~F.ASLEEP; E.act[i] = ACT.NONE; E.cool[i] = 0; U.think(sim, i); }
         else if (((i + tk) & 31) === 0 && E.hunger[i] > 80 && (E.act[i] === ACT.WANDER || E.act[i] === ACT.SOCIAL || E.act[i] === ACT.GUARD || E.act[i] === ACT.WORK && E.phase[i] === 0)) { U.stop(E, i); E.act[i] = ACT.NONE; }
       } },
-    onDeath(sim, i, cause) { const E = sim.E; sim.stats.deaths++; const town = sim.towns[E.town[i]]; if (town) town.pop = Math.max(0, town.pop - 1); const h = E.home[i]; if (h >= 0 && sim.B.occ[h] > 0) sim.B.occ[h]--; const w = E.work[i]; if (w >= 0 && sim.B.workers[w] > 0) sim.B.workers[w]--; const sp = E.spouse[i]; if (sp >= 0 && E.spouse[sp] === i) E.spouse[sp] = -1; sim.emit('death', E.x[i], E.y[i], E.kind[i], cause === 'age' ? 0 : cause === 'hunger' ? 1 : 2); },
+    onDeath(sim, i, cause) { const E = sim.E; if (E.kind[i] >= AL.NPEOPLE) return; sim.stats.deaths++; const town = sim.towns[E.town[i]]; if (town) town.pop = Math.max(0, town.pop - 1); const h = E.home[i]; if (h >= 0 && sim.B.occ[h] > 0) sim.B.occ[h]--; const w = E.work[i]; if (w >= 0 && sim.B.workers[w] > 0) sim.B.workers[w]--; const sp = E.spouse[i]; if (sp >= 0 && E.spouse[sp] === i) E.spouse[sp] = -1; sim.emit('death', E.x[i], E.y[i], E.kind[i], cause === 'age' ? 0 : cause === 'hunger' ? 1 : 2); },
     command(sim, m) { if (m.t === 'spawn') { const W = sim.world, n = W.n, k = AL.K[m.kind]; if (k == null) return true; for (let c = 0; c < (m.count || 1); c++) { const x = m.x + (c ? sim.rng.range(-1.5, 1.5) : 0), y = m.y + (c ? sim.rng.range(-1.5, 1.5) : 0); if (!W.inb(x | 0, y | 0)) continue; const t = (y | 0) * n + (x | 0); const K = AL.KINDS[k]; if (K.cls === 0 && (AL.gCost[W.ground[t]] <= 0 || (W.flags[t] & 2))) continue; if (AL.Creatures && K.cls !== 0) { AL.Creatures.spawn(sim, k, x, y); continue; } const i = sim.E.spawn(sim, k, x, y, {}); if (i >= 0) { const tid = W.owner[t] - 1, town = sim.towns[tid]; if (town && town.alive && town.people === k) U.joinTown(sim, i, town); sim.emit('spawn', x, y, k); } } return true; } },
     snapshot(sim) { const E = sim.E, n = E.hi; if (!n) return { t: 'ents', n: 0 }; const fr = new Uint8Array(n);
       const m = { t: 'ents', n, tick: sim.tick, x: E.x.slice(0, n), y: E.y.slice(0, n), alive: E.alive.slice(0, n), kind: E.kind.slice(0, n), look: E.look.slice(0, n), anim: E.anim.slice(0, n), dir: E.dir.slice(0, n), flags: E.flags.slice(0, n), gen: E.gen.slice(0, n), kd: E.kingdom.slice(0, n), tw: E.town.slice(0, n), hp: fr, carry: E.carryN.slice(0, n) };

@@ -1,0 +1,38 @@
+{
+ "zombie": {
+  "atlas": "people_zombie",
+  "humanoid": true,
+  "size": 24,
+  "hp": 70,
+  "speed": 0.62,
+  "attack": 9,
+  "lifespan": 40,
+  "contagion": true,
+  "hostile": true,
+  "courage": 1,
+  "night": false
+ },
+ "skeleton": {
+  "atlas": "people_skeleton",
+  "humanoid": true,
+  "size": 24,
+  "hp": 45,
+  "speed": 1.0,
+  "attack": 11,
+  "lifespan": 30,
+  "hostile": true,
+  "courage": 1
+ },
+ "demon": {
+  "atlas": "people_demon",
+  "humanoid": true,
+  "size": 24,
+  "hp": 260,
+  "speed": 1.1,
+  "attack": 26,
+  "lifespan": 200,
+  "hostile": true,
+  "courage": 1,
+  "fire": true
+ }
+}

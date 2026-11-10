@@ -34,3 +34,5 @@ Added in later steps: bakers per category, `bake-all.js`, `build.js`, `validate-
 | `tools/people-sheet.js`, `tools/reference-sheet.js` | overview sheets (all looks; `--sil` silhouettes) | `node tools/people-sheet.js human,orc out.png` | `shots/*.png` |
 | `tests/town-run.js` | headless town survival run with stocks, jobs wanted/held and buildings printed every 1,000 ticks | `node tests/town-run.js 30000 <seed> 12 [--quiet]` | TOWN OK / FAIL |
 | `tests/step4.js`, `tests/step5.js`, `tests/shot.js`, `tests/run-all.js` | browser robots (real mouse/keyboard), screenshot helper, everything at once | `node tests/run-all.js` | `shots/step*.png` |
+| `tools/bake-creatures.js` + `tools/art/creatures.js` | animals from the quadruped rig (three-quarter views for up/down) and the small bird and fish rigs: 8 species × idle/walk/run/eat/attack/hit/death/sleep | `node tools/bake-creatures.js` | `assets/creatures.*` |
+| `tests/eco-run.js` | headless ecosystem run: species census every 5,000 ticks, extinction/explosion check, flora counts, zombie outbreak against a village | `node tests/eco-run.js 20000 7` | ECO OK / FAIL |

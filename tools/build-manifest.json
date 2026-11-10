@@ -8,7 +8,8 @@
   "src/sim/ents.js",
   "src/sim/path.js",
   "src/sim/towns.js",
-  "src/sim/units.js"
+  "src/sim/units.js",
+  "src/sim/creatures.js"
  ],
  "client": [
   "src/client/assets.js",
@@ -26,6 +27,10 @@
   "people_human",
   "people_orc",
   "buildings",
-  "marks"
+  "marks",
+  "creatures",
+  "people_zombie",
+  "people_skeleton",
+  "people_demon"
  ]
 }

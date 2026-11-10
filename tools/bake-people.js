@@ -40,7 +40,7 @@ else (async () => {
   const peoples = wantP.length ? wantP : Object.keys(PEOPLES), cacheDir = path.join(__dirname, '.cache'); fs.mkdirSync(cacheDir, { recursive: true });
   const srcHash = crypto.createHash('sha1').update(['lib/sdf.js', 'lib/mats.js', 'art/rigs/humanoid.js', 'art/peoples.js', 'art/palette.json', 'bake-people.js', 'lib/measure.js'].map(f => fs.readFileSync(path.join(__dirname, f))).join('')).digest('hex').slice(0, 12);
   const jobs = [], done = {};
-  for (const p of peoples) for (const l of (looksArg || (PEOPLES[p].provisional ? ['villager', 'soldier', 'child'] : Object.keys(LOOKS)))) { const cf = path.join(cacheDir, `people-${p}-${l}-${srcHash}.json`);
+  for (const p of peoples) for (const l of (looksArg || (PEOPLES[p].monster ? ['villager'] : PEOPLES[p].provisional ? ['villager', 'soldier', 'child'] : Object.keys(LOOKS)))) { const cf = path.join(cacheDir, `people-${p}-${l}-${srcHash}.json`);
     if (!noCache && fs.existsSync(cf)) done[p + '/' + l] = JSON.parse(fs.readFileSync(cf, 'utf8')).map(f => ({ key: f.key, d: Buffer.from(f.d, 'base64') })); else jobs.push([p, l]); }
   const t0 = Date.now(), NW = Math.min(4, jobs.length);
   if (jobs.length) { const parts = Array.from({ length: NW }, () => []); jobs.forEach((j, i) => parts[i % NW].push(j));

@@ -53,7 +53,7 @@
       if (pv && i < pv.n && pv.alive[i] && pv.gen[i] === m.gen[i]) { const ox = pv.x[i], oy = pv.y[i], dx = x - ox, dy = y - oy; if (dx * dx + dy * dy < 9) { x = ox + dx * al; y = oy + dy * al; } }
       px[i] = x; py[i] = y; const an = m.anim[i]; if (an !== lastAnim[i] || m.gen[i] !== lastGen[i]) { lastAnim[i] = an; lastGen[i] = m.gen[i]; animStart[i] = t; }
       if (an === 14) continue; // inside a building
-      const wx = x * 8, wy = y * 8 + 2; if (wx < vx0 || wx > vx1 || wy < vy0 || wy > vy1) continue; const kind = m.kind[i]; if (kind >= np && S.drawCreature) { S.drawCreature(m, i, wx, wy, t, far); nu++; continue; }
+      const wx = x * 8, wy = y * 8 + 2; if (wx < vx0 || wx > vx1 || wy < vy0 || wy > vy1) continue; const kind = m.kind[i]; if (kind >= np && S.drawCreature(m, i, kind, an, wx, wy, t, far)) { nu++; continue; }
       const team = S.teamOf(kind, m.kd[i]), fl = m.flags[i];
       if (far) { if (mk) G.spr(mk, wx, wy, team, 0, 0, 1, 0.8 / z, 0); nu++; continue; }
       const fs = framesOf(kind, m.look[i], an, m.dir[i]); let fi; const el = t - animStart[i];
@@ -62,6 +62,12 @@
       G.spr(fs[fi], wx, wy, team, ((fl & 8) || (fl & 16) ? 4 : 0) | (S.flash && S.flash[i] > t ? 2 : 0), 0, alpha, 1, 0); nu++;
       if (S.sel === i) S.selPos = [wx, wy]; }
     S.nUnits = nu; };
+  // animals: frames '<species>/<anim>/<dir>/<i>'; humanoid monsters go through the people path
+  const ccache = [], CMAP = { quad: { fly: 'idle', swim: 'walk', work: 'eat', pray: 'idle', joy: 'idle', special: 'attack', inside: 'idle' }, bird: { walk: 'fly', run: 'fly', eat: 'idle', sleep: 'idle', hit: 'fly', swim: 'fly' }, fish: { idle: 'swim', walk: 'swim', eat: 'swim', fly: 'swim', attack: 'run', hit: 'run', sleep: 'swim' } }, CFPS = { idle: 3, walk: 8, run: 12, eat: 4, attack: 10, hit: 8, death: 8, sleep: 1.5, fly: 9, swim: 6 };
+  S.drawCreature = function (m, i, kind, an, wx, wy, t, far) { const K = AL.KINDS[kind]; if (K.humanoid) return false; if (far) return true; const G = AL.Gfx, c0 = ccache[kind] || (ccache[kind] = []), c1 = c0[an] || (c0[an] = []), dir = m.dir[i]; let fs = c1[dir];
+    if (!fs) { const A = AL.Assets, rig = K.fly ? 'bird' : K.swim ? 'fish' : 'quad'; let a = AL.ANIMN[an] || 'idle'; a = CMAP[rig][a] || a; const two = a === 'death' || a === 'sleep'; fs = A.anim(K.name + '/' + a + '/' + (two ? (dir === 1 || dir === 0 ? 'left' : 'right') : DIRN[dir])); if (!fs.length) fs = A.anim(K.name + '/' + (rig === 'quad' ? 'idle' : rig === 'bird' ? 'fly' : 'swim') + '/down'); fs.fps = CFPS[a] || 6; fs.once = a === 'death'; fs.air = a === 'fly'; c1[dir] = fs; }
+    if (!fs.length) return true; const el = t - animStart[i], fi = fs.once ? Math.min(fs.length - 1, (el * fs.fps) | 0) : ((t * fs.fps + i * 0.61) | 0) % fs.length, fl = m.flags[i], alpha = (fl & 1) && el > 6 ? Math.max(0, 1 - (el - 6) / 2.5) : 1;
+    G.spr(fs[fi], wx, wy - (fs.air ? 10 : 0), 0, (K.swim ? 16 : 0) | (S.flash && S.flash[i] > t ? 2 : 0), 0, alpha, 1, fs.air ? 10 : 0); return true; };
   // world position of a unit as drawn (for following and picking)
   S.unitPos = function (i) { const m = S.cur; return m && i < m.n && m.alive[i] ? [px[i] * 8, py[i] * 8] : null; };
   S.pick = function (wx, wy) { const m = S.cur; if (!m) return -1; let best = -1, bd = 14 * 14; for (let i = 0; i < m.n; i++) { if (!m.alive[i] || m.anim[i] === 14) continue; const dx = px[i] * 8 - wx, dy = py[i] * 8 - 8 - wy, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } } return best; };
