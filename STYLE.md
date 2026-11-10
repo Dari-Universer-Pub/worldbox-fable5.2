@@ -35,11 +35,12 @@ Every asset pixel is a palette index. Reserved indices: 128–133 **team ramp** 
 - Cast shadows fall to the bottom-right; ground shadows are drawn in game as flattened silhouettes (shadow colour = stone 0 at 35% alpha).
 - Shading by **ramps, 3–4 tones per material** selected by a fixed shading index (N·L thresholds −0.05 / 0.38 / 0.80 for 4 tones; 0.05 / 0.62 for 3 tones). Never nearest-colour quantisation.
 
-## Outline (selective)
-- 1 px outside the silhouette, **coloured**: the dark tone of the adjacent material's own ramp (tone − 1), never a uniform black line.
-- Edges facing the light (top / left) use the softer tone (tone of the material's darkest shade); edges in shadow (bottom / right) use the darkest.
+## Outline (selective) and the contrast rule
+- 1 px outside the silhouette, **coloured ink**: tone 0 of the dark "ink" ramp of the material's colour family (`tools/lib/mats.js` INK table: greens → forest 0, wood/skin/sand → earth 0, stone/steel → stone 0, ice/water → water 0, reds/fire → red 0…). Never a uniform black line: a sprite always mixes several inks (measured: 0 "uniform-outline" frames).
+- Top edges (facing the light) use ink tone 1; all other edges ink tone 0. Every ink tone 0 has a relative luminance ≤ 0.012.
 - Inner contour: where a nearer part overlaps a farther one (depth gap ≥ 1.5 px), the far pixel under/right of it is darkened by one tone.
-- Terrain tiles, water and ground decals have no outline.
+- Terrain tiles, water, grass tufts, flowers and crops have no outline.
+- **Contrast rule (measured, `tools/reference-sheet.js`)**: every walkable ground texture keeps a mean relative luminance ≥ 0.20 (measured 0.200 volcanic … 0.874 snow); with inks ≤ 0.012 this guarantees a WCAG contrast ≥ 4:1 between a unit's ink mass (≥ 12% of its pixels) and any ground. Measured worst case 4.16:1 (volcanic), best 15.4:1 (snow). Dark moods come from tree canopies and lighting, not from dark floors.
 
 ## Masses and pixels
 - 3–4 tones per material in large clean masses. Isolated pixels (a pixel with no 4-neighbour of the same colour) are counted by `tools/measure-sprite.js`; allowed only for eyes, highlights, rivets, windows.
@@ -75,3 +76,6 @@ Scale: an adult is 17 px tall, a house door 10 px, a house 32 px, an oak 30 px. 
 
 ## Rejection criteria (global sheet)
 An asset is rejected or patched when: its outline is black or missing; it contains an off-palette colour; its light comes from another side; its saturation is above its family's cap; its scale breaks the table above; it has unjustified isolated pixels; its silhouette is confused with another class.
+
+## Reference sheet
+`shots/reference-sheet.png` (looked at): 12 grounds with their tree, small flora and both peoples at true relative scale. `shots/terrain-textures.png`, `shots/flora.png`, `shots/people-overview.png` are the per-category sheets.

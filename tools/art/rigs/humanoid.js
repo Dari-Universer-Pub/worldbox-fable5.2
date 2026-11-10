@@ -37,7 +37,7 @@ const ANIMS = {
     return { lean: -0.06 - 0.06 * d + (i === 4 ? 0.12 : 0), armL: { sw: 1.5, ab: 0.05, el: 0 }, armR: { sw: 1.45, ab: 0.25, el: 0.4 + 1.7 * d }, legL: { sw: 0.35, kn: 0.1 }, legR: { sw: -0.35, kn: 0.1 }, draw: d, head: { nod: -0.05 } }; } },
   hit: { n: 3, f: (i) => { const k = [0.9, 0.6, 0.2][i]; return { lean: -0.5 * k, y: -1.0 * k, z: 0.3 * k, sq: 1 - 0.06 * k, armL: { sw: -0.6 * k, ab: 0.8 * k, el: 0.5 }, armR: { sw: -0.4 * k, ab: 0.9 * k, el: 0.4 }, head: { nod: -0.4 * k }, legL: { sw: -0.3 * k, kn: 0.2 }, legR: { sw: 0.2 * k, kn: 0.3 * k } }; } },
   death: { n: 8, f: (i) => { const fall = [0, 0.08, 0.25, 0.55, 0.85, 1.04, 0.97, 1][i], k = Math.min(1, i / 3);
-    return { fall, lean: -0.3 * (1 - fall) * k, z: i === 5 ? 0.25 : 0, y: -0.5 * k, armL: { sw: -0.4 * k - fall * 0.5, ab: 0.5 + fall * 0.9, el: 0.4 }, armR: { sw: 0.3 * k - fall * 0.2, ab: 0.4 + fall * 0.8, el: 0.5 }, legL: { sw: 0.3 * k * (1 - fall) + 0.2 * fall, kn: 0.5 * k * (1 - fall) + 0.15 }, legR: { sw: -0.15 * fall, kn: 0.3 * (1 - fall) }, head: { nod: -0.5 * k + 0.3 * fall } }; } },
+    return { fall, lean: -0.3 * (1 - fall) * k, z: i === 5 ? 0.25 : 0, y: -0.5 * k * (1 - fall), armL: { sw: -0.4 * k + fall * 0.5, ab: 0.5 - fall * 0.2, el: 0.4 }, armR: { sw: 0.3 * k + fall * 0.1, ab: 0.4 - fall * 0.1, el: 0.5 }, legL: { sw: 0.3 * k * (1 - fall) + 0.2 * fall, kn: 0.5 * k * (1 - fall) + 0.15 }, legR: { sw: -0.15 * fall, kn: 0.3 * (1 - fall) }, head: { nod: -0.5 * k + 0.3 * fall } }; } },
   pray: { n: 4, f: (i) => { const b = [0, 0.5, 1, 0.5][i]; return { kneel: 1, lean: 0.25 + 0.35 * b, armL: { sw: 1.9 - 0.9 * b, ab: -0.3, el: 0.9 }, armR: { sw: 1.9 - 0.9 * b, ab: -0.3, el: 0.9 }, head: { nod: 0.2 + 0.4 * b } }; } },
   sleep: { n: 2, f: (i) => ({ fall: 1, sq: 1 + 0.05 * i, armL: { sw: 0.1, ab: 0.25, el: 0.3 }, armR: { sw: 0.1, ab: 0.25, el: 0.3 }, legL: { sw: 0.1, kn: 0.15 }, legR: { sw: -0.05, kn: 0.3 } }) },
   joy: { n: 6, f: (i) => { const j = [-0.4, 0.6, 1.8, 2.1, 1.0, -0.3][i], up = [0.4, 1.6, 2.9, 3.0, 2.4, 0.9][i];
@@ -51,8 +51,8 @@ function build(specIn, pose = {}) {
   const legLen = sp.legLen * k, half = legLen / 2;
   const kneel = P.kneel || 0, fall = P.fall || 0;
   // root transform: fall rotates the whole body backward around the feet
-  const rootR = mul(rotZ(P.turn || 0), rotX(-fall * PI / 2 * 0.98));
-  const rootT = [P.x || 0, (P.y || 0) - fall * 1.5 * k, (P.z || 0) + fall * 1.5 * k];
+  const rootR = mul(rotZ(P.turn || 0), rotX(fall * PI / 2 * 0.98));
+  const rootT = [P.x || 0, (P.y || 0) + fall * 2.5 * k, (P.z || 0) + fall * 1.6 * k];
   const W = v => add(app(rootR, v), rootT);
   const sq = P.sq || 1;
   const pelvisZ = (legLen - kneel * half * 0.95) * (0.5 + 0.5 * sq);
@@ -89,8 +89,9 @@ function build(specIn, pose = {}) {
   sc.ell(hc, hr, 'skin', { rot: headR, pri: 1 });
   if (sp.ears) for (const s of [-1, 1]) sc.cap(HL([s * hr[0] * 0.85, -0.2, 0.2 * k]), HL([s * (hr[0] + sp.ears * k), -0.6 * k, 1.1 * k]), 0.7 * k, 0.25 * k, 'skin', { k: 0.3 });
   if (sp.hair === 'short' || sp.hair === 'long' || sp.hair === 'top') {
-    const hrz = sp.hairR;
-    sc.ell(HL([0, -sp.hairBack * k, sp.hairUp * k * hrz]), [hr[0] * 1.04, hr[1] * 0.92, hr[2] * 0.82], 'hair', { rot: headR, pri: sp.hair === 'top' ? 0 : 2 });
+    // cap over the top of the skull + volume at the back; the face (front-lower part) stays free
+    sc.ell(HL([0, -hr[1] * 0.26, hr[2] * 0.58]), [hr[0] * 1.05, hr[1] * 0.86, hr[2] * 0.56], 'hair', { rot: headR, pri: 2 });
+    sc.ell(HL([0, -hr[1] * 0.58, -hr[2] * 0.02]), [hr[0] * 1.0, hr[1] * 0.6, hr[2] * 0.92], 'hair', { rot: headR, pri: 2 });
     if (sp.hair === 'long') sc.cap(HL([0, -hr[1] * 0.75, 0]), HL([0, -hr[1] * 0.9, -2.4 * k]), hr[0] * 0.85, hr[0] * 0.6, 'hair', { pri: 2 });
   } else if (sp.hair === 'crest') sc.ell(HL([0, -0.3 * k, hr[2] * 0.95]), [0.6 * k, hr[1] * 0.9, 1.0 * k], 'hair', { rot: headR, pri: 2 });
   else if (sp.hair === 'knot') { sc.ell(HL([0, -0.55 * k, 0.75 * k]), [hr[0] * 1.0, hr[1] * 0.96, hr[2] * 0.8], 'hair', { rot: headR, pri: 2 }); sc.ell(HL([0, -0.6 * k, hr[2] + 0.5 * k]), [0.9 * k, 0.9 * k, 0.8 * k], 'hair', { pri: 2 }); }
@@ -122,7 +123,7 @@ function build(specIn, pose = {}) {
 function toolAxis(b, hand, ang) {
   // absolute tool direction: angle from vertical-up toward forward (+y); slight outward tilt
   const h = b.hands[hand], a = (b.pose.tool == null ? 0.15 : b.pose.tool) + (ang || 0);
-  return [h.side * 0.22 * C(a), S(a), C(a)];
+  return [h.side * 0.45 * C(a), S(a), C(a)];
 }
 const ACC = {
   axe(sc, b, a) { const h = b.hands[a.hand || 'R'], d = toolAxis(b, a.hand || 'R'), k = b.k, tip = add(h.pos, scl(d, 4.3 * k)), base = add(h.pos, scl(d, -1.0 * k));
@@ -158,7 +159,7 @@ const ACC = {
     if (dr > 0.3) { sc.cap(b.U(add(c, scl(f, -2.8 * k * dr))), b.U(add(c, scl(f, 1.6 * k))), 0.3 * k, 0.3 * k, 'steel', { pri: 3 }); } },
   shield(sc, b, a) { const h = b.hands.L, k = b.k; sc.ell(b.U(add(h.pos, [-0.5 * k, 0.5 * k, 0.6 * k])), [0.7 * k, 2.0 * k, 2.2 * k].map((v, i) => i === 1 && a.round ? v : v), a.mat || 'wood2', { rot: mul(b.upR, rotZ(0.5)), pri: 4 });
     sc.ell(b.U(add(h.pos, [-0.95 * k, 0.5 * k, 0.6 * k])), [0.5 * k, 0.8 * k, 0.8 * k], 'steel', { rot: mul(b.upR, rotZ(0.5)), pri: 5 }); },
-  helmet(sc, b, a) { const hr = b.hr; sc.ell(b.HL([0, -0.15 * b.k, hr[2] * 0.42]), [hr[0] * 1.08, hr[1] * 1.08, hr[2] * 0.8], a.mat || 'steel', { rot: b.headR, pri: 4 });
+  helmet(sc, b, a) { const hr = b.hr; sc.ell(b.HL([0, -hr[1] * 0.22, hr[2] * 0.6]), [hr[0] * 1.1, hr[1] * 0.95, hr[2] * 0.62], a.mat || 'steel', { rot: b.headR, pri: 4 });
     if (a.crest) sc.ell(b.HL([0, -0.2 * b.k, hr[2] * 1.15]), [0.55 * b.k, hr[1] * 0.9, 0.9 * b.k], a.crest, { rot: b.headR, pri: 5 });
     if (a.horns) for (const s of [-1, 1]) sc.cap(b.HL([s * hr[0] * 0.9, 0, hr[2] * 0.6]), b.HL([s * (hr[0] + 1.3 * b.k), 0, hr[2] * 1.5]), 0.55 * b.k, 0.2 * b.k, 'bone', { pri: 5 }); },
   hat(sc, b, a) { const hr = b.hr, k = b.k; sc.ell(b.HL([0, 0, hr[2] * 0.62]), [hr[0] * 1.55, hr[1] * 1.55, 0.6 * k], a.mat || 'straw', { rot: b.headR, pri: 4 }); sc.ell(b.HL([0, 0, hr[2] * 0.95]), [hr[0] * 0.8, hr[1] * 0.8, 1.0 * k], a.mat || 'straw', { rot: b.headR, pri: 4 }); },
