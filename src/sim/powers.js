@@ -63,7 +63,7 @@
       const a = rng.range(0, 6.283), s = sim.wx === WX.storm ? 1 : rng.range(0.15, 0.7); sim.windX = Math.cos(a) * s; sim.windY = Math.sin(a) * s; sim.emit('weather', sim.wx); }
     sim.rainBonus = sim.wx === WX.rain || sim.wx === WX.storm ? 1.25 : 1;
     // lightning: world storms strike at random, storm zones strike inside
-    if (sim.wx === WX.storm && sim.tick % 45 === 0) { const n = sim.world.n; Pw.strike(sim, 2 + rng.int(n - 4), 2 + rng.int(n - 4), true); }
+    if (sim.wx === WX.storm && sim.tick % 45 === 0) { const n = sim.world.n, sx = 2 + rng.int(n - 4), sy = 2 + rng.int(n - 4); if (!(sim.world.owner[sy * n + sx] && rng.chance(0.8))) Pw.strike(sim, sx, sy, true); } // wild lightning mostly spares settled land
     for (let k = sim.zones.length - 1; k >= 0; k--) { const z = sim.zones[k]; if (sim.tick >= z.until) { sim.zones.splice(k, 1); continue; } if (z.k === ZN.storm && sim.tick % 30 === 0) { const a = rng.range(0, 6.283), d = rng.f() * z.r; Pw.strike(sim, z.x + Math.cos(a) * d, z.y + Math.sin(a) * d, false); } }
     if (sim.tick >= sim.eraUntil) Pw.setEra(sim, -1); }
   Pw.setEra = function (sim, id) { const rng = sim.rng; if (id < 0) { do { id = rng.int(AL.ERAS.length); } while (id === sim.era || (id === 0)); } sim.era = id; const e = AL.ERAS[id]; sim.eraStart = sim.tick; sim.eraUntil = sim.tick + AL.YEAR * (7 + rng.int(9));

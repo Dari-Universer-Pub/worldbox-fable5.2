@@ -11,7 +11,8 @@
   "src/sim/units.js",
   "src/sim/creatures.js",
   "src/sim/realm.js",
-  "src/sim/powers.js"
+  "src/sim/powers.js",
+  "src/sim/culture.js"
  ],
  "client": [
   "src/client/assets.js",

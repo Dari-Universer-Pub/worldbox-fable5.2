@@ -17,7 +17,7 @@ const { chromium } = require('playwright');
   // speed up with the real key (Period = faster) until x50
   for (let i = 0; i < 6; i++) await p.keyboard.press('Period'); out.speed50 = await p.evaluate(() => AL.Game.speed) === 50;
   await p.waitForFunction(() => AL.Scene.blds && Array.from(AL.Scene.blds.state).filter((s, i) => AL.Scene.blds.alive[i] && s === 1).length >= 4, null, { timeout: 90000 }).catch(() => { });
-  const towns = await p.evaluate(() => AL.Link.ask('towns')); out.town = towns && towns.length === 1; out.townDone = towns && towns[0] ? towns[0].done : 0; out.built = out.townDone >= 4;
+  const towns = await p.evaluate(() => AL.Link.ask('towns')); out.town = towns && towns.length >= 1; out.townDone = towns && towns.length ? Math.max(...towns.map(t => t.done)) : 0; out.built = out.townDone >= 4;
   await p.keyboard.press('Comma'); await p.keyboard.press('Comma'); await p.keyboard.press('Comma'); await p.keyboard.press('Comma'); out.speed1 = await p.evaluate(() => AL.Game.speed) === 1;
   await p.waitForTimeout(500); out.drawnUnits = await p.evaluate(() => AL.Scene.nUnits); out.drawnBlds = await p.evaluate(() => AL.Scene.nBlds); await p.screenshot({ path: 'shots/step5-village.png' });
   // kingdoms layer with the real key

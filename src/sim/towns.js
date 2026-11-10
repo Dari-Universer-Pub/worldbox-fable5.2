@@ -27,7 +27,7 @@
       B.aux[b] = f; }
     if (town) { town.popCap += bt.cap || 0; sim.emit('built', B.x[b] + B.w[b] / 2, B.y[b] + B.h[b], bt.id, town.id); } };
   T.destroy = function (sim, b, ruin) { const B = sim.B, W = sim.world, n = W.n; if (!B.alive[b]) return; const bt = AL.BTYPES[B.type[b]], town = sim.towns[B.town[b]];
-    if (B.state[b] === 1 && town) town.popCap -= bt.cap || 0; if (B.aux[b]) for (const t of B.aux[b]) { W.flags[t] &= ~8; if (W.feature[t] === AL.F.wheat) W.feature[t] = 0; W.mark(t % n, (t / n) | 0); }
+    if (B.state[b] === 1 && town) town.popCap -= bt.cap || 0; if (B.state[b] === 0 && town) town.sites = Math.max(0, town.sites - 1); if (B.aux[b]) for (const t of B.aux[b]) { W.flags[t] &= ~8; if (W.feature[t] === AL.F.wheat) W.feature[t] = 0; W.mark(t % n, (t / n) | 0); }
     if (town) { const k = town.blds.indexOf(b); if (k >= 0) town.blds.splice(k, 1); town.count[bt.id]--; }
     if (ruin && B.state[b] !== 3) { B.state[b] = 3; B.timer[b] = 3000; B.town[b] = -1; B.dirty = true; sim.emit('collapse', B.x[b] + B.w[b] / 2, B.y[b] + B.h[b], bt.id); return; }
     for (let j = 0; j < B.h[b]; j++) for (let i = 0; i < B.w[b]; i++) { const t = (B.y[b] + j) * n + B.x[b] + i; W.flags[t] &= ~2; sim.bmap[t] = 0; W.mark(B.x[b] + i, B.y[b] + j); }
@@ -58,11 +58,11 @@
   // ---------------------------------------------------------------- planner (every 40 ticks per town)
   const ORDER = ['house', 'farm', 'warehouse', 'sawmill', 'mine', 'port', 'market', 'temple', 'barracks', 'forge', 'library', 'tavern', 'watchtower', 'hospital'];
   T.wantCount = function (town, bt) { const base = bt.max[0], per = bt.max[1]; return base + (per ? Math.floor(town.pop / per) : 0); };
-  T.plan = function (sim, town) { const D = AL.DATA.buildings, B = sim.B, st = town.stock; if (town.sites >= (town.pop > 40 ? 2 : 1)) return;
+  T.plan = function (sim, town) { const D = AL.DATA.buildings, B = sim.B, st = town.stock; const hungry = st[AL.RES.food] / Math.max(1, town.pop) < 5, lim = town.pop > 40 ? 2 : 1; if (town.sites >= lim + (hungry ? 1 : 0)) return; const farmOnly = town.sites >= lim; // a hungry town may open a farm site on top of its other works
     let pick = null; const cv = town.cultureValues || AL.KINDS[town.people].culture;
-    for (const name of ORDER) { const bt = D[name]; if (bt.stage > town.stage || bt.provisional) continue; let want = T.wantCount(town, bt);
+    for (const name of ORDER) { const bt = D[name]; if (bt.stage > town.stage || bt.provisional) continue; if (farmOnly && name !== 'farm') continue; let want = T.wantCount(town, bt);
       if (name === 'house') { want = Math.max(1, Math.ceil((town.pop + 3 - 4) / bt.cap)); if (town.popCap > town.pop + 2) continue; }
-      if (name === 'farm') { const perCap = st[AL.RES.food] / Math.max(1, town.pop); want = Math.max(want, perCap < 3 ? (town.count[bt.id] || 0) + 1 : 0); want = Math.min(want, 1 + Math.floor(town.pop / 7)); if (AL.KINDS[town.people].diet === 'meat') want = Math.ceil(want / 2); }
+      if (name === 'farm') { const perCap = st[AL.RES.food] / Math.max(1, town.pop); want = Math.max(want, perCap < 3 ? (town.count[bt.id] || 0) + 1 : 0); want = Math.max(want, Math.ceil((town.pop - 6) / 10)); want = Math.min(want, 1 + Math.floor(town.pop / 7)); if (AL.KINDS[town.people].diet === 'meat') want = Math.ceil(want / 2); }
       if (name === 'port' && (!town.shore || town.shore.length < 3)) continue;
       if (name === 'barracks' && cv.war < 0.25 && town.stage < 4 && !town.threat) continue; if (name === 'library' && cv.lore < 0.2) continue; if (name === 'market' && cv.trade < 0.15) continue;
       if (name === 'watchtower') want = Math.min(4, Math.floor(want * (0.4 + cv.war)));
@@ -93,6 +93,11 @@
     want[J.blacksmith] = done(BT.forge) ? Math.min(2, 1 + (pop > 60 ? 1 : 0)) : 0; want[J.merchant] = done(BT.market) ? 1 + (cv.trade > 0.6 && pop > 50 ? 1 : 0) : 0; want[J.priest] = done(BT.temple) ? 1 + (pop > 80 ? 1 : 0) : 0;
     want[J.scholar] = done(BT.library) ? 1 + (cv.lore > 0.6 ? 1 : 0) : 0; want[J.bard] = done(BT.tavern) ? 1 : 0; want[J.herder] = town.herd ? 1 : 0;
     const mil = done(BT.barracks) ? Math.ceil(pop * (0.06 + cv.war * 0.14 + (town.atWar ? 0.15 : 0))) : (town.threat ? Math.ceil(pop * 0.1) : 0); want[J.soldier] = Math.ceil(mil * 0.6); want[J.archer] = Math.floor(mil * 0.3); want[J.knight] = town.stage >= 4 ? Math.floor(mil * 0.1) : 0;
+    // hunger first: a hungry town sends more hands to find food; when there are more posts than adults, the posts that do
+    // not feed or build are closed first (a builder with no bread builds nothing)
+    if (foodPer < 5) { want[J.gatherer] += Math.ceil(pop * (foodPer < 2 ? 0.3 : 0.15)); if (!meat) want[J.hunter] += 1; }
+    { let tot = 0; for (let j = 1; j < 32; j++) tot += want[j]; const TRIM = T._trim || (T._trim = [J.bard, J.scholar, J.priest, J.merchant, J.blacksmith, J.herder, J.knight, J.archer, J.soldier, J.miner, J.lumberjack]); const avail = pop - 1;
+      for (let pass = 0; pass < 3 && tot > avail; pass++) for (let k = 0; k < TRIM.length && tot > avail; k++) { const j = TRIM[k]; if (j == null || want[j] <= 0) continue; if ((j === J.soldier || j === J.archer || j === J.knight) && (town.atWar || town.threat) && pass < 2) continue; if (j === J.lumberjack && st[AL.RES.wood] < 20 && pass < 2) continue; want[j]--; tot--; } }
     let free = 0, ruler = -1; const idle = T._idle || (T._idle = []); idle.length = 0; town.pop = 0; town.adults = 0; town.soldiers = 0;
     for (let i = 0; i < E.hi; i++) { if (!E.alive[i] || E.town[i] !== town.id || (E.flags[i] & 1)) continue; town.pop++; if (E.flags[i] & 2) continue; town.adults++; const j = E.job[i]; if (j === J.ruler) { ruler = i; continue; } if (AL.JOBS[j].military) town.soldiers++;
       if (j === 0) idle.push(i); else if (have[j] >= want[j] && !(E.flags[i] & 4096) && !(AL.JOBS[j].military && town.atWar)) { E.job[i] = 0; E.work[i] = -1; T.setLook(E, i); idle.push(i); } else have[j]++; }
@@ -110,7 +115,7 @@
     // crops ripen on their own in about a year (tending speeds them up); berries and mushrooms regrow
     tile(sim, i, x, y, g) { const W = sim.world, f = W.feature[i], rd = W.road[i];
       if (rd) { if (g === AL.G.road) { if (rd < 30) { W.setGround(i, W.owner[i] || sim.rng.chance(0.5) ? AL.G.grass : AL.G.soil); W.road[i] = 0; } else W.road[i] = rd - 2; } else { if (rd > 150 && !(W.flags[i] & 10) && AL.gCost[g] > 0 && g !== AL.G.sand && g !== AL.G.snow && g !== AL.G.mountain) { W.setGround(i, AL.G.road); if (f && AL.fKind[f] !== 1) W.feature[i] = 0; } else W.road[i] = rd > 3 ? rd - 3 : 0; } }
-      if (!f) return; if (f === AL.F.wheat) { const v = W.fgrow[i]; if (v < 250) { const nv = Math.min(250, v + Math.max(1, (7 * (sim.cropMul || 1) * (sim.rainBonus || 1)) | 0)); W.fgrow[i] = nv; if ((nv >> 6) !== (v >> 6) || nv === 250) W.mark(x, y); } }
+      if (!f) return; if (f === AL.F.wheat) { const v = W.fgrow[i]; if (v < 250) { const nv = Math.min(250, v + Math.max(1, (7 * (sim.cropMul || 1) * (sim.rainBonus || 1) * (AL.Faith && W.owner[i] ? AL.Faith.m(sim, sim.towns[W.owner[i] - 1].religion, 'crop') : 1)) | 0)); W.fgrow[i] = nv; if ((nv >> 6) !== (v >> 6) || nv === 250) W.mark(x, y); } }
       else if ((f === AL.F.berry || f === AL.F.mushroom) && W.fgrow[i] < 255) { const v = W.fgrow[i], nv = Math.min(255, v + 4); W.fgrow[i] = nv; if (v <= 200 && nv > 200) W.mark(x, y); } },
     init(sim) { sim.B = new Blds(); sim.towns = []; sim.bmap = new Int16Array(sim.world.n * sim.world.n); sim.ownerDirty = true; },
     tick(sim) { const towns = sim.towns, B = sim.B;

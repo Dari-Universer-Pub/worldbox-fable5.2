@@ -43,3 +43,6 @@ Effects baker. `node tools/bake-fx.js` renders every procedural effect of `tools
 
 ## tests/powers-run.js, tests/step8.js
 `node tests/powers-run.js`: headless, 34 cases, each power must change a measured quantity; checks determinism. `node tests/step8.js`: browser robot using real clicks/drags/keys for the powers, writes `shots/step8-*.png`.
+
+## tests/culture-run.js, tests/step9.js
+`node tests/culture-run.js [ticks] [seed] [--quiet]`: headless run of two peoples; checks cultures, languages, religion founding, dogma modifiers, schism, drift, notables, calendar, determinism. `node tests/step9.js`: browser robot (real clicks), writes `shots/step9-*.png`.

@@ -26,3 +26,9 @@
 - Ugly, fixed: rain clouds were dark boulders (reused soot puff) → new `nimbus` sprite; scorched ground was per-pixel speckle → clean 4 px / 2 px masses; every effect sprite cast a ground shadow → flag 32 honoured in the shadow pass; storm rain was almost invisible → 3× more streaks.
 - Broken, fixed: eagles went extinct after the random stream changed → migration from the map edge + wider mate search for solitary species; step 5 robot tracked unit 0 (now an animal) → tracks the dropped people.
 - Still weak: rain streaks faint on bright grass; scorched pattern harsh on snow; no sound for most powers yet; no toolbar (tools are selected by the robot through `Game.tool`).
+
+## Step 9 — two peoples, cultures, faiths (robot `tests/step9.js`, headless `tests/culture-run.js`)
+- Seen: an orc village of moss-roofed longhouses with crossed horns around a skull altar, next to human thatch; names sound different (Grestead / Krokzgorkgash; Vejal, Vondha / Nadruk, Narmozg).
+- Ugly, fixed: orc stage-1 roofs were flat green slabs hiding the walls → taller log walls, lower roofs, ridge beam, 3 roof materials by trade; moss far too saturated → darker ramp tones.
+- Broken, fixed: a village starved with 180 stone in stock and no farm (posts for miner/soldier/priest kept while nobody gathered; one burnt construction site blocked building forever) → see RESUME step 9; four "heroes" after 9 years because hunting kills counted → heroes need 5 kills as soldiers.
+- Still weak: orc trades are told by props only; chronicle is English only.

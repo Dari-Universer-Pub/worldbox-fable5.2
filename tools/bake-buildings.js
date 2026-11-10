@@ -11,7 +11,7 @@ const S = 1.3; // model scale: a 3-tile house is ~30 px wide (STYLE.md)
 function bakeOne(job, cellForce) {
   const [set, type, stage, variant] = job, isSite = set === 'site'; let k, fp, cell;
   if (isSite) { fp = type.split('x').map(Number); k = BL.site(fp[0], fp[1]); cell = 48; }
-  else { const d = BL.D[type]; fp = d.fp; k = d.make(BL.kit(stage)); cell = d.great ? 64 : 48; }
+  else { const d = BL.DSETS[set][type]; fp = d.fp; k = d.make(BL.kit(stage)); cell = d.great ? 64 : 48; }
   if (cellForce) cell = cellForce;
   const mats = BL.SETS[isSite ? 'human' : set](), ox = cell / 2, oy = cell - 4 - fp[1] * 4, top = k.top / BL.ZS, X = fp[0] * 4 / S + 1.5;
   let clip = null;

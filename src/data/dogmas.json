@@ -1,0 +1,14 @@
+{
+  "ancestors": { "id": 0,  "en": "Ancestor Watch",   "fr": "Veille des Ancêtres",  "mods": { "mood": 1.2, "loyal": 1.25 } },
+  "holywar":   { "id": 1,  "en": "Sacred Conquest",  "fr": "Conquête Sacrée",      "mods": { "war": 1.6, "convert": 1.3 }, "opposite": "peace" },
+  "peace":     { "id": 2,  "en": "Open Hand",        "fr": "Main Ouverte",         "mods": { "war": 0.5, "mood": 1.1 }, "opposite": "holywar" },
+  "cradle":    { "id": 3,  "en": "Full Cradles",     "fr": "Berceaux Pleins",      "mods": { "fertility": 1.3 }, "opposite": "stars" },
+  "fasting":   { "id": 4,  "en": "Long Fast",        "fr": "Long Jeûne",           "mods": { "hunger": 0.85 } },
+  "harvest":   { "id": 5,  "en": "Blessed Furrow",   "fr": "Sillon Béni",          "mods": { "crop": 1.3 } },
+  "mending":   { "id": 6,  "en": "Mending Hands",    "fr": "Mains Guérisseuses",   "mods": { "heal": 2.0 } },
+  "wisdom":    { "id": 7,  "en": "Lamp of Reason",   "fr": "Lampe de Raison",      "mods": { "learn": 1.35 } },
+  "mission":   { "id": 8,  "en": "Far Voices",       "fr": "Voix Lointaines",      "mods": { "convert": 2.0 } },
+  "sun":       { "id": 9,  "en": "Day-Eye",          "fr": "Œil du Jour",          "mods": { "crop": 1.12, "mood": 1.1 } },
+  "stars":     { "id": 10, "en": "Counted Stars",    "fr": "Étoiles Comptées",     "mods": { "learn": 1.15, "fertility": 0.92 }, "opposite": "cradle" },
+  "blood":     { "id": 11, "en": "Red Oath",         "fr": "Serment Rouge",        "mods": { "war": 1.3, "heal": 1.4, "loyal": 1.1 }, "opposite": "peace" }
+}

@@ -15,3 +15,9 @@
 - Hit-stop only freezes animation time on the client (the simulation keeps running).
 - Flood is a temporary ring of shallow water, not a real water simulation; tidal wave from the sea is not directional.
 - Direct control has no on-screen hint; special abilities per creature are minimal.
+
+## After step 9
+- Orc buildings: give each trade its own shell (not only props); hand patches on skulls and horns.
+- Languages: grammar for kingdom names (compound forms), bynames for rulers ("the Bold"), script glyphs per culture.
+- Religions: holy sites as pilgrimage targets, religious buildings per faith, more than one prophet title; dogma effects on build speed, trade and courage are not hooked.
+- Chronicle through i18n keys with arguments instead of English sentences.
