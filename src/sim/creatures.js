@@ -26,7 +26,7 @@
   const dist2 = (E, a, b) => { const dx = E.x[a] - E.x[b], dy = E.y[a] - E.y[b]; return dx * dx + dy * dy; };
   C.hostileTo = function (sim, a, t) { const E = sim.E, Ka = AL.KINDS[E.kind[a]]; return Ka.cls === 2 || ((E.act[a] === CA.CHASE || E.act[a] === CA.ATTACK) && E.tE[a] === t); };
   // people: react to a nearby danger. Returns true when the unit now flees or fights.
-  C.threat = function (sim, i) { const E = sim.E, n = sim.world.n, c = E.query(E.x[i], E.y[i], 6), np = AL.NPEOPLE; let h = -1, bd = 1e9; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] < np || (E.flags[j] & F.DEAD)) continue; const K = AL.KINDS[E.kind[j]];
+  C.threat = function (sim, i) { const E = sim.E, n = sim.world.n, c = E.query(E.x[i], E.y[i], 6), np = AL.NPEOPLE; let h = -1, bd = 1e9; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.flags[j] & F.DEAD) continue; if (E.kind[j] < np) { if (!(AL.War && AL.War.hostile(sim, i, j))) continue; const d = dist2(E, i, j); if (d < bd) { bd = d; h = j; } continue; } const K = AL.KINDS[E.kind[j]];
       if (!(K.cls === 2 || ((E.act[j] === CA.CHASE || E.act[j] === CA.ATTACK) && E.tE[j] >= 0 && E.kind[E.tE[j]] < np))) continue; const d = dist2(E, i, j); if (d < bd) { bd = d; h = j; } }
     if (h < 0) return false; const mil = AL.JOBS[E.job[i]].military || AL.JOBS[E.job[i]].name === 'hunter';
     if (!(E.flags[i] & (F.CHILD | F.ELDER)) && (mil || E.courage[i] > 0.72 || (bd < 2.5 && E.courage[i] > 0.45))) { U.stop(E, i); E.act[i] = ACT.FIGHT; E.tE[i] = h; E.phase[i] = 1; E.timer[i] = 0; return true; }
@@ -34,7 +34,7 @@
     if (town && town.alive && Math.abs(town.cx - E.x[h]) + Math.abs(town.cy - E.y[h]) > 6) { tx = town.cx; ty = town.cy; } else { const t = U.randomNear(sim, E.x[i] + dx / l * 8, E.y[i] + dy / l * 8, 3); if (t < 0) return false; tx = t % n; ty = (t / n) | 0; }
     if (U.begin(sim, i, ACT.FLEE, tx, ty)) { E.flags[i] |= F.FLEEING; E.mood[i] = Math.max(0, E.mood[i] - 3); return true; } return false; };
   // cheap check: is something hostile within 4 tiles of this person?
-  C.near = function (sim, i) { const E = sim.E, c = E.query(E.x[i], E.y[i], 4), np = AL.NPEOPLE; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] < np || (E.flags[j] & F.DEAD)) continue; if (AL.KINDS[E.kind[j]].cls === 2 || ((E.act[j] === CA.CHASE || E.act[j] === CA.ATTACK) && E.tE[j] >= 0 && E.kind[E.tE[j]] < np)) return true; } return false; };
+  C.near = function (sim, i) { const E = sim.E, c = E.query(E.x[i], E.y[i], 4), np = AL.NPEOPLE; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.flags[j] & F.DEAD) continue; if (E.kind[j] < np) { if (AL.War && AL.War.hostile(sim, i, j)) return true; continue; } if (AL.KINDS[E.kind[j]].cls === 2 || ((E.act[j] === CA.CHASE || E.act[j] === CA.ATTACK) && E.tE[j] >= 0 && E.kind[E.tE[j]] < np)) return true; } return false; };
   // hunters and herders: find game around the town
   C.startHunt = function (sim, i, town, task) { const E = sim.E, c = E.query(E.x[i], E.y[i], 16), np = AL.NPEOPLE; let best = -1, bd = 1e9; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] < np || (E.flags[j] & F.DEAD)) continue; const K = AL.KINDS[E.kind[j]]; if (K.cls !== 1 || K.fly || K.swim || K.diet === 'pred') continue; const d = dist2(E, i, j); if (d < bd) { bd = d; best = j; } }
     if (best < 0) return false; E.act[i] = ACT.FIGHT; E.tE[i] = best; E.phase[i] = 1; E.timer[i] = 0; return true; };
@@ -117,7 +117,7 @@
       if (tk % 900 === 0 && na < sim.animalCap * 0.25 && !sim.cfg.noFauna && !sim.cfg.empty) C.populate(sim, 0.12); },
     // flora: saplings grow, forests spread and come back from stumps, meadows regrow
     tile(sim, i, x, y, g) { const W = sim.world, f = W.feature[i], rng = sim.rng; if (W.fire[i]) return;
-      if (!f) { if (AL.gFert[g] > 0.3 && !(W.flags[i] & 10) && rng.chance(0.0015)) { const fb = AL.floraByBiome[g]; if (fb.small.length) { W.feature[i] = fb.small[rng.int(fb.small.length)]; W.fgrow[i] = 255; W.mark(x, y); } } return; }
+      if (!f) { if (AL.gFert[g] > 0.3 && !(W.flags[i] & 10) && rng.chance(0.00025)) { const fb = AL.floraByBiome[g]; if (fb.small.length) { W.feature[i] = fb.small[rng.int(fb.small.length)]; W.fgrow[i] = 255; W.mark(x, y); } } return; }
       const k = AL.fKind[f]; if (k === 1) { const v = W.fgrow[i]; if (v < 255) { const nv = Math.min(255, v + 2 + ((AL.FLORA[f].grow * 4 * (sim.growMul || 1)) | 0)); W.fgrow[i] = nv; if ((v < 70 && nv >= 70) || (v < 110 && nv >= 110)) W.mark(x, y); }
         else if (rng.chance(0.003)) { const n = W.n, X = x + rng.int(5) - 2, Y = y + rng.int(5) - 2; if (W.inb(X, Y)) { const j = Y * n + X, gj = W.ground[j]; if (!W.feature[j] && !(W.flags[j] & 10) && AL.gFert[gj] > 0.3 && AL.floraByBiome[gj].trees.includes(f) && W.road[j] < 60) { let near = 0; for (let d = 0; d < 4; d++) { const q = j + (d === 0 ? 1 : d === 1 ? -1 : d === 2 ? n : -n); if (q >= 0 && q < n * n && AL.fKind[W.feature[q]] === 1) near++; } if (near < 3) { W.feature[j] = f; W.fgrow[j] = 8; W.mark(X, Y); } } } } }
       else if (f === AL.F.stump && rng.chance(0.03)) { const fb = AL.floraByBiome[g]; if (fb.trees.length && rng.chance(0.55) && !(W.flags[i] & 10) && W.road[i] < 60) { W.feature[i] = fb.trees[rng.int(fb.trees.length)]; W.fgrow[i] = 8; } else W.feature[i] = 0; W.mark(x, y); } },

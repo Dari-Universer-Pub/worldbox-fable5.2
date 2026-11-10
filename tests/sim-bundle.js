@@ -251,7 +251,7 @@
     function send(msg) { const tr = msg._tr; delete msg._tr; post(msg, tr || []); }
     function loop() { const now = Sim.now(), dt = Math.min(0.25, (now - last) / 1000); last = now; if (!sim) return;
       const ran = sim.advance(dt, 12); sim.effSpeed = sim.effSpeed * 0.9 + (dt > 0 ? ran / (dt * AL.TICK_HZ) : 0) * 0.1;
-      if (sim.ownerDirty && now - lastOwner >= 500) { lastOwner = now; sim.ownerDirty = false; const o = sim.world.owner.slice(); send({ t: 'owner', n: sim.world.n, owner: o, towns: sim.towns ? sim.towns.map(t => t.alive ? [t.kingdom, t.people, t.cx, t.cy] : null) : [], _tr: [o.buffer] }); }
+      if (sim.ownerDirty && now - lastOwner >= 500) { lastOwner = now; sim.ownerDirty = false; const o = sim.world.owner.slice(); send({ t: 'owner', n: sim.world.n, owner: o, towns: sim.towns ? sim.towns.map(t => t.alive ? [t.kingdom, t.people, t.cx, t.cy, t.name] : null) : [], kr: sim.kingdoms ? sim.kingdoms.map(k => k.alive ? k.ramp : -1) : [], _tr: [o.buffer] }); }
       if (now - lastSnap >= 33) { lastSnap = now; const tl = sim.takeTiles(false); if (tl) send(tl); for (const m of Sim.modules) if (m.snapshot) { const s = m.snapshot(sim); if (s) send(s); }
         send({ t: 'hud', tick: sim.tick, speed: sim.speed, eff: sim.effSpeed, hud: sim.hud ? sim.hud() : null, ev: sim.events.splice(0) }); } }
     return { message(m) {
@@ -279,7 +279,7 @@
     this.born = i32(); this.life = i32(); this.sex = u8(); this.act = u8(); this.phase = u8(); this.timer = i32(); this.tx = i16(); this.ty = i16(); this.tE = i32(); this.tB = i32();
     this.job = u8(); this.town = i16(); this.kingdom = i16(); this.home = i32(); this.work = i32(); this.traits0 = u32(); this.traits1 = u32();
     this.mother = i32(); this.father = i32(); this.spouse = i32(); this.religion = i16(); this.culture = i16(); this.carry = u8(); this.carryN = u8();
-    this.anim = u8(); this.dir = u8(); this.flags = u16(); this.look = u8(); this.army = i16(); this.kills = u16(); this.seed = u32(); this.cool = u16(); this.stuck = u8(); this.preg = i32();
+    this.anim = u8(); this.dir = u8(); this.flags = u16(); this.look = u8(); this.army = i16(); this.kills = u16(); this.seed = u32(); this.cool = u16(); this.stuck = u8(); this.preg = i32(); this.clan = i16();
     // stats derived from kind + traits
     this.spd = f32(); this.atk = f32(); this.workMul = f32(); this.courage = f32();
     // paths
@@ -297,7 +297,7 @@
     E.sex[i] = rng.int(2); E.act[i] = 0; E.phase[i] = 0; E.timer[i] = 0; E.tx[i] = -1; E.ty[i] = -1; E.tE[i] = -1; E.tB[i] = -1;
     E.job[i] = 0; E.town[i] = opt.town == null ? -1 : opt.town; E.kingdom[i] = opt.kingdom == null ? -1 : opt.kingdom; E.home[i] = -1; E.work[i] = -1; E.traits0[i] = 0; E.traits1[i] = 0;
     E.mother[i] = opt.mother == null ? -1 : opt.mother; E.father[i] = opt.father == null ? -1 : opt.father; E.spouse[i] = -1; E.religion[i] = opt.religion == null ? -1 : opt.religion; E.culture[i] = opt.culture == null ? -1 : opt.culture;
-    E.carry[i] = 0; E.carryN[i] = 0; E.anim[i] = 0; E.dir[i] = 0; E.flags[i] = 0; E.look[i] = 0; E.army[i] = -1; E.kills[i] = 0; E.cool[i] = 0; E.stuck[i] = 0; E.preg[i] = -1; E.pathLen[i] = 0; E.pathPos[i] = 0; E.flow[i] = -1;
+    E.carry[i] = 0; E.carryN[i] = 0; E.anim[i] = 0; E.dir[i] = 0; E.flags[i] = 0; E.look[i] = 0; E.army[i] = -1; E.kills[i] = 0; E.cool[i] = 0; E.stuck[i] = 0; E.preg[i] = -1; E.clan[i] = opt.clan == null ? -1 : opt.clan; E.pathLen[i] = 0; E.pathPos[i] = 0; E.flow[i] = -1;
     const years = K.lifespan || 20, life = years * AL.YEAR * (0.85 + rng.f() * 0.3); E.life[i] = life | 0;
     const ageFrac = opt.age == null ? (K.cls === 0 ? 0.25 + rng.f() * 0.3 : 0.2 + rng.f() * 0.5) : opt.age; E.born[i] = (sim.tick - ageFrac * life) | 0;
     if (opt.traits) { E.traits0[i] = opt.traits[0]; E.traits1[i] = opt.traits[1]; } else if (K.cls === 0) { const n = 1 + rng.int(3); for (let k = 0; k < n; k++) E.addTrait(i, rng.int(48), true); }
@@ -469,7 +469,9 @@
   AL.Sim.modules.push({
     name: 'towns',
     // crops ripen on their own in about a year (tending speeds them up); berries and mushrooms regrow
-    tile(sim, i, x, y, g) { const W = sim.world, f = W.feature[i]; if (!f) return; if (f === AL.F.wheat) { const v = W.fgrow[i]; if (v < 250) { const nv = Math.min(250, v + 7); W.fgrow[i] = nv; if ((nv >> 6) !== (v >> 6) || nv === 250) W.mark(x, y); } }
+    tile(sim, i, x, y, g) { const W = sim.world, f = W.feature[i], rd = W.road[i];
+      if (rd) { if (g === AL.G.road) { if (rd < 30) { W.setGround(i, W.owner[i] || sim.rng.chance(0.5) ? AL.G.grass : AL.G.soil); W.road[i] = 0; } else W.road[i] = rd - 2; } else { if (rd > 150 && !(W.flags[i] & 10) && AL.gCost[g] > 0 && g !== AL.G.sand && g !== AL.G.snow && g !== AL.G.mountain) { W.setGround(i, AL.G.road); if (f && AL.fKind[f] !== 1) W.feature[i] = 0; } else W.road[i] = rd > 3 ? rd - 3 : 0; } }
+      if (!f) return; if (f === AL.F.wheat) { const v = W.fgrow[i]; if (v < 250) { const nv = Math.min(250, v + 7); W.fgrow[i] = nv; if ((nv >> 6) !== (v >> 6) || nv === 250) W.mark(x, y); } }
       else if ((f === AL.F.berry || f === AL.F.mushroom) && W.fgrow[i] < 255) { const v = W.fgrow[i], nv = Math.min(255, v + 4); W.fgrow[i] = nv; if (v <= 200 && nv > 200) W.mark(x, y); } },
     init(sim) { sim.B = new Blds(); sim.towns = []; sim.bmap = new Int16Array(sim.world.n * sim.world.n); sim.ownerDirty = true; },
     tick(sim) { const towns = sim.towns, B = sim.B;
@@ -543,7 +545,7 @@
     if (town && town.berries) for (const t of town.berries) { if (W.fgrow[t] < 200) continue; const d = Math.abs(t % n - x) + Math.abs(((t / n) | 0) - y); if (d < bd) { bd = d; best = t; } }
     if (best < 0) for (let k = 0; k < 24; k++) { const X = x + sim.rng.int(17) - 8, Y = y + sim.rng.int(17) - 8; if (!W.inb(X, Y)) continue; const t = Y * n + X, f = W.feature[t]; if ((f === AL.F.berry || f === AL.F.mushroom) && W.fgrow[t] > 200) { best = t; break; } }
     if (best >= 0 && begin(sim, i, ACT.FORAGE, best % n, (best / n) | 0)) return true;
-    const t = U.randomNear(sim, E.x[i], E.y[i], 9); if (t >= 0) begin(sim, i, ACT.WANDER, t % n, (t / n) | 0); return false; };
+    const t = U.randomNear(sim, E.x[i], E.y[i], 9); if (t >= 0) begin(sim, i, AL.gFert[W.ground[t]] > 0.2 ? ACT.FORAGE : ACT.WANDER, t % n, (t / n) | 0); return false; };
   U.startHaul = function (sim, i, town) { const E = sim.E, B = sim.B, b = T.nearestStore(sim, town, E.x[i], E.y[i]); if (b < 0) { E.carryN[i] = 0; return; } if (begin(sim, i, ACT.HAUL, T.doorX(B, b), T.doorY(B, b))) E.tB[i] = b; };
   U.startSleep = function (sim, i, town) { const E = sim.E, B = sim.B; let b = E.home[i]; if (b < 0 || !B.alive[b] || B.state[b] !== 1) { b = -1; E.home[i] = -1;
       for (const hb of town.blds) { if (B.state[hb] !== 1) continue; const cap = AL.BTYPES[B.type[hb]].cap; if (cap && B.occ[hb] < cap) { b = hb; B.occ[hb]++; E.home[i] = hb; break; } } }
@@ -583,7 +585,7 @@
       case ACT.WANDER: E.anim[i] = A.idle; if (tm > 20 + (E.seed[i] & 31)) E.act[i] = ACT.NONE; break;
       case ACT.GOTO: E.act[i] = ACT.NONE; break;
       case ACT.EAT: E.anim[i] = A.idle; if (tm > 14) { if (town && town.stock[R.food] >= 1) { town.stock[R.food] -= 1; E.hunger[i] = Math.max(0, E.hunger[i] - 60); if (E.hunger[i] > 35 && town.stock[R.food] >= 1) { town.stock[R.food] -= 1; E.hunger[i] = Math.max(0, E.hunger[i] - 60); } E.mood[i] = Math.min(100, E.mood[i] + 4); } else E.cool[i] = 8; E.act[i] = ACT.NONE; } break;
-      case ACT.FORAGE: E.anim[i] = A.work; if (tm > 30) { const t = (E.y[i] | 0) * n + (E.x[i] | 0), f = W.feature[t]; if ((f === AL.F.berry || f === AL.F.mushroom) && W.fgrow[t] > 200) { W.fgrow[t] = 20; W.mark(t % n, (t / n) | 0); E.hunger[i] = Math.max(0, E.hunger[i] - 45); } E.act[i] = ACT.NONE; } break;
+      case ACT.FORAGE: E.anim[i] = A.work; if (tm > 30) { const t = (E.y[i] | 0) * n + (E.x[i] | 0), f = W.feature[t]; if ((f === AL.F.berry || f === AL.F.mushroom) && W.fgrow[t] > 200) { W.fgrow[t] = 20; W.mark(t % n, (t / n) | 0); E.hunger[i] = Math.max(0, E.hunger[i] - 45); } else if (AL.gFert[W.ground[t]] > 0.2 && sim.rng.chance(0.7)) E.hunger[i] = Math.max(0, E.hunger[i] - 32); /* roots, eggs, small game */ E.act[i] = ACT.NONE; } break;
       case ACT.SLEEP: { E.anim[i] = E.tB[i] >= 0 ? A.inside : A.sleep; E.flags[i] |= F.ASLEEP; E.energy[i] = Math.min(100, E.energy[i] + (E.tB[i] >= 0 ? 0.55 : 0.35)); if (E.hp[i] < E.hpMax[i]) E.hp[i] += 0.05;
         if ((E.energy[i] >= 99 && !U.isNight(sim)) || E.hunger[i] > 78 || tm > 260) { E.flags[i] &= ~F.ASLEEP; E.act[i] = ACT.NONE; if (E.tB[i] < 0) E.mood[i] = Math.max(0, E.mood[i] - 6); } break; }
       case ACT.SOCIAL: E.anim[i] = (tm % 50) > 38 ? A.joy : A.idle; E.social[i] = Math.min(100, E.social[i] + 0.7); if (tm === 30) U.socialize(sim, i); if (tm > 70) E.act[i] = ACT.NONE; break;
@@ -602,7 +604,7 @@
           else if (sim.rng.chance(0.3)) ore = sim.rng.chance(0.55) ? R.iron : sim.rng.chance(0.75) ? R.copper : sim.rng.chance(0.85) ? R.gold : R.aetherite;
           if (ore >= 0 && sim.rng.chance(0.6)) { E.carry[i] = ore; E.carryN[i] = 1; town.stock[R.stone] += 1; } else { E.carry[i] = R.stone; E.carryN[i] = Math.round(3 * E.mod(i, 'mine')); } }
         else if (task === 'farm') { if (tgt >= 0 && (W.flags[tgt] & 8)) { if (W.feature[tgt] !== AL.F.wheat) { W.feature[tgt] = AL.F.wheat; W.fgrow[tgt] = 0; } else if (W.fgrow[tgt] >= 250) { W.fgrow[tgt] = 0; E.carry[i] = R.food; E.carryN[i] = Math.round(6 * E.mod(i, 'farm') * (sim.cropMul || 1)); } else W.fgrow[tgt] = Math.min(250, W.fgrow[tgt] + 40); W.mark(tgt % n, (tgt / n) | 0); } }
-        else if (task === 'gather' || task === 'hunt' || task === 'herd' || task === 'idle') { if (tgt >= 0 && W.fgrow[tgt] > 200) { W.fgrow[tgt] = 20; W.mark(tgt % n, (tgt / n) | 0); E.carry[i] = R.food; E.carryN[i] = 3; } else if (tgt === -2 && sim.rng.chance(0.6)) { E.carry[i] = R.food; E.carryN[i] = 1; } }
+        else if (task === 'gather' || task === 'hunt' || task === 'herd' || task === 'idle') { if (tgt >= 0 && W.fgrow[tgt] > 200) { W.fgrow[tgt] = 20; W.mark(tgt % n, (tgt / n) | 0); E.carry[i] = R.food; E.carryN[i] = 3; } else if (tgt === -2 && sim.rng.chance(0.7)) { E.carry[i] = R.food; E.carryN[i] = 2; } }
         else if (task === 'fish') { E.carry[i] = R.food; E.carryN[i] = Math.round(3 * E.mod(i, 'fish')); sim.emit('splash', E.x[i], E.y[i]); }
         else if (task === 'smith') { const st = town.stock; const ore = st[R.iron] >= 1 ? R.iron : st[R.copper] >= 1 ? R.copper : -1; if (ore >= 0 && st[R.wood] >= 1) { st[ore] -= 1; st[R.wood] -= 1; const k = st[R.tools] < town.pop * 0.3 ? R.tools : st[R.weapons] <= st[R.armor] ? R.weapons : R.armor; st[k] += ore === R.iron ? 2 : 1; sim.emit('anvil', E.x[i], E.y[i]); } }
         else if (task === 'study') { town.knowledge += 1 * E.mod(i, 'learn'); }
@@ -623,7 +625,7 @@
     const c = E.query(x, y, 10); let band = 0; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] !== E.kind[i] || (E.flags[j] & F.DEAD)) continue; if (E.town[j] >= 0 && sim.towns[E.town[j]].alive && !(E.flags[i] & F.SETTLER)) { U.joinTown(sim, i, sim.towns[E.town[j]]); return; } if (E.town[j] < 0) band++; }
     const age = sim.tick - (E.nomadSince ? 0 : 0);
     if (band >= 2 && !(W.owner[t]) && U.siteQuality(sim, x, y) > 0.55 && sim.rng.chance(E.flags[i] & F.SETTLER ? 0.5 : 0.12)) { let far = true; for (const tw of sim.towns) if (tw.alive && Math.abs(tw.cx - x) + Math.abs(tw.cy - y) < 30) far = false;
-      if (far) { const town = T.found(sim, E.kind[i], x, y, (E.flags[i] & F.SETTLER) ? E.kingdom[i] : null, i); if (town) { const c2 = E.query(x, y, 14); for (let k = 0; k < c2; k++) { const j = E.near[k]; if (E.kind[j] === E.kind[i] && E.town[j] < 0 && !(E.flags[j] & F.DEAD)) U.joinTown(sim, j, town); } return; } } }
+      if (far) { const town = T.found(sim, E.kind[i], x, y, (E.flags[i] & F.SETTLER) ? E.kingdom[i] : null, i); if (town) { const c2 = E.query(x, y, 14); for (let k = 0; k < c2; k++) { const j = E.near[k]; if (E.kind[j] === E.kind[i] && E.town[j] < 0 && !(E.flags[j] & F.DEAD)) { U.joinTown(sim, j, town); town.stock[AL.RES.food] += 5; town.stock[AL.RES.wood] += 1; } } return; } } }
     // wander, biased toward land the people likes; settlers keep their heading
     let r = -1; if ((E.flags[i] & F.SETTLER) && E.tx[i] >= 0 && Math.abs(E.tx[i] - x) + Math.abs(E.ty[i] - y) > 6 && E.stuck[i] < 3) { if (begin(sim, i, ACT.WANDER, E.tx[i], E.ty[i])) return; }
     r = U.randomNear(sim, E.x[i], E.y[i], 12); if (r >= 0) begin(sim, i, ACT.WANDER, r % n, (r / n) | 0); };
@@ -638,7 +640,7 @@
     if (E.preg[i] >= 0 && sim.tick >= E.preg[i]) { E.preg[i] = -1; E.flags[i] &= ~F.PREGNANT; const town = sim.towns[E.town[i]]; if (town && town.alive) U.birth(sim, i, E.spouse[i], town); }
     else if (E.sex[i] === 1 && E.spouse[i] >= 0 && E.preg[i] < 0 && !(fl & (F.CHILD | F.ELDER)) && E.town[i] >= 0) { const town = sim.towns[E.town[i]], sp = E.spouse[i];
       if (!E.alive[sp] || (E.flags[sp] & F.DEAD)) { E.spouse[i] = -1; } else if (town.alive && town.pop < town.popCap && town.pop - town.adults < town.adults * 0.7 + 1 && town.stock[AL.RES.food] > town.pop * 1.5 && E.count < E.cap - 200) { const p = 0.06 * (K.fertility || 1) * E.mod(i, 'fertility') * (sim.fertMul || 1) * (town.pop < 12 ? 1.8 : 1); if (sim.rng.chance(p)) { E.preg[i] = sim.tick + 300; E.flags[i] |= F.PREGNANT; } } } };
-  U.birth = function (sim, mother, father, town) { const E = sim.E, rng = sim.rng; const c = E.spawn(sim, E.kind[mother], E.x[mother], E.y[mother], { age: 0, town: town.id, kingdom: town.kingdom, mother, father, culture: E.culture[mother], religion: E.religion[mother], traits: [0, 0] }); if (c < 0) return -1;
+  U.birth = function (sim, mother, father, town) { const E = sim.E, rng = sim.rng; const c = E.spawn(sim, E.kind[mother], E.x[mother], E.y[mother], { age: 0, town: town.id, kingdom: town.kingdom, mother, father, culture: E.culture[mother], religion: E.religion[mother], traits: [0, 0], clan: father >= 0 && E.alive[father] && E.clan[father] >= 0 ? E.clan[father] : E.clan[mother] }); if (c < 0) return -1;
     // inheritance: each parental inborn trait passes with 45%; 3% mutation adds a random inborn trait
     for (let t = 0; t < 48; t++) { const m = E.hasTrait(mother, t), f = father >= 0 && E.alive[father] ? E.hasTrait(father, t) : 0; if ((m && rng.chance(0.45)) || (f && rng.chance(0.45))) E.addTrait(c, t, true); } if (rng.chance(0.03 * (sim.mutMul || 1))) E.addTrait(c, rng.int(48), true); if (rng.chance(0.004 * (sim.mutMul || 1))) E.addTrait(c, AL.TRAIT.mutant, true);
     E.recalc(c); E.hp[c] = E.hpMax[c]; E.flags[c] |= F.CHILD; E.look[c] = AL.LOOK.child; E.home[c] = E.home[mother]; town.pop++; sim.stats.births++; sim.emit('birth', E.x[c], E.y[c]); return c; };
@@ -652,6 +654,8 @@
         if (E.flags[i] & F.DEAD) { if (--E.timer[i] <= 0) E.remove(i); continue; }
         // needs
         const asleep = E.flags[i] & F.ASLEEP; E.hunger[i] += asleep ? 0.1 : 0.2; if (!asleep) E.energy[i] -= 0.13; E.social[i] -= 0.04; E.faith[i] -= 0.015;
+        // travellers (merchants, armies, settlers far from any store) eat the rations they carry from their town's stock
+        if (E.hunger[i] > 70 && ((i + tk) & 15) === 0 && E.town[i] >= 0) { const a = E.act[i], tw = sim.towns[E.town[i]]; if (tw && tw.alive && tw.stock[AL.RES.food] >= 1 && (a === ACT.TRADE || a === ACT.MARCH || a === ACT.SIEGE || a === ACT.FIGHT || (E.flags[i] & F.MOBILIZED) || Math.abs(E.x[i] - tw.cx) + Math.abs(E.y[i] - tw.cy) > 28)) { tw.stock[AL.RES.food] -= 1; E.hunger[i] -= 60; } }
         if (E.hunger[i] >= 100) { E.hunger[i] = 100; E.hp[i] -= 0.15; if (E.hp[i] <= 0) { sim.stats.starved++; E.kill(sim, i, 'hunger'); continue; } } else if (E.hp[i] < E.hpMax[i] && E.hunger[i] < 60) E.hp[i] += 0.02;
         if (E.energy[i] < 0) E.energy[i] = 0; if (E.social[i] < 0) E.social[i] = 0; if (E.faith[i] < 0) E.faith[i] = 0;
         if (((i + tk) & 63) === 0) { U.lifeTick(sim, i); if (E.flags[i] & F.DEAD) continue; }
@@ -701,7 +705,7 @@
   const dist2 = (E, a, b) => { const dx = E.x[a] - E.x[b], dy = E.y[a] - E.y[b]; return dx * dx + dy * dy; };
   C.hostileTo = function (sim, a, t) { const E = sim.E, Ka = AL.KINDS[E.kind[a]]; return Ka.cls === 2 || ((E.act[a] === CA.CHASE || E.act[a] === CA.ATTACK) && E.tE[a] === t); };
   // people: react to a nearby danger. Returns true when the unit now flees or fights.
-  C.threat = function (sim, i) { const E = sim.E, n = sim.world.n, c = E.query(E.x[i], E.y[i], 6), np = AL.NPEOPLE; let h = -1, bd = 1e9; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] < np || (E.flags[j] & F.DEAD)) continue; const K = AL.KINDS[E.kind[j]];
+  C.threat = function (sim, i) { const E = sim.E, n = sim.world.n, c = E.query(E.x[i], E.y[i], 6), np = AL.NPEOPLE; let h = -1, bd = 1e9; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.flags[j] & F.DEAD) continue; if (E.kind[j] < np) { if (!(AL.War && AL.War.hostile(sim, i, j))) continue; const d = dist2(E, i, j); if (d < bd) { bd = d; h = j; } continue; } const K = AL.KINDS[E.kind[j]];
       if (!(K.cls === 2 || ((E.act[j] === CA.CHASE || E.act[j] === CA.ATTACK) && E.tE[j] >= 0 && E.kind[E.tE[j]] < np))) continue; const d = dist2(E, i, j); if (d < bd) { bd = d; h = j; } }
     if (h < 0) return false; const mil = AL.JOBS[E.job[i]].military || AL.JOBS[E.job[i]].name === 'hunter';
     if (!(E.flags[i] & (F.CHILD | F.ELDER)) && (mil || E.courage[i] > 0.72 || (bd < 2.5 && E.courage[i] > 0.45))) { U.stop(E, i); E.act[i] = ACT.FIGHT; E.tE[i] = h; E.phase[i] = 1; E.timer[i] = 0; return true; }
@@ -709,7 +713,7 @@
     if (town && town.alive && Math.abs(town.cx - E.x[h]) + Math.abs(town.cy - E.y[h]) > 6) { tx = town.cx; ty = town.cy; } else { const t = U.randomNear(sim, E.x[i] + dx / l * 8, E.y[i] + dy / l * 8, 3); if (t < 0) return false; tx = t % n; ty = (t / n) | 0; }
     if (U.begin(sim, i, ACT.FLEE, tx, ty)) { E.flags[i] |= F.FLEEING; E.mood[i] = Math.max(0, E.mood[i] - 3); return true; } return false; };
   // cheap check: is something hostile within 4 tiles of this person?
-  C.near = function (sim, i) { const E = sim.E, c = E.query(E.x[i], E.y[i], 4), np = AL.NPEOPLE; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] < np || (E.flags[j] & F.DEAD)) continue; if (AL.KINDS[E.kind[j]].cls === 2 || ((E.act[j] === CA.CHASE || E.act[j] === CA.ATTACK) && E.tE[j] >= 0 && E.kind[E.tE[j]] < np)) return true; } return false; };
+  C.near = function (sim, i) { const E = sim.E, c = E.query(E.x[i], E.y[i], 4), np = AL.NPEOPLE; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.flags[j] & F.DEAD) continue; if (E.kind[j] < np) { if (AL.War && AL.War.hostile(sim, i, j)) return true; continue; } if (AL.KINDS[E.kind[j]].cls === 2 || ((E.act[j] === CA.CHASE || E.act[j] === CA.ATTACK) && E.tE[j] >= 0 && E.kind[E.tE[j]] < np)) return true; } return false; };
   // hunters and herders: find game around the town
   C.startHunt = function (sim, i, town, task) { const E = sim.E, c = E.query(E.x[i], E.y[i], 16), np = AL.NPEOPLE; let best = -1, bd = 1e9; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] < np || (E.flags[j] & F.DEAD)) continue; const K = AL.KINDS[E.kind[j]]; if (K.cls !== 1 || K.fly || K.swim || K.diet === 'pred') continue; const d = dist2(E, i, j); if (d < bd) { bd = d; best = j; } }
     if (best < 0) return false; E.act[i] = ACT.FIGHT; E.tE[i] = best; E.phase[i] = 1; E.timer[i] = 0; return true; };
@@ -792,12 +796,137 @@
       if (tk % 900 === 0 && na < sim.animalCap * 0.25 && !sim.cfg.noFauna && !sim.cfg.empty) C.populate(sim, 0.12); },
     // flora: saplings grow, forests spread and come back from stumps, meadows regrow
     tile(sim, i, x, y, g) { const W = sim.world, f = W.feature[i], rng = sim.rng; if (W.fire[i]) return;
-      if (!f) { if (AL.gFert[g] > 0.3 && !(W.flags[i] & 10) && rng.chance(0.0015)) { const fb = AL.floraByBiome[g]; if (fb.small.length) { W.feature[i] = fb.small[rng.int(fb.small.length)]; W.fgrow[i] = 255; W.mark(x, y); } } return; }
+      if (!f) { if (AL.gFert[g] > 0.3 && !(W.flags[i] & 10) && rng.chance(0.00025)) { const fb = AL.floraByBiome[g]; if (fb.small.length) { W.feature[i] = fb.small[rng.int(fb.small.length)]; W.fgrow[i] = 255; W.mark(x, y); } } return; }
       const k = AL.fKind[f]; if (k === 1) { const v = W.fgrow[i]; if (v < 255) { const nv = Math.min(255, v + 2 + ((AL.FLORA[f].grow * 4 * (sim.growMul || 1)) | 0)); W.fgrow[i] = nv; if ((v < 70 && nv >= 70) || (v < 110 && nv >= 110)) W.mark(x, y); }
         else if (rng.chance(0.003)) { const n = W.n, X = x + rng.int(5) - 2, Y = y + rng.int(5) - 2; if (W.inb(X, Y)) { const j = Y * n + X, gj = W.ground[j]; if (!W.feature[j] && !(W.flags[j] & 10) && AL.gFert[gj] > 0.3 && AL.floraByBiome[gj].trees.includes(f) && W.road[j] < 60) { let near = 0; for (let d = 0; d < 4; d++) { const q = j + (d === 0 ? 1 : d === 1 ? -1 : d === 2 ? n : -n); if (q >= 0 && q < n * n && AL.fKind[W.feature[q]] === 1) near++; } if (near < 3) { W.feature[j] = f; W.fgrow[j] = 8; W.mark(X, Y); } } } } }
       else if (f === AL.F.stump && rng.chance(0.03)) { const fb = AL.floraByBiome[g]; if (fb.trees.length && rng.chance(0.55) && !(W.flags[i] & 10) && W.road[i] < 60) { W.feature[i] = fb.trees[rng.int(fb.trees.length)]; W.fgrow[i] = 8; } else W.feature[i] = 0; W.mark(x, y); } },
     query(sim, m) { if (m.q === 'census') { const E = sim.E, c = {}; for (let i = 0; i < E.hi; i++) if (E.alive[i] && !(E.flags[i] & F.DEAD)) { const k = AL.KINDS[E.kind[i]].name; c[k] = (c[k] || 0) + 1; } return c; } },
     onDeath(sim, i, cause) { const E = sim.E; if (E.kind[i] >= AL.NPEOPLE) sim.emit('death', E.x[i], E.y[i], E.kind[i], 2); },
+  });
+})(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));
+
+// AL.Realm — kingdoms, clans and succession, colonisation, diplomacy (relations, alliances, treaties, marriages, vassals,
+// betrayals, rebellions), AL.War (mobilisation, marches, battles, sieges, capture, peace), AL.Trade (merchant trips),
+// AL.Names (provisional name generator, replaced by languages in the culture module) and the chronicle.
+(function (AL) {
+  'use strict';
+  const R = AL.Realm = {}, War = AL.War = {}, Trade = AL.Trade = {}, N = AL.Names = {}, U = AL.Units, T = AL.Towns, F = AL.Ents.F, ACT = U.ACT;
+  ACT.SIEGE = 21; ACT.TRADE = 22;
+  // ------------------------------------------------------------ names
+  const SYL = { human: [['al', 'be', 'ca', 'da', 'el', 'fa', 'ga', 'ha', 'is', 'jo', 'ka', 'lo', 'ma', 'ne', 'or', 'pe', 'ro', 'sa', 'te', 'va', 'wil', 'ed', 'bran', 'cor'], ['ric', 'bert', 'den', 'wyn', 'mar', 'lin', 'ton', 'ford', 'mund', 'ald', 'ren', 'vin', 'dor', 'las', 'ian', 'eth'], ['a', 'ia', 'en', 'or', 'um', 'ey', 'on', 'is']],
+    orc: [['gr', 'kr', 'dr', 'ur', 'zog', 'mag', 'rok', 'thr', 'gul', 'bor', 'sha', 'naz', 'ug', 'mor'], ['ak', 'ug', 'ash', 'gor', 'uk', 'ob', 'az', 'osh', 'mak', 'dur'], ['', 'a', 'uk', 'ar', 'og']] };
+  function word(h, lang, parts) { const S = SYL[lang] || SYL.human; let s = S[0][h % S[0].length]; h = (h / 31) | 0; s += S[1][h % S[1].length]; h = (h / 17) | 0; if (parts > 2) s += S[2][h % S[2].length]; return s.charAt(0).toUpperCase() + s.slice(1); }
+  N.person = (seed, kind) => (AL.Lang && AL.Lang.person ? AL.Lang.person(seed, kind) : word(seed >>> 3, AL.KINDS[kind].lang, 2 + (seed & 1)));
+  N.place = (seed, kind) => (AL.Lang && AL.Lang.place ? AL.Lang.place(seed, kind) : word(seed >>> 5, AL.KINDS[kind].lang, 3));
+  // ------------------------------------------------------------ chronicle
+  R.log = function (sim, type, text, x, y, a, b) { const c = sim.chron; c.push({ t: sim.tick, k: type, s: text, x: x | 0, y: y | 0, a: a == null ? -1 : a, b: b == null ? -1 : b }); if (c.length > 600) c.splice(0, 100); sim.emit('chron', type, text, x | 0, y | 0); };
+  R.year = sim => 1 + Math.floor(sim.tick / AL.YEAR);
+  // ------------------------------------------------------------ kingdoms
+  const RAMPS = { human: [9, 14, 13, 10, 15, 6], orc: [2, 12, 4, 0, 10, 1], elf: [13, 1, 7], dwarf: [10, 5, 4], myrrin: [11, 15, 12], okari: [14, 6, 7] };
+  R.create = function (sim, town, ruler) { const K = AL.KINDS[town.people], id = sim.kingdoms.length, pref = RAMPS[K.name] || [9, 14, 13]; let ramp = pref[0]; for (const r of pref) if (!sim.kingdoms.some(k => k.alive && k.ramp === r)) { ramp = r; break; }
+    const kd = { id, alive: true, people: town.people, name: N.place(town.seed ^ 0x51ed, town.people), capital: town.id, ruler: -1, rulerGen: 0, rulerName: '', clan: -1, ramp, founded: sim.tick, towns: [town.id], rel: {}, wars: {}, allies: {}, treaty: {}, vassalOf: -1, stability: 70, lastColony: sim.tick, culture: Object.assign({}, K.culture), kills: 0, losses: 0, reigns: 0 };
+    sim.kingdoms.push(kd); town.kingdom = id; for (const o of sim.kingdoms) if (o !== kd && o.alive) { const v = o.people === kd.people ? 5 : -30; kd.rel[o.id] = v; o.rel[id] = v; }
+    R.log(sim, 'kingdom', 'The kingdom of ' + kd.name + ' is founded', town.cx, town.cy, id); if (ruler >= 0) R.crown(sim, kd, ruler, true); sim.ownerDirty = true; return kd; };
+  R.crown = function (sim, kd, i, first) { const E = sim.E; if (kd.ruler >= 0 && E.alive[kd.ruler] && E.gen[kd.ruler] === kd.rulerGen) { E.flags[kd.ruler] &= ~F.RULER; if (E.job[kd.ruler] === AL.JOB.ruler) E.job[kd.ruler] = 0; }
+    kd.ruler = i; kd.rulerGen = E.gen[i]; kd.reigns++; E.flags[i] |= F.RULER | F.NOTABLE; E.job[i] = AL.JOB.ruler; E.work[i] = -1; T.setLook(E, i); kd.rulerName = N.person(E.seed[i], E.kind[i]);
+    if (E.clan[i] < 0) { E.clan[i] = sim.clans.length; sim.clans.push({ id: sim.clans.length, name: N.person(E.seed[i] >>> 7, E.kind[i]), founder: kd.rulerName, kingdom: kd.id, founded: sim.tick, crowns: 0 }); }
+    const cl = sim.clans[E.clan[i]]; cl.crowns++; if (kd.clan !== cl.id) { if (kd.clan >= 0) { kd.stability = Math.max(5, kd.stability - 25); R.log(sim, 'dynasty', 'House ' + cl.name + ' takes the throne of ' + kd.name, E.x[i], E.y[i], kd.id); } kd.clan = cl.id; cl.kingdom = kd.id; }
+    if (!first) R.log(sim, 'crown', kd.rulerName + ' of house ' + cl.name + (E.sex[i] ? ' is crowned queen of ' : ' is crowned king of ') + kd.name, E.x[i], E.y[i], kd.id); };
+  R.succession = function (sim, kd, dead) { const E = sim.E; let heir = -1, hs = -1; const cap = sim.towns[kd.capital];
+    for (let i = 0; i < E.hi; i++) { if (!E.alive[i] || (E.flags[i] & (F.DEAD | F.CHILD)) || E.kingdom[i] !== kd.id || E.kind[i] >= AL.NPEOPLE) continue; let s = sim.rng.f(); if (E.mother[i] === dead || E.father[i] === dead) s += 100; if (E.spouse[i] === dead) s += 20; if (E.clan[i] === kd.clan && kd.clan >= 0) s += 50; if (cap && E.town[i] === cap.id) s += 5; if (E.flags[i] & F.ELDER) s -= 3; if (s > hs) { hs = s; heir = i; } }
+    if (heir < 0) { kd.ruler = -1; return; } R.crown(sim, kd, heir, false); };
+  R.kill = function (sim, kd, by) { if (!kd.alive) return; kd.alive = false; for (const o of sim.kingdoms) { delete o.wars[kd.id]; delete o.allies[kd.id]; if (o.vassalOf === kd.id) o.vassalOf = -1; } R.log(sim, 'fall', 'The kingdom of ' + kd.name + ' is no more', 0, 0, kd.id, by == null ? -1 : by); sim.ownerDirty = true; R.refreshWarFlags(sim); };
+  R.strength = function (sim, kd) { let s = 0; for (const t of kd.towns) { const tw = sim.towns[t]; if (tw && tw.alive) s += tw.soldiers * 2 + tw.adults * 0.35; } return s; };
+  R.minDist = function (sim, a, b) { let d = 1e9; for (const x of a.towns) for (const y of b.towns) { const t = sim.towns[x], u = sim.towns[y]; if (t.alive && u.alive) d = Math.min(d, Math.abs(t.cx - u.cx) + Math.abs(t.cy - u.cy)); } return d; };
+  R.refreshWarFlags = function (sim) { for (const t of sim.towns) if (t.alive) { const kd = sim.kingdoms[t.kingdom], w = !!kd && Object.keys(kd.wars).length > 0; t.atWar = w; t.threat = w; } };
+  // ------------------------------------------------------------ diplomacy
+  R.declare = function (sim, a, b, cause) { if (a.wars[b.id] != null || !a.alive || !b.alive || a === b) return; a.wars[b.id] = sim.tick; b.wars[a.id] = sim.tick; delete a.allies[b.id]; delete b.allies[a.id]; a.rel[b.id] = b.rel[a.id] = Math.min(a.rel[b.id] || 0, -60); if (b.vassalOf === a.id) b.vassalOf = -1; if (a.vassalOf === b.id) a.vassalOf = -1;
+    const cap = sim.towns[b.capital]; R.log(sim, 'war', a.name + ' declares war on ' + b.name + ' (' + cause + ')', cap ? cap.cx : 0, cap ? cap.cy : 0, a.id, b.id); R.refreshWarFlags(sim);
+    for (const o of sim.kingdoms) if (o.alive && o !== a && o !== b && o.allies[b.id] && (o.rel[b.id] || 0) > 30 && o.wars[a.id] == null && sim.rng.chance(0.7)) { o.wars[a.id] = sim.tick; a.wars[o.id] = sim.tick; o.rel[a.id] = a.rel[o.id] = -50; R.log(sim, 'war', o.name + ' joins the war to defend ' + b.name, 0, 0, o.id, a.id); } R.refreshWarFlags(sim); };
+  R.peace = function (sim, a, b, how) { if (a.wars[b.id] == null) return; delete a.wars[b.id]; delete b.wars[a.id]; a.treaty[b.id] = b.treaty[a.id] = sim.tick + 9600; a.past = a.past || {}; b.past = b.past || {}; a.past[b.id] = b.past[a.id] = (a.past[b.id] || 0) + 1; a.rel[b.id] = b.rel[a.id] = -15; R.log(sim, 'peace', a.name + ' and ' + b.name + ' make peace' + (how ? ' (' + how + ')' : ''), 0, 0, a.id, b.id); R.refreshWarFlags(sim);
+    const E = sim.E; for (let i = 0; i < E.hi; i++) if (E.alive[i] && (E.flags[i] & F.MOBILIZED) && (E.kingdom[i] === a.id || E.kingdom[i] === b.id)) { const tt = sim.towns[E.army[i]]; if (!tt || !tt.alive || sim.kingdoms[E.kingdom[i]].wars[tt.kingdom] == null) { E.flags[i] &= ~F.MOBILIZED; E.army[i] = -1; if (E.act[i] === ACT.MARCH || E.act[i] === ACT.SIEGE) { U.stop(E, i); E.act[i] = ACT.NONE; } } } };
+  R.diplomacy = function (sim, a) { const rng = sim.rng, E = sim.E, sa = R.strength(sim, a);
+    for (const b of sim.kingdoms) { if (!b.alive || b.id === a.id) continue; const d = R.minDist(sim, a, b); if (d > 150) continue; const war = a.wars[b.id] != null, sb = R.strength(sim, b);
+      let rel = a.rel[b.id] || 0; const target = (a.people === b.people ? 12 : -28) - (a.culture.war + b.culture.war) * 12 + (a.culture.trade + b.culture.trade) * 8 - (d < 46 ? 16 : 0) + (a.allies[b.id] ? 25 : 0) + (a.religion != null && a.religion === b.religion && a.religion >= 0 ? 12 : 0) - (a.religion != null && b.religion != null && a.religion >= 0 && b.religion >= 0 && a.religion !== b.religion ? 10 : 0);
+      if (!war) { rel += (target - rel) * 0.12 + rng.range(-5, 5); rel = AL.clamp(rel, -100, 100); a.rel[b.id] = b.rel[a.id] = rel; }
+      if (war) { const dur = sim.tick - a.wars[b.id]; if (dur > 4200 || (dur > 1500 && (sa < sb * 0.45 || sb < sa * 0.45)) || (dur > 2400 && rng.chance(0.25))) { const weak = sa < sb ? a : b, strong = weak === a ? b : a; R.peace(sim, a, b, dur > 4200 ? 'exhaustion' : 'treaty'); if (Math.min(sa, sb) < Math.max(sa, sb) * 0.5 && weak.vassalOf < 0 && strong.vassalOf !== weak.id && rng.chance(0.6)) { weak.vassalOf = strong.id; weak.allies[strong.id] = strong.allies[weak.id] = sim.tick; R.log(sim, 'vassal', weak.name + ' becomes a vassal of ' + strong.name, 0, 0, weak.id, strong.id); } } continue; }
+      if ((a.treaty[b.id] || 0) > sim.tick) continue;
+      if (a.allies[b.id]) { if (rel < -5 && rng.chance(0.35)) { if (rng.chance(0.4 * a.culture.war + 0.1)) { R.log(sim, 'betrayal', a.name + ' betrays its ally ' + b.name, 0, 0, a.id, b.id); R.declare(sim, a, b, 'betrayal'); } else { delete a.allies[b.id]; delete b.allies[a.id]; R.log(sim, 'alliance', 'The alliance between ' + a.name + ' and ' + b.name + ' is broken', 0, 0, a.id, b.id); } } continue; }
+      if (rel < -35 && a.vassalOf !== b.id && sa > sb * 0.75 && sa >= 4 && sim.tick - a.founded > 3600 && sim.tick - b.founded > 2400 && rng.chance((0.2 + a.culture.war * 0.5) / (1 + (a.past && a.past[b.id] || 0) * 1.5))) { R.declare(sim, a, b, a.incited === b.id ? 'the will of the god' : d < 46 ? 'a border dispute' : a.people !== b.people ? 'old hatred' : a.religion != null && a.religion !== b.religion && a.religion >= 0 ? 'faith' : 'the ambition of ' + (a.rulerName || 'its ruler')); a.incited = -1; continue; }
+      if (rel > 42 && rng.chance(0.35)) { a.allies[b.id] = b.allies[a.id] = sim.tick; R.log(sim, 'alliance', a.name + ' and ' + b.name + ' form an alliance', 0, 0, a.id, b.id); continue; }
+      // royal marriage between friendly houses
+      if (rel > 22 && a.people === b.people && a.ruler >= 0 && b.ruler >= 0 && E.alive[a.ruler] && E.alive[b.ruler] && E.spouse[a.ruler] < 0 && E.spouse[b.ruler] < 0 && E.sex[a.ruler] !== E.sex[b.ruler] && rng.chance(0.3)) { E.spouse[a.ruler] = b.ruler; E.spouse[b.ruler] = a.ruler; a.rel[b.id] = b.rel[a.id] = Math.min(100, rel + 30); R.log(sim, 'marriage', a.rulerName + ' of ' + a.name + ' weds ' + b.rulerName + ' of ' + b.name, 0, 0, a.id, b.id); } }
+    // vassals pay tribute in food
+    if (a.vassalOf >= 0) { const lord = sim.kingdoms[a.vassalOf]; if (!lord || !lord.alive) a.vassalOf = -1; else { const ct = sim.towns[a.capital], lt = sim.towns[lord.capital]; if (ct && lt && ct.alive && lt.alive) { const v = Math.min(20, ct.stock[AL.RES.food] * 0.1); ct.stock[AL.RES.food] -= v; lt.stock[AL.RES.food] += v; } if ((a.rel[lord.id] || 0) < -30 && sa > R.strength(sim, lord) * 0.8) { a.vassalOf = -1; R.log(sim, 'independence', a.name + ' throws off the yoke of ' + lord.name, 0, 0, a.id, lord.id); } } }
+    // towns: loyalty, rebellion, colonies
+    a.stability = AL.clamp(a.stability + (72 - a.stability) * 0.1 - Object.keys(a.wars).length * 3, 0, 100);
+    for (const tid of a.towns.slice()) { const t = sim.towns[tid]; if (!t || !t.alive) continue; const cap = sim.towns[a.capital], far = cap && cap !== t ? (Math.abs(cap.cx - t.cx) + Math.abs(cap.cy - t.cy)) / 12 : 0, hungry = t.stock[AL.RES.food] < t.pop;
+      t.loyalty = AL.clamp(t.loyalty + (a.stability - t.loyalty) * 0.15 - far * 0.4 - (hungry ? 8 : 0) + rng.range(-3, 3) + (sim.loyaltyMul || 0), 0, 100);
+      if (t !== cap && t.loyalty < 16 && t.adults >= 6 && rng.chance(0.4)) { R.rebel(sim, a, t); continue; }
+      if (t.adults >= 16 && t.pop >= 26 && sim.tick - a.lastColony > 1800 && a.towns.length < 14 && t.stock[AL.RES.food] > t.pop * 3 && !t.atWar) R.colonize(sim, a, t); } };
+  R.rebel = function (sim, a, t) { const E = sim.E; a.towns.splice(a.towns.indexOf(t.id), 1); let leader = -1; for (let i = 0; i < E.hi; i++) if (E.alive[i] && E.town[i] === t.id && !(E.flags[i] & (F.DEAD | F.CHILD))) { if (leader < 0) leader = i; }
+    t.kingdom = -1; const kd = R.create(sim, t, leader); for (let i = 0; i < E.hi; i++) if (E.alive[i] && E.town[i] === t.id) E.kingdom[i] = kd.id; t.loyalty = 80; kd.rel[a.id] = a.rel[kd.id] = -45; R.log(sim, 'rebellion', t.name + ' rebels against ' + a.name + ' and proclaims the kingdom of ' + kd.name, t.cx, t.cy, kd.id, a.id); if (sim.rng.chance(0.5)) R.declare(sim, a, kd, 'the rebellion'); };
+  R.colonize = function (sim, a, t) { const W = sim.world, n = W.n, rng = sim.rng, E = sim.E, reg = W.region[t.cy * n + t.cx]; let best = -1, bq = 0.6;
+    for (let k = 0; k < 40; k++) { const an = rng.f() * 6.283, r = 34 + rng.f() * 40, x = Math.round(t.cx + Math.cos(an) * r), y = Math.round(t.cy + Math.sin(an) * r); if (!W.inb(x, y) || x < 10 || y < 10 || x > n - 10 || y > n - 10) continue; const j = y * n + x; if (W.region[j] !== reg || W.owner[j]) continue; let far = true; for (const o of sim.towns) if (o.alive && Math.abs(o.cx - x) + Math.abs(o.cy - y) < 32) far = false; if (!far) continue; const q = U.siteQuality(sim, x, y) + rng.f() * 0.05; if (q > bq) { bq = q; best = j; } }
+    if (best < 0) { a.lastColony = sim.tick - 1200; return; } let sent = 0; for (let i = 0; i < E.hi && sent < 6; i++) { if (!E.alive[i] || E.town[i] !== t.id || (E.flags[i] & (F.DEAD | F.CHILD | F.ELDER | F.RULER | F.MOBILIZED)) || AL.JOBS[E.job[i]].military) continue; if (rng.chance(0.5)) continue;
+      const h = E.home[i]; if (h >= 0 && sim.B.occ[h] > 0) sim.B.occ[h]--; const w = E.work[i]; if (w >= 0 && sim.B.workers[w] > 0) sim.B.workers[w]--; E.town[i] = -1; E.home[i] = -1; E.work[i] = -1; E.job[i] = 0; E.flags[i] |= F.SETTLER; E.flags[i] &= ~F.ASLEEP; U.stop(E, i); E.act[i] = ACT.NONE; E.tx[i] = best % n; E.ty[i] = (best / n) | 0; E.hunger[i] = 0; E.stuck[i] = 0; T.setLook(E, i); t.pop--; sent++; }
+    if (sent) { a.lastColony = sim.tick; t.stock[AL.RES.food] -= Math.min(t.stock[AL.RES.food], sent * 4); R.log(sim, 'colony', 'Settlers leave ' + t.name + ' to found a new town for ' + a.name, t.cx, t.cy, a.id); } };
+  // ------------------------------------------------------------ war
+  War.atWar = (sim, ka, kb) => ka >= 0 && kb >= 0 && ka !== kb && sim.kingdoms[ka] && sim.kingdoms[ka].wars[kb] != null;
+  War.hostile = function (sim, i, j) { const E = sim.E; return E.kind[j] < AL.NPEOPLE && War.atWar(sim, E.kingdom[i], E.kingdom[j]) && (AL.JOBS[E.job[j]].military || (E.flags[j] & F.MOBILIZED) || E.act[j] === ACT.FIGHT); };
+  War.findEnemy = function (sim, i, r) { const E = sim.E, c = E.query(E.x[i], E.y[i], r), ki = E.kingdom[i]; let best = -1, bd = 1e9; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] >= AL.NPEOPLE || (E.flags[j] & F.DEAD) || !War.atWar(sim, ki, E.kingdom[j])) continue; const dx = E.x[j] - E.x[i], dy = E.y[j] - E.y[i], d = dx * dx + dy * dy + (AL.JOBS[E.job[j]].military ? 0 : 30); if (d < bd) { bd = d; best = j; } } return best; };
+  War.unitDuty = function (sim, i, town) { const E = sim.E, B = sim.B, kd = sim.kingdoms[E.kingdom[i]]; if (!kd) return false;
+    const e = War.findEnemy(sim, i, 9); if (e >= 0) { U.stop(E, i); E.act[i] = ACT.FIGHT; E.tE[i] = e; E.phase[i] = 1; E.timer[i] = 0; return true; }
+    if (!(E.flags[i] & F.MOBILIZED)) return false; const tt = sim.towns[E.army[i]]; if (!tt || !tt.alive || kd.wars[tt.kingdom] == null) { E.flags[i] &= ~F.MOBILIZED; E.army[i] = -1; return false; }
+    const d = Math.abs(E.x[i] - tt.cx) + Math.abs(E.y[i] - tt.cy); if (d > 9) { if (U.begin(sim, i, ACT.MARCH, tt.cx, tt.cy)) return true; if (E.stuck[i] > 3) { E.flags[i] &= ~F.MOBILIZED; E.army[i] = -1; } return false; }
+    let sb = -1, bd = 1e9; for (const b of tt.blds) { if (B.state[b] === 3) continue; const dd = Math.abs(T.doorX(B, b) - E.x[i]) + Math.abs(T.doorY(B, b) - E.y[i]) + (B.type[b] === AL.BT.hall ? -4 : 0); if (dd < bd) { bd = dd; sb = b; } }
+    if (sb >= 0 && U.begin(sim, i, ACT.SIEGE, T.doorX(B, sb), T.doorY(B, sb))) { E.tB[i] = sb; return true; } return false; };
+  War.unitTick = function (sim, i) { return false; };
+  // every 240 ticks a kingdom at war sends its soldiers against the nearest enemy town
+  War.mobilize = function (sim, kd) { const E = sim.E, cap = sim.towns[kd.capital]; if (!cap) return; let target = null, bd = 1e9; const reg = sim.world.region[cap.cy * sim.world.n + cap.cx];
+    for (const eid in kd.wars) { const en = sim.kingdoms[eid]; if (!en || !en.alive) { delete kd.wars[eid]; continue; } for (const tid of en.towns) { const t = sim.towns[tid]; if (!t.alive || sim.world.region[t.cy * sim.world.n + t.cx] !== reg) continue; const d = Math.abs(t.cx - cap.cx) + Math.abs(t.cy - cap.cy); if (d < bd) { bd = d; target = t; } } }
+    if (!target) return; let n = 0; for (let i = 0; i < E.hi; i++) if (E.alive[i] && E.kingdom[i] === kd.id && !(E.flags[i] & (F.DEAD | F.CHILD)) && E.kind[i] < AL.NPEOPLE && AL.JOBS[E.job[i]].military) n++;
+    if (n < 3) return; for (let i = 0; i < E.hi; i++) if (E.alive[i] && E.kingdom[i] === kd.id && !(E.flags[i] & (F.DEAD | F.CHILD)) && E.kind[i] < AL.NPEOPLE && AL.JOBS[E.job[i]].military) { if (!(E.flags[i] & F.MOBILIZED) || E.army[i] !== target.id) { E.flags[i] |= F.MOBILIZED; E.army[i] = target.id; if (E.act[i] === ACT.GUARD || E.act[i] === ACT.WANDER) { U.stop(E, i); E.act[i] = ACT.NONE; } } }
+    if (kd.marchOn !== target.id) { kd.marchOn = target.id; R.log(sim, 'march', 'The army of ' + kd.name + ' marches on ' + target.name, target.cx, target.cy, kd.id, target.kingdom); } };
+  // a town whose hall falls to an enemy soldier changes hands
+  T.onHallLost = function (sim, town, by) { const E = sim.E, old = sim.kingdoms[town.kingdom], ak = by != null && by >= 0 && E.alive[by] ? sim.kingdoms[E.kingdom[by]] : null; town.hall = -1;
+    if (ak && old && ak !== old) { old.towns.splice(old.towns.indexOf(town.id), 1); ak.towns.push(town.id); town.kingdom = ak.id; town.loyalty = 35; ak.kills++; old.losses++;
+      for (let i = 0; i < E.hi; i++) if (E.alive[i] && E.town[i] === town.id) { E.kingdom[i] = ak.id; if (AL.JOBS[E.job[i]].military) { E.job[i] = 0; T.setLook(E, i); } E.flags[i] &= ~F.MOBILIZED; E.army[i] = -1; if (E.act[i] === ACT.FIGHT) E.act[i] = ACT.NONE; }
+      R.log(sim, 'capture', town.name + ' falls to ' + ak.name, town.cx, town.cy, ak.id, old.id); sim.emit('capture', town.cx, town.cy, ak.id);
+      if (old.capital === town.id) { let nt = null; for (const tid of old.towns) { const t = sim.towns[tid]; if (t.alive && (!nt || t.pop > nt.pop)) nt = t; } if (nt) { old.capital = nt.id; R.log(sim, 'capital', nt.name + ' becomes the capital of ' + old.name, nt.cx, nt.cy, old.id); if (old.ruler >= 0 && E.alive[old.ruler] && E.kingdom[old.ruler] !== old.id) R.succession(sim, old, -1); } else { R.peace(sim, ak, old, 'annexation'); R.kill(sim, old, ak.id); } }
+      else if (old.alive && sim.rng.chance(0.5)) R.peace(sim, ak, old, 'a town was ceded'); }
+    // a new hall rises next to the ruin (or the town dies)
+    let ok = false; const bt = AL.DATA.buildings.hall; for (let r = 1; r < 9 && !ok; r++) for (let k = 0; k < 14 && !ok; k++) { const x = town.cx - 2 + sim.rng.int(2 * r + 1) - r, y = town.cy - 3 + sim.rng.int(2 * r + 1) - r; if (T.canPlace(sim, town, bt, x, y)) { town.hall = T.place(sim, town, 'hall', x, y, true); town.cx = x + 2; town.cy = y + 3; ok = true; } }
+    if (!ok) T.remove(sim, town, 'sacked'); sim.ownerDirty = true; sim.B.dirty = true; };
+  // ------------------------------------------------------------ trade: a merchant walks to a friendly town, swaps surpluses and returns
+  Trade.startTrip = function (sim, i, town) { const E = sim.E; if (E.carryN[i]) return false; let best = null, bd = 110; const reg = sim.world.region[town.cy * sim.world.n + town.cx];
+    for (const t of sim.towns) { if (!t.alive || t === town || sim.world.region[t.cy * sim.world.n + t.cx] !== reg) continue; if (t.kingdom !== town.kingdom) { const kd = sim.kingdoms[town.kingdom]; if (!kd || kd.wars[t.kingdom] != null || (kd.rel[t.kingdom] || 0) < -10) continue; } const d = Math.abs(t.cx - town.cx) + Math.abs(t.cy - town.cy); if (d < bd) { bd = d; best = t; } }
+    if (!best) return false; if (!U.begin(sim, i, ACT.TRADE, best.cx, best.cy)) return false; E.tB[i] = -1; E.army[i] = best.id; return true; };
+  Trade.swap = function (sim, home, other) { const a = home.stock, b = other.stock; let moved = 0; for (let r = 0; r < AL.NRES; r++) { const pa = a[r] / Math.max(1, home.pop), pb = b[r] / Math.max(1, other.pop); if (pa > pb * 1.5 + 0.5 && a[r] > 12) { const v = Math.min(8, a[r] * 0.15); a[r] -= v; b[r] += v; moved += v; } else if (pb > pa * 1.5 + 0.5 && b[r] > 12) { const v = Math.min(8, b[r] * 0.15); b[r] -= v; a[r] += v; moved += v; } }
+    if (moved > 0) { home.wealth = (home.wealth || 0) + moved * 0.2; other.wealth = (other.wealth || 0) + moved * 0.2; sim.stats.trades = (sim.stats.trades || 0) + 1; if (home.kingdom !== other.kingdom && home.kingdom >= 0 && other.kingdom >= 0) { const ka = sim.kingdoms[home.kingdom], kb = sim.kingdoms[other.kingdom]; ka.rel[kb.id] = kb.rel[ka.id] = Math.min(100, (ka.rel[kb.id] || 0) + 1.5); } } return moved; };
+  const prevExtra = AL.UnitsExtra;
+  AL.UnitsExtra = function (sim, i, a, tm) { const E = sim.E, B = sim.B;
+    if (a === ACT.MARCH) { E.act[i] = ACT.NONE; return true; }
+    if (a === ACT.SIEGE) { const b = E.tB[i]; if (b < 0 || !B.alive[b] || B.state[b] === 3) { E.act[i] = ACT.NONE; return true; } E.anim[i] = AL.ANIM.attack; U.face(E, i, B.x[b] + B.w[b] / 2, B.y[b]);
+      if (tm % 12 === 6) { sim.emit('siege', E.x[i], E.y[i], b); T.damage(sim, b, E.atk[i] * 0.9, i); } if (tm > 96 || ((tm & 15) === 0 && War.findEnemy(sim, i, 6) >= 0)) E.act[i] = ACT.NONE; return true; }
+    if (a === ACT.TRADE) { const other = sim.towns[E.army[i]], home = sim.towns[E.town[i]]; E.army[i] = -1; E.act[i] = ACT.NONE; if (other && other.alive && home && home.alive) { Trade.swap(sim, home, other); sim.emit('trade', E.x[i], E.y[i]); E.cool[i] = 40; } return true; }
+    return prevExtra ? prevExtra(sim, i, a, tm) : false; };
+  // ------------------------------------------------------------ module
+  AL.Sim.modules.push({
+    name: 'realm',
+    init(sim) { sim.kingdoms = []; sim.clans = []; sim.chron = []; },
+    onTownFounded(sim, town, founder) { const E = sim.E; town.name = N.place(town.seed, town.people); if (town.kingdom >= 0 && sim.kingdoms[town.kingdom] && sim.kingdoms[town.kingdom].alive) { const kd = sim.kingdoms[town.kingdom]; kd.towns.push(town.id); R.log(sim, 'town', town.name + ' is founded for ' + kd.name, town.cx, town.cy, kd.id); }
+      else { town.kingdom = -1; R.create(sim, town, founder == null ? -1 : founder); if (founder != null && founder >= 0) E.kingdom[founder] = town.kingdom; } R.refreshWarFlags(sim); },
+    onTownRemoved(sim, town, cause) { const kd = sim.kingdoms[town.kingdom]; if (!kd) return; const k = kd.towns.indexOf(town.id); if (k >= 0) kd.towns.splice(k, 1); R.log(sim, 'ruin', town.name + ' is abandoned', town.cx, town.cy, kd.id);
+      if (!kd.towns.length) R.kill(sim, kd); else if (kd.capital === town.id) { let nt = null; for (const tid of kd.towns) { const t = sim.towns[tid]; if (t.alive && (!nt || t.pop > nt.pop)) nt = t; } if (nt) kd.capital = nt.id; } },
+    onDeath(sim, i, cause) { const E = sim.E; if (E.kind[i] >= AL.NPEOPLE) return; const kd = sim.kingdoms[E.kingdom[i]]; if (kd && cause !== 'age' && cause !== 'hunger') kd.losses++;
+      if ((E.flags[i] & F.RULER) && kd && kd.alive && kd.ruler === i) { R.log(sim, 'death', kd.rulerName + ', ruler of ' + kd.name + ', dies' + (cause === 'age' ? ' of old age' : cause === 'hunger' ? ' of hunger' : ' by violence'), E.x[i], E.y[i], kd.id); R.succession(sim, kd, i); } },
+    tick(sim) { const ks = sim.kingdoms, tk = sim.tick; for (let k = 0; k < ks.length; k++) { const kd = ks[k]; if (!kd.alive) continue;
+        if ((tk + k * 150) % AL.YEAR === 600) { R.diplomacy(sim, kd); if (kd.ruler < 0 || !sim.E.alive[kd.ruler] || sim.E.gen[kd.ruler] !== kd.rulerGen || (sim.E.flags[kd.ruler] & F.DEAD)) R.succession(sim, kd, -1); sim.ownerDirty = true; }
+        if ((tk + k * 37) % 240 === 120 && Object.keys(kd.wars).length) War.mobilize(sim, kd); } },
+    command(sim, m) { if (m.t === 'incite') { const a = sim.kingdoms[m.a], b = sim.kingdoms[m.b]; if (!a || !b || !a.alive || !b.alive || a === b) return true; if (m.war) { a.rel[b.id] = b.rel[a.id] = -80; a.incited = b.id; delete a.treaty[b.id]; delete b.treaty[a.id]; R.declare(sim, a, b, 'the will of the god'); } else { if (a.wars[b.id] != null) R.peace(sim, a, b, 'the will of the god'); a.rel[b.id] = b.rel[a.id] = Math.max(a.rel[b.id] || 0, 30); } return true; } },
+    query(sim, m) { if (m.q === 'kingdoms') return sim.kingdoms.map(k => ({ id: k.id, alive: k.alive, name: k.name, people: k.people, ramp: k.ramp, capital: k.capital, ruler: k.ruler, rulerName: k.rulerName, clan: k.clan >= 0 ? sim.clans[k.clan].name : '', towns: k.towns.slice(), rel: k.rel, wars: Object.keys(k.wars).map(Number), allies: Object.keys(k.allies).map(Number), vassalOf: k.vassalOf, stability: k.stability, strength: R.strength(sim, k), pop: k.towns.reduce((s, t) => s + (sim.towns[t].alive ? sim.towns[t].pop : 0), 0), founded: k.founded, religion: k.religion == null ? -1 : k.religion }));
+      if (m.q === 'chronicle') return sim.chron.slice(-(m.n || 80)); if (m.q === 'clans') return sim.clans; },
   });
 })(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));
 

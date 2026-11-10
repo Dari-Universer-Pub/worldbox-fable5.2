@@ -14,16 +14,17 @@
     f = A.anim(K.name + '/' + AL.LOOKS[look] + '/' + an + '/' + d); if (!f.length) f = A.anim(K.name + '/villager/' + an + '/' + d); if (!f.length) f = A.anim(K.name + '/villager/idle/down'); if (!f.length) f = A.anim('human/villager/idle/down');
     f.fps = FPS[an] || 6; f.once = an === 'death'; return (k2[dir] = f);
   }
-  S.teamOf = function (kind, kingdom) { const kr = Game.kingdomRamp; if (kr && kingdom >= 0 && kr[kingdom] != null) return kr[kingdom]; const K = AL.KINDS[kind]; return AL.Assets.palette.ramps[K.team] || 9; };
+  S.teamOf = function (kind, kingdom) { const kr = Game.kingdomRamp; if (kr && kingdom >= 0 && kr[kingdom] != null && kr[kingdom] >= 0) return kr[kingdom]; const K = AL.KINDS[kind]; return AL.Assets.palette.ramps[K.team] || 9; };
   Game.on('ents', m => { if (!m.n) { S.cur = null; S.prev = null; return; } if (S.cur && m.tick === S.cur.tick) return; const now = performance.now() / 1000;
     S.prev = S.cur; S.cur = m; S.dur = Math.max(0.016, Math.min(0.25, now - S.lastAt)); S.lastAt = now; S.t0 = now; });
   Game.on('blds', m => { S.blds = m; S.bldFrames = null; });
-  Game.on('owner', m => { if (!Game.map) return; Game.map.owner.set(m.owner); S.towns = m.towns; if (S.layer) S.applyLayer(); });
+  Game.on('owner', m => { if (!Game.map) return; Game.map.owner.set(m.owner); S.towns = m.towns; Game.kingdomRamp = m.kr || []; if (S.blds) { S.blds.tk = m.towns.map(t => t ? t[0] : -1); } if (S.layer) S.applyLayer(); });
   // ---- kingdoms layer: territory tint and borders
   S.applyLayer = function () { const M = Game.map, G = AL.Gfx, A = AL.Assets; if (!M) return; if (!S.layer) { G.layerOn = 0; return; }
     const n = M.n, ids = S._ids && S._ids.length === n * n ? S._ids : (S._ids = new Uint8Array(n * n)), o = M.owner, pal = new Uint8Array(1024), tw = S.towns || [];
-    for (let i = 0; i < ids.length; i++) { const v = o[i]; ids[i] = v ? ((v - 1) % 254) + 1 : 0; }
-    for (let t = 0; t < tw.length && t < 254; t++) { if (!tw[t]) continue; const ramp = S.teamOf(tw[t][1], tw[t][0]), c = A.palette.rgb[ramp * 6 + 3]; pal[(t + 1) * 4] = c[0]; pal[(t + 1) * 4 + 1] = c[1]; pal[(t + 1) * 4 + 2] = c[2]; pal[(t + 1) * 4 + 3] = 255; }
+    // one id per kingdom (towns of a kingdom merge into one territory); kingdom-less towns keep their own id
+    for (let i = 0; i < ids.length; i++) { const v = o[i]; if (!v) { ids[i] = 0; continue; } const t = tw[v - 1]; ids[i] = t && t[0] >= 0 ? (t[0] % 200) + 1 : 201 + ((v - 1) % 54); }
+    for (let t = 0; t < tw.length; t++) { if (!tw[t]) continue; const id = tw[t][0] >= 0 ? (tw[t][0] % 200) + 1 : 201 + (t % 54), ramp = S.teamOf(tw[t][1], tw[t][0]), c = A.palette.rgb[ramp * 6 + 3]; pal[id * 4] = c[0]; pal[id * 4 + 1] = c[1]; pal[id * 4 + 2] = c[2]; pal[id * 4 + 3] = 255; }
     G.setLayer(ids, pal); G.layerOn = 1; };
   S.setLayer = function (v) { S.layer = v; S.applyLayer(); };
   // ---- day / night ambience (refined with weather and ages in the effects module)

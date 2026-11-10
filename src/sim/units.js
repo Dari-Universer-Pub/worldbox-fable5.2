@@ -56,7 +56,7 @@
     if (town && town.berries) for (const t of town.berries) { if (W.fgrow[t] < 200) continue; const d = Math.abs(t % n - x) + Math.abs(((t / n) | 0) - y); if (d < bd) { bd = d; best = t; } }
     if (best < 0) for (let k = 0; k < 24; k++) { const X = x + sim.rng.int(17) - 8, Y = y + sim.rng.int(17) - 8; if (!W.inb(X, Y)) continue; const t = Y * n + X, f = W.feature[t]; if ((f === AL.F.berry || f === AL.F.mushroom) && W.fgrow[t] > 200) { best = t; break; } }
     if (best >= 0 && begin(sim, i, ACT.FORAGE, best % n, (best / n) | 0)) return true;
-    const t = U.randomNear(sim, E.x[i], E.y[i], 9); if (t >= 0) begin(sim, i, ACT.WANDER, t % n, (t / n) | 0); return false; };
+    const t = U.randomNear(sim, E.x[i], E.y[i], 9); if (t >= 0) begin(sim, i, AL.gFert[W.ground[t]] > 0.2 ? ACT.FORAGE : ACT.WANDER, t % n, (t / n) | 0); return false; };
   U.startHaul = function (sim, i, town) { const E = sim.E, B = sim.B, b = T.nearestStore(sim, town, E.x[i], E.y[i]); if (b < 0) { E.carryN[i] = 0; return; } if (begin(sim, i, ACT.HAUL, T.doorX(B, b), T.doorY(B, b))) E.tB[i] = b; };
   U.startSleep = function (sim, i, town) { const E = sim.E, B = sim.B; let b = E.home[i]; if (b < 0 || !B.alive[b] || B.state[b] !== 1) { b = -1; E.home[i] = -1;
       for (const hb of town.blds) { if (B.state[hb] !== 1) continue; const cap = AL.BTYPES[B.type[hb]].cap; if (cap && B.occ[hb] < cap) { b = hb; B.occ[hb]++; E.home[i] = hb; break; } } }
@@ -96,7 +96,7 @@
       case ACT.WANDER: E.anim[i] = A.idle; if (tm > 20 + (E.seed[i] & 31)) E.act[i] = ACT.NONE; break;
       case ACT.GOTO: E.act[i] = ACT.NONE; break;
       case ACT.EAT: E.anim[i] = A.idle; if (tm > 14) { if (town && town.stock[R.food] >= 1) { town.stock[R.food] -= 1; E.hunger[i] = Math.max(0, E.hunger[i] - 60); if (E.hunger[i] > 35 && town.stock[R.food] >= 1) { town.stock[R.food] -= 1; E.hunger[i] = Math.max(0, E.hunger[i] - 60); } E.mood[i] = Math.min(100, E.mood[i] + 4); } else E.cool[i] = 8; E.act[i] = ACT.NONE; } break;
-      case ACT.FORAGE: E.anim[i] = A.work; if (tm > 30) { const t = (E.y[i] | 0) * n + (E.x[i] | 0), f = W.feature[t]; if ((f === AL.F.berry || f === AL.F.mushroom) && W.fgrow[t] > 200) { W.fgrow[t] = 20; W.mark(t % n, (t / n) | 0); E.hunger[i] = Math.max(0, E.hunger[i] - 45); } E.act[i] = ACT.NONE; } break;
+      case ACT.FORAGE: E.anim[i] = A.work; if (tm > 30) { const t = (E.y[i] | 0) * n + (E.x[i] | 0), f = W.feature[t]; if ((f === AL.F.berry || f === AL.F.mushroom) && W.fgrow[t] > 200) { W.fgrow[t] = 20; W.mark(t % n, (t / n) | 0); E.hunger[i] = Math.max(0, E.hunger[i] - 45); } else if (AL.gFert[W.ground[t]] > 0.2 && sim.rng.chance(0.7)) E.hunger[i] = Math.max(0, E.hunger[i] - 32); /* roots, eggs, small game */ E.act[i] = ACT.NONE; } break;
       case ACT.SLEEP: { E.anim[i] = E.tB[i] >= 0 ? A.inside : A.sleep; E.flags[i] |= F.ASLEEP; E.energy[i] = Math.min(100, E.energy[i] + (E.tB[i] >= 0 ? 0.55 : 0.35)); if (E.hp[i] < E.hpMax[i]) E.hp[i] += 0.05;
         if ((E.energy[i] >= 99 && !U.isNight(sim)) || E.hunger[i] > 78 || tm > 260) { E.flags[i] &= ~F.ASLEEP; E.act[i] = ACT.NONE; if (E.tB[i] < 0) E.mood[i] = Math.max(0, E.mood[i] - 6); } break; }
       case ACT.SOCIAL: E.anim[i] = (tm % 50) > 38 ? A.joy : A.idle; E.social[i] = Math.min(100, E.social[i] + 0.7); if (tm === 30) U.socialize(sim, i); if (tm > 70) E.act[i] = ACT.NONE; break;
@@ -115,7 +115,7 @@
           else if (sim.rng.chance(0.3)) ore = sim.rng.chance(0.55) ? R.iron : sim.rng.chance(0.75) ? R.copper : sim.rng.chance(0.85) ? R.gold : R.aetherite;
           if (ore >= 0 && sim.rng.chance(0.6)) { E.carry[i] = ore; E.carryN[i] = 1; town.stock[R.stone] += 1; } else { E.carry[i] = R.stone; E.carryN[i] = Math.round(3 * E.mod(i, 'mine')); } }
         else if (task === 'farm') { if (tgt >= 0 && (W.flags[tgt] & 8)) { if (W.feature[tgt] !== AL.F.wheat) { W.feature[tgt] = AL.F.wheat; W.fgrow[tgt] = 0; } else if (W.fgrow[tgt] >= 250) { W.fgrow[tgt] = 0; E.carry[i] = R.food; E.carryN[i] = Math.round(6 * E.mod(i, 'farm') * (sim.cropMul || 1)); } else W.fgrow[tgt] = Math.min(250, W.fgrow[tgt] + 40); W.mark(tgt % n, (tgt / n) | 0); } }
-        else if (task === 'gather' || task === 'hunt' || task === 'herd' || task === 'idle') { if (tgt >= 0 && W.fgrow[tgt] > 200) { W.fgrow[tgt] = 20; W.mark(tgt % n, (tgt / n) | 0); E.carry[i] = R.food; E.carryN[i] = 3; } else if (tgt === -2 && sim.rng.chance(0.6)) { E.carry[i] = R.food; E.carryN[i] = 1; } }
+        else if (task === 'gather' || task === 'hunt' || task === 'herd' || task === 'idle') { if (tgt >= 0 && W.fgrow[tgt] > 200) { W.fgrow[tgt] = 20; W.mark(tgt % n, (tgt / n) | 0); E.carry[i] = R.food; E.carryN[i] = 3; } else if (tgt === -2 && sim.rng.chance(0.7)) { E.carry[i] = R.food; E.carryN[i] = 2; } }
         else if (task === 'fish') { E.carry[i] = R.food; E.carryN[i] = Math.round(3 * E.mod(i, 'fish')); sim.emit('splash', E.x[i], E.y[i]); }
         else if (task === 'smith') { const st = town.stock; const ore = st[R.iron] >= 1 ? R.iron : st[R.copper] >= 1 ? R.copper : -1; if (ore >= 0 && st[R.wood] >= 1) { st[ore] -= 1; st[R.wood] -= 1; const k = st[R.tools] < town.pop * 0.3 ? R.tools : st[R.weapons] <= st[R.armor] ? R.weapons : R.armor; st[k] += ore === R.iron ? 2 : 1; sim.emit('anvil', E.x[i], E.y[i]); } }
         else if (task === 'study') { town.knowledge += 1 * E.mod(i, 'learn'); }
@@ -136,7 +136,7 @@
     const c = E.query(x, y, 10); let band = 0; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] !== E.kind[i] || (E.flags[j] & F.DEAD)) continue; if (E.town[j] >= 0 && sim.towns[E.town[j]].alive && !(E.flags[i] & F.SETTLER)) { U.joinTown(sim, i, sim.towns[E.town[j]]); return; } if (E.town[j] < 0) band++; }
     const age = sim.tick - (E.nomadSince ? 0 : 0);
     if (band >= 2 && !(W.owner[t]) && U.siteQuality(sim, x, y) > 0.55 && sim.rng.chance(E.flags[i] & F.SETTLER ? 0.5 : 0.12)) { let far = true; for (const tw of sim.towns) if (tw.alive && Math.abs(tw.cx - x) + Math.abs(tw.cy - y) < 30) far = false;
-      if (far) { const town = T.found(sim, E.kind[i], x, y, (E.flags[i] & F.SETTLER) ? E.kingdom[i] : null, i); if (town) { const c2 = E.query(x, y, 14); for (let k = 0; k < c2; k++) { const j = E.near[k]; if (E.kind[j] === E.kind[i] && E.town[j] < 0 && !(E.flags[j] & F.DEAD)) U.joinTown(sim, j, town); } return; } } }
+      if (far) { const town = T.found(sim, E.kind[i], x, y, (E.flags[i] & F.SETTLER) ? E.kingdom[i] : null, i); if (town) { const c2 = E.query(x, y, 14); for (let k = 0; k < c2; k++) { const j = E.near[k]; if (E.kind[j] === E.kind[i] && E.town[j] < 0 && !(E.flags[j] & F.DEAD)) { U.joinTown(sim, j, town); town.stock[AL.RES.food] += 5; town.stock[AL.RES.wood] += 1; } } return; } } }
     // wander, biased toward land the people likes; settlers keep their heading
     let r = -1; if ((E.flags[i] & F.SETTLER) && E.tx[i] >= 0 && Math.abs(E.tx[i] - x) + Math.abs(E.ty[i] - y) > 6 && E.stuck[i] < 3) { if (begin(sim, i, ACT.WANDER, E.tx[i], E.ty[i])) return; }
     r = U.randomNear(sim, E.x[i], E.y[i], 12); if (r >= 0) begin(sim, i, ACT.WANDER, r % n, (r / n) | 0); };
@@ -151,7 +151,7 @@
     if (E.preg[i] >= 0 && sim.tick >= E.preg[i]) { E.preg[i] = -1; E.flags[i] &= ~F.PREGNANT; const town = sim.towns[E.town[i]]; if (town && town.alive) U.birth(sim, i, E.spouse[i], town); }
     else if (E.sex[i] === 1 && E.spouse[i] >= 0 && E.preg[i] < 0 && !(fl & (F.CHILD | F.ELDER)) && E.town[i] >= 0) { const town = sim.towns[E.town[i]], sp = E.spouse[i];
       if (!E.alive[sp] || (E.flags[sp] & F.DEAD)) { E.spouse[i] = -1; } else if (town.alive && town.pop < town.popCap && town.pop - town.adults < town.adults * 0.7 + 1 && town.stock[AL.RES.food] > town.pop * 1.5 && E.count < E.cap - 200) { const p = 0.06 * (K.fertility || 1) * E.mod(i, 'fertility') * (sim.fertMul || 1) * (town.pop < 12 ? 1.8 : 1); if (sim.rng.chance(p)) { E.preg[i] = sim.tick + 300; E.flags[i] |= F.PREGNANT; } } } };
-  U.birth = function (sim, mother, father, town) { const E = sim.E, rng = sim.rng; const c = E.spawn(sim, E.kind[mother], E.x[mother], E.y[mother], { age: 0, town: town.id, kingdom: town.kingdom, mother, father, culture: E.culture[mother], religion: E.religion[mother], traits: [0, 0] }); if (c < 0) return -1;
+  U.birth = function (sim, mother, father, town) { const E = sim.E, rng = sim.rng; const c = E.spawn(sim, E.kind[mother], E.x[mother], E.y[mother], { age: 0, town: town.id, kingdom: town.kingdom, mother, father, culture: E.culture[mother], religion: E.religion[mother], traits: [0, 0], clan: father >= 0 && E.alive[father] && E.clan[father] >= 0 ? E.clan[father] : E.clan[mother] }); if (c < 0) return -1;
     // inheritance: each parental inborn trait passes with 45%; 3% mutation adds a random inborn trait
     for (let t = 0; t < 48; t++) { const m = E.hasTrait(mother, t), f = father >= 0 && E.alive[father] ? E.hasTrait(father, t) : 0; if ((m && rng.chance(0.45)) || (f && rng.chance(0.45))) E.addTrait(c, t, true); } if (rng.chance(0.03 * (sim.mutMul || 1))) E.addTrait(c, rng.int(48), true); if (rng.chance(0.004 * (sim.mutMul || 1))) E.addTrait(c, AL.TRAIT.mutant, true);
     E.recalc(c); E.hp[c] = E.hpMax[c]; E.flags[c] |= F.CHILD; E.look[c] = AL.LOOK.child; E.home[c] = E.home[mother]; town.pop++; sim.stats.births++; sim.emit('birth', E.x[c], E.y[c]); return c; };
@@ -165,6 +165,8 @@
         if (E.flags[i] & F.DEAD) { if (--E.timer[i] <= 0) E.remove(i); continue; }
         // needs
         const asleep = E.flags[i] & F.ASLEEP; E.hunger[i] += asleep ? 0.1 : 0.2; if (!asleep) E.energy[i] -= 0.13; E.social[i] -= 0.04; E.faith[i] -= 0.015;
+        // travellers (merchants, armies, settlers far from any store) eat the rations they carry from their town's stock
+        if (E.hunger[i] > 70 && ((i + tk) & 15) === 0 && E.town[i] >= 0) { const a = E.act[i], tw = sim.towns[E.town[i]]; if (tw && tw.alive && tw.stock[AL.RES.food] >= 1 && (a === ACT.TRADE || a === ACT.MARCH || a === ACT.SIEGE || a === ACT.FIGHT || (E.flags[i] & F.MOBILIZED) || Math.abs(E.x[i] - tw.cx) + Math.abs(E.y[i] - tw.cy) > 28)) { tw.stock[AL.RES.food] -= 1; E.hunger[i] -= 60; } }
         if (E.hunger[i] >= 100) { E.hunger[i] = 100; E.hp[i] -= 0.15; if (E.hp[i] <= 0) { sim.stats.starved++; E.kill(sim, i, 'hunger'); continue; } } else if (E.hp[i] < E.hpMax[i] && E.hunger[i] < 60) E.hp[i] += 0.02;
         if (E.energy[i] < 0) E.energy[i] = 0; if (E.social[i] < 0) E.social[i] = 0; if (E.faith[i] < 0) E.faith[i] = 0;
         if (((i + tk) & 63) === 0) { U.lifeTick(sim, i); if (E.flags[i] & F.DEAD) continue; }

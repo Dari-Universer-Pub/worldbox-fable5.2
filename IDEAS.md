@@ -7,3 +7,5 @@
 - Villagers do not show what they carry.
 - Fauna: rabbit sprite unreadable at 16×16; eagle and salmon are minimal rigs; no migration by season, no livestock pens (herders hunt sheep like game); animals do not flee fire yet. Dragon and the colossus are not made (step 12 placeholders).
 - Monsters reuse the humanoid rig with a single look; the warning gesture is the wind-up of the attack animation (2 frames), not a dedicated animation.
+- War: no cavalry, siege engines, heroes, morale or refugees; town capture and annexation are implemented (`T.onHallLost`) but were never observed in a test run; no "war zones" layer yet. Diplomacy has no mergers and no alliance leader. Clans exist (succession, dynasty changes) but have no rivalries of their own.
+- Economy: no bridges; roads appear where people walk (ground `road`) but were not looked at up close.

@@ -10,7 +10,7 @@
     this.born = i32(); this.life = i32(); this.sex = u8(); this.act = u8(); this.phase = u8(); this.timer = i32(); this.tx = i16(); this.ty = i16(); this.tE = i32(); this.tB = i32();
     this.job = u8(); this.town = i16(); this.kingdom = i16(); this.home = i32(); this.work = i32(); this.traits0 = u32(); this.traits1 = u32();
     this.mother = i32(); this.father = i32(); this.spouse = i32(); this.religion = i16(); this.culture = i16(); this.carry = u8(); this.carryN = u8();
-    this.anim = u8(); this.dir = u8(); this.flags = u16(); this.look = u8(); this.army = i16(); this.kills = u16(); this.seed = u32(); this.cool = u16(); this.stuck = u8(); this.preg = i32();
+    this.anim = u8(); this.dir = u8(); this.flags = u16(); this.look = u8(); this.army = i16(); this.kills = u16(); this.seed = u32(); this.cool = u16(); this.stuck = u8(); this.preg = i32(); this.clan = i16();
     // stats derived from kind + traits
     this.spd = f32(); this.atk = f32(); this.workMul = f32(); this.courage = f32();
     // paths
@@ -28,7 +28,7 @@
     E.sex[i] = rng.int(2); E.act[i] = 0; E.phase[i] = 0; E.timer[i] = 0; E.tx[i] = -1; E.ty[i] = -1; E.tE[i] = -1; E.tB[i] = -1;
     E.job[i] = 0; E.town[i] = opt.town == null ? -1 : opt.town; E.kingdom[i] = opt.kingdom == null ? -1 : opt.kingdom; E.home[i] = -1; E.work[i] = -1; E.traits0[i] = 0; E.traits1[i] = 0;
     E.mother[i] = opt.mother == null ? -1 : opt.mother; E.father[i] = opt.father == null ? -1 : opt.father; E.spouse[i] = -1; E.religion[i] = opt.religion == null ? -1 : opt.religion; E.culture[i] = opt.culture == null ? -1 : opt.culture;
-    E.carry[i] = 0; E.carryN[i] = 0; E.anim[i] = 0; E.dir[i] = 0; E.flags[i] = 0; E.look[i] = 0; E.army[i] = -1; E.kills[i] = 0; E.cool[i] = 0; E.stuck[i] = 0; E.preg[i] = -1; E.pathLen[i] = 0; E.pathPos[i] = 0; E.flow[i] = -1;
+    E.carry[i] = 0; E.carryN[i] = 0; E.anim[i] = 0; E.dir[i] = 0; E.flags[i] = 0; E.look[i] = 0; E.army[i] = -1; E.kills[i] = 0; E.cool[i] = 0; E.stuck[i] = 0; E.preg[i] = -1; E.clan[i] = opt.clan == null ? -1 : opt.clan; E.pathLen[i] = 0; E.pathPos[i] = 0; E.flow[i] = -1;
     const years = K.lifespan || 20, life = years * AL.YEAR * (0.85 + rng.f() * 0.3); E.life[i] = life | 0;
     const ageFrac = opt.age == null ? (K.cls === 0 ? 0.25 + rng.f() * 0.3 : 0.2 + rng.f() * 0.5) : opt.age; E.born[i] = (sim.tick - ageFrac * life) | 0;
     if (opt.traits) { E.traits0[i] = opt.traits[0]; E.traits1[i] = opt.traits[1]; } else if (K.cls === 0) { const n = 1 + rng.int(3); for (let k = 0; k < n; k++) E.addTrait(i, rng.int(48), true); }
