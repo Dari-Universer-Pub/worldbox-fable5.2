@@ -1,7 +1,7 @@
 // Humanoid base rig (one skeleton for every people, job, age and humanoid monster).
 // build(spec, pose) -> { scene, decals }.  Model faces +y (toward the camera at yaw 0). Units = pixels.
 'use strict';
-const { Scene, rotX, rotY, rotZ, mul, app, add, scl, lerp } = require('../../lib/sdf');
+const { Scene, rotX, rotY, rotZ, mul, app, add, scl, lerp, CP } = require('../../lib/sdf');
 
 const DEF = {
   scale: 1, legLen: 2.7, hipW: 1.3, legR: 0.85, footL: 0.95,
@@ -16,7 +16,7 @@ const S = Math.sin, C = Math.cos, PI = Math.PI;
 const ease = t => t * t * (3 - 2 * t);
 const ANIMS = {
   idle: { n: 6, f: (i) => { const t = i / 6 * 2 * PI; return { sq: 1 + 0.035 * S(t), armL: { sw: 0.06 * S(t), ab: 0.12 + 0.05 * S(t) }, armR: { sw: -0.06 * S(t), ab: 0.12 + 0.05 * S(t) }, head: { nod: 0.05 * S(t + 1) } }; } },
-  walk: { n: 8, f: (i) => { const t = i / 8 * 2 * PI, s = S(t); return { z: 0.55 * Math.abs(C(t)) - 0.1, lean: 0.10, roll: 0.05 * s,
+  walk: { n: 8, f: (i) => { const t = i / 8 * 2 * PI, s = S(t); return { z: 0.7 * Math.abs(C(t)) - 0.15, lean: 0.10,
     legL: { sw: 0.75 * s, kn: 0.9 * Math.max(0, -C(t)) }, legR: { sw: -0.75 * s, kn: 0.9 * Math.max(0, C(t)) },
     armL: { sw: -0.7 * s, ab: 0.14, el: 0.25 }, armR: { sw: 0.7 * s, ab: 0.14, el: 0.25 }, head: { nod: -0.04 } }; } },
   // overhead two-handed swing (axe, pick): anticipation(0,1) strike(2) impact(3) recover(4,5)
@@ -46,7 +46,8 @@ const ANIMS = {
 
 function build(specIn, pose = {}) {
   const sp = Object.assign({}, DEF, specIn), sc = new Scene(), decals = [];
-  const k = sp.scale, P = pose;
+  const k = sp.scale, P = Object.assign({}, pose);
+  if (P.z) P.z = Math.round(P.z * k * CP) / CP / k * k; // whole-pixel vertical bob (anti-shimmer)
   const legLen = sp.legLen * k, half = legLen / 2;
   const kneel = P.kneel || 0, fall = P.fall || 0;
   // root transform: fall rotates the whole body backward around the feet

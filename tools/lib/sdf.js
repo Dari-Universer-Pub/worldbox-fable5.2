@@ -101,7 +101,7 @@ function render(scene, opt) {
   const P = scene.finalize().p, w = opt.w, h = opt.h, ss = opt.ss || 3, S = opt.scale || 1;
   const yaw = opt.yaw || 0, cy = Math.cos(yaw), sy = Math.sin(yaw);
   _clip = opt.clip || null;
-  const img = new Img(w, h), depth = new Float32Array(w * h).fill(1e9), matAt = new Array(w * h).fill(null);
+  const img = new Img(w, h), depth = new Float32Array(w * h).fill(1e9), matAt = new Array(w * h).fill(null), protect = new Uint8Array(w * h);
   const nS = ss * ss, minCover = Math.max(1, Math.round((opt.cover == null ? 0.42 : opt.cover) * nS));
   const R = 64; // camera distance
   // model-space direction of the view ray and light (rotate by -yaw)
@@ -157,11 +157,42 @@ function render(scene, opt) {
     if (X < 0 || Y < 0 || X >= w || Y >= h) continue; const i = Y * w + X;
     if (img.d[i] === T && !dc.force) continue;
     if (dc.on && !(matAt[i] && dc.on.includes(matAt[i].name))) continue;
-    img.d[i] = dc.idx; if (dc.mat) matAt[i] = mats[dc.mat];
+    img.d[i] = dc.idx; if (dc.mat) matAt[i] = mats[dc.mat]; protect[i] = 1;
   }
+  if (opt.raw) return { img, matAt, protect, depth };
+  despeckle(img, matAt, protect);
   if (opt.outline !== false) outline(img, matAt, opt);
   return img;
 }
+// remove isolated fill pixels: a pixel with no 4-neighbour of its colour takes the most frequent colour among its filled neighbours
+// (same material first). Decal pixels (eyes...) are protected.
+function despeckle(img, matAt, protect, passes = 2) {
+  const w = img.w, h = img.h; let changed = 0;
+  for (let pass = 0; pass < passes; pass++) for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = y * w + x, v = img.d[i]; if (v === T || (protect && protect[i])) continue;
+    let same = 0; const nb = [];
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + dx, Y = y + dy; if (X < 0 || Y < 0 || X >= w || Y >= h) continue; const j = Y * w + X, u = img.d[j]; if (u === T) continue; if (u === v) same++; else if (!(protect && protect[j])) nb.push(j); }
+    if (same || !nb.length) continue;
+    let best = -1, bc = 0; for (const j of nb) { let c = 0; for (const k of nb) if (img.d[k] === img.d[j]) c++; if (matAt[j] === matAt[i]) c += 2; if (c > bc) { bc = c; best = j; } }
+    if (best >= 0) { img.d[i] = img.d[best]; matAt[i] = matAt[best]; changed++; }
+  }
+  return changed;
+}
+// temporal stabilisation of an animation (array of raw renders): a pixel that keeps its material but flips by one tone
+// between consecutive frames keeps the previous tone (hysteresis), after compensating the whole-body shift.
+function stabilize(raws, loop = true) {
+  const n = raws.length; if (n < 2) return 0; let fixed = 0;
+  const M = require('./measure');
+  for (let pass = 0; pass < 2; pass++) for (let f = (loop ? 0 : 1); f < n; f++) {
+    const cur = raws[f], prev = raws[(f - 1 + n) % n]; if (cur === prev) continue; const sh = M.flicker(prev.img, cur.img), w = cur.img.w, h = cur.img.h;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const X = x - sh.sx, Y = y - sh.sy; if (X < 0 || Y < 0 || X >= w || Y >= h) continue; const i = y * w + x, j = Y * w + X, a = cur.img.d[i], b = prev.img.d[j];
+      if (a === T || b === T || a === b || cur.protect[i] || prev.protect[j]) continue; const m = cur.matAt[i]; if (!m || m !== prev.matAt[j]) continue;
+      const ta = m.tones.indexOf(a), tb = m.tones.indexOf(b); if (ta < 0 || tb < 0 || Math.abs(ta - tb) !== 1) continue; cur.img.d[i] = b; fixed++; }
+  }
+  return fixed;
+}
+// finish a raw render: despeckle + outline -> Img
+function finish(raw, opt = {}) { despeckle(raw.img, raw.matAt, raw.protect); if (opt.outline !== false) outline(raw.img, raw.matAt, opt); return raw.img; }
 // selective outline: outside the silhouette, colour = dark tone of the adjacent material's ramp;
 // edges facing the light (top / left) get the softer tone, bottom/right the darkest.
 function outline(img, matAt, opt = {}) {
@@ -169,13 +200,13 @@ function outline(img, matAt, opt = {}) {
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     if (img.d[y * w + x] !== T) continue;
     let m = null, lit = false, n = 0;
-    // neighbours: prefer the one below/right (we are on a lit edge if the body is below or to the right)
-    const cand = [[0, 1, true], [1, 0, true], [0, -1, false], [-1, 0, false]];
+    // neighbours: the pixel is on a lit edge only when the body is directly below it (top edge)
+    const cand = [[0, 1, true], [1, 0, false], [0, -1, false], [-1, 0, false]];
     for (const [dx, dy, l] of cand) { const X = x + dx, Y = y + dy; if (X < 0 || Y < 0 || X >= w || Y >= h) continue; const mm = matAt[Y * w + X]; if (mm && !mm.noOutline) { if (!m) { m = mm; lit = l; } n++; } }
     if (!m) continue;
-    add.push([y * w + x, lit && n < 3 ? (m.outlineLit != null ? m.outlineLit : m.outline) : m.outline]);
+    add.push([y * w + x, lit && n < 2 && opt.litOutline !== false ? (m.outlineLit != null ? m.outlineLit : m.outline) : m.outline]);
   }
   for (const [i, v] of add) if (v != null) img.d[i] = v;
   return img;
 }
-module.exports = { Scene, render, outline, project, rotX, rotY, rotZ, mul, app, add, sub, scl, lerp, lerp3, transpose, PITCH, CP, SP, VIEW, UP, LIGHT };
+module.exports = { Scene, render, outline, despeckle, stabilize, finish, project, rotX, rotY, rotZ, mul, app, add, sub, scl, lerp, lerp3, transpose, PITCH, CP, SP, VIEW, UP, LIGHT };

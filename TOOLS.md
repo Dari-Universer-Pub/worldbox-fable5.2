@@ -12,4 +12,15 @@
 | `tools/bench/render-bench.html` | rendering bench Canvas 2D / WebGL2 | open in browser, `runBench()` | numbers (DECISIONS D1) |
 | `tools/bench/pipeline-bench.js`, `people-a.js` | asset pipeline bench sheets | `node tools/bench/pipeline-bench.js` | `shots/bench-*.png` |
 
-Tools added in later steps are appended here (sheet viewer, measurement scripts, synthesizer/sequencer, data validator, build, provenance check).
+| `tools/lib/atlas.js` | atlas of named indexed frames (pack, save `.png/.bin/.json`, load) | library | `assets/<name>.*` |
+| `tools/lib/measure.js` | measurements: isolated pixels, flicker (shift-compensated), outline stats, saturation, WCAG contrast, readable-mass contrast | library | — |
+| `tools/lib/font.js`, `tools/lib/text.js`, `tools/art/font.js` | the pixel font "Loomscript": glyph source (5×7 caps), accent composer, EPX-enlarged large size, text drawing for sheets | library | — |
+| `tools/sheet.js` | **sheet viewer**: enlarged sheets ×4/×8, `--silhouette` black-on-white, `--diff` frame-to-frame flicker map, `--frames` export of successive frames, `--bg` grounds, `--labels` | `node tools/sheet.js <atlas> --match walk --scale 8 --diff` | `shots/sheet-*.png`, `shots/frames/` |
+| `tools/measure-sprite.js` | isolated pixels, flicker per animation with thresholds (fails the run), uniform-outline detector, saturation, `--contrast` vs 8 grounds | `node tools/measure-sprite.js <atlas> --contrast` | report, exit code |
+| `src/client/audio.js` | **synthesizer and sequencer** (ships in the game): oscillators, 3 noise colours, filters with envelopes, ADSR, FM, vibrato, tremolo, pan, generated-IR reverb, Karplus-Strong strings, instruments, pattern sequencer with sections and layers, adaptive mixer, ambience beds | in game | — |
+| `tools/measure-audio.js` | renders every sound variant and track with OfflineAudioContext in headless Chromium; peak, loudness, clipping, clicks, duration, spectral centroid; category level check (6 dB) | `node tools/measure-audio.js --music` | report, exit code |
+| `tools/lib/schema.js` | mini schema checker used by `tools/validate-data.js` | library | — |
+| `tools/check-provenance.js` | walks the project: forbidden media/model/font types, images only in generated folders and matching the bake manifest, no external URL or network API in `game/` | `node tools/check-provenance.js` | report, exit code |
+
+Self-test of the viewer and measures: `shots/tooltest-diff.png`, `shots/tooltest-sil.png` (looked at).
+Added in later steps: bakers per category, `bake-all.js`, `build.js`, `validate-data.js`, screenshot measures.
