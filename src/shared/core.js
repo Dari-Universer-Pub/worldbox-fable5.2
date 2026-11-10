@@ -34,3 +34,25 @@
     AL.floraByBiome = AL.GROUND.map(g => ({ trees: AL.FLORA.filter(f => f && f.kind === 'tree' && f.biomes.includes(g.name)).map(f => f.id), small: AL.FLORA.filter(f => f && (f.kind === 'decor' || f.kind === 'bush') && f.biomes.includes(g.name)).map(f => f.id), rocks: AL.FLORA.filter(f => f && f.kind === 'rock' && f.biomes.includes(g.name)).map(f => f.id) }));
   };
 })(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));
+// ---- kinds (every living species: peoples, animals, monsters), resources, jobs, buildings, traits lookups
+(function (AL) {
+  'use strict';
+  const base = AL.initData;
+  AL.initData = function () {
+    const D = AL.DATA; if (D._ready) return; base();
+    AL.KINDS = []; AL.K = {};
+    const add = (name, cls, d) => { d.name = name; d.cls = cls; d.kid = AL.KINDS.length; AL.K[name] = d.kid; AL.KINDS.push(d); };
+    for (const k in D.peoples) add(k, 0, D.peoples[k]);
+    AL.NPEOPLE = AL.KINDS.length;
+    if (D.animals) for (const k in D.animals) add(k, 1, D.animals[k]);
+    if (D.monsters) for (const k in D.monsters) add(k, 2, D.monsters[k]);
+    AL.RES = {}; AL.RESN = []; for (const k in D.resources) { AL.RES[k] = D.resources[k].id; AL.RESN[D.resources[k].id] = k; } AL.NRES = AL.RESN.length;
+    AL.JOB = {}; AL.JOBS = []; for (const k in D.jobs) { const j = D.jobs[k]; j.name = k; AL.JOB[k] = j.id; AL.JOBS[j.id] = j; }
+    AL.BT = {}; AL.BTYPES = []; for (const k in D.buildings) { const b = D.buildings[k]; b.name = k; AL.BT[k] = b.id; AL.BTYPES[b.id] = b; }
+    AL.TRAIT = {}; AL.TRAITS = []; for (const k in D.traits) { const t = D.traits[k]; t.name = k; AL.TRAIT[k] = t.id; AL.TRAITS[t.id] = t; }
+    AL.LOOKS = ['villager', 'lumberjack', 'miner', 'farmer', 'builder', 'hunter', 'fisher', 'herder', 'blacksmith', 'merchant', 'soldier', 'archer', 'knight', 'priest', 'scholar', 'ruler', 'child', 'elder'];
+    AL.LOOK = {}; AL.LOOKS.forEach((l, i) => AL.LOOK[l] = i);
+    AL.ANIM = { idle: 0, walk: 1, work: 2, attack: 3, hit: 4, pray: 5, joy: 6, death: 7, sleep: 8, run: 9, eat: 10, fly: 11, swim: 12, special: 13 };
+    AL.ANIMN = Object.keys(AL.ANIM);
+  };
+})(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));

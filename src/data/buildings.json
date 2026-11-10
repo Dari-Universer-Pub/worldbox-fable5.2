@@ -1,0 +1,329 @@
+{
+ "hall": {
+  "id": 0,
+  "fp": [
+   4,
+   3
+  ],
+  "cost": {
+   "wood": 0
+  },
+  "hp": 400,
+  "stage": 0,
+  "max": [
+   1,
+   0
+  ],
+  "great": true,
+  "light": true,
+  "store": true,
+  "cap": 4
+ },
+ "house": {
+  "id": 1,
+  "fp": [
+   3,
+   2
+  ],
+  "cost": {
+   "wood": 12
+  },
+  "hp": 150,
+  "stage": 0,
+  "max": [
+   2,
+   4
+  ],
+  "cap": 5,
+  "light": true
+ },
+ "farm": {
+  "id": 2,
+  "fp": [
+   3,
+   2
+  ],
+  "cost": {
+   "wood": 14
+  },
+  "hp": 120,
+  "stage": 1,
+  "max": [
+   1,
+   10
+  ],
+  "job": "farmer",
+  "workers": 3,
+  "fields": true
+ },
+ "warehouse": {
+  "id": 3,
+  "fp": [
+   3,
+   3
+  ],
+  "cost": {
+   "wood": 20,
+   "stone": 5
+  },
+  "hp": 220,
+  "stage": 1,
+  "max": [
+   1,
+   60
+  ],
+  "store": true
+ },
+ "sawmill": {
+  "id": 4,
+  "fp": [
+   3,
+   2
+  ],
+  "cost": {
+   "wood": 16
+  },
+  "hp": 140,
+  "stage": 1,
+  "max": [
+   1,
+   50
+  ],
+  "job": "lumberjack",
+  "workers": 3,
+  "store": true
+ },
+ "mine": {
+  "id": 5,
+  "fp": [
+   3,
+   2
+  ],
+  "cost": {
+   "wood": 18
+  },
+  "hp": 200,
+  "stage": 2,
+  "max": [
+   1,
+   50
+  ],
+  "job": "miner",
+  "workers": 3,
+  "store": true
+ },
+ "market": {
+  "id": 6,
+  "fp": [
+   4,
+   3
+  ],
+  "cost": {
+   "wood": 30,
+   "stone": 10
+  },
+  "hp": 200,
+  "stage": 2,
+  "max": [
+   1,
+   120
+  ],
+  "job": "merchant",
+  "workers": 2,
+  "light": true
+ },
+ "temple": {
+  "id": 7,
+  "fp": [
+   4,
+   3
+  ],
+  "cost": {
+   "wood": 25,
+   "stone": 30
+  },
+  "hp": 350,
+  "stage": 2,
+  "max": [
+   1,
+   150
+  ],
+  "job": "priest",
+  "workers": 1,
+  "light": true
+ },
+ "barracks": {
+  "id": 8,
+  "fp": [
+   4,
+   3
+  ],
+  "cost": {
+   "wood": 30,
+   "stone": 20
+  },
+  "hp": 400,
+  "stage": 2,
+  "max": [
+   1,
+   100
+  ],
+  "job": "soldier",
+  "workers": 0
+ },
+ "forge": {
+  "id": 9,
+  "fp": [
+   3,
+   2
+  ],
+  "cost": {
+   "wood": 20,
+   "stone": 25
+  },
+  "hp": 250,
+  "stage": 3,
+  "max": [
+   1,
+   120
+  ],
+  "job": "blacksmith",
+  "workers": 2,
+  "light": true
+ },
+ "watchtower": {
+  "id": 10,
+  "fp": [
+   2,
+   2
+  ],
+  "cost": {
+   "wood": 10,
+   "stone": 20
+  },
+  "hp": 300,
+  "stage": 2,
+  "max": [
+   0,
+   40
+  ],
+  "defense": true
+ },
+ "port": {
+  "id": 11,
+  "fp": [
+   4,
+   3
+  ],
+  "cost": {
+   "wood": 35
+  },
+  "hp": 200,
+  "stage": 2,
+  "max": [
+   1,
+   200
+  ],
+  "job": "fisher",
+  "workers": 3,
+  "shore": true,
+  "store": true
+ },
+ "tavern": {
+  "id": 12,
+  "fp": [
+   3,
+   2
+  ],
+  "cost": {
+   "wood": 25,
+   "stone": 5
+  },
+  "hp": 180,
+  "stage": 3,
+  "max": [
+   1,
+   120
+  ],
+  "job": "bard",
+  "workers": 1,
+  "light": true
+ },
+ "library": {
+  "id": 13,
+  "fp": [
+   3,
+   3
+  ],
+  "cost": {
+   "wood": 25,
+   "stone": 25
+  },
+  "hp": 220,
+  "stage": 3,
+  "max": [
+   1,
+   200
+  ],
+  "job": "scholar",
+  "workers": 2,
+  "light": true
+ },
+ "hospital": {
+  "id": 14,
+  "fp": [
+   3,
+   3
+  ],
+  "cost": {
+   "wood": 25,
+   "stone": 25
+  },
+  "hp": 220,
+  "stage": 4,
+  "max": [
+   1,
+   200
+  ],
+  "job": "healer",
+  "workers": 1,
+  "light": true,
+  "provisional": true
+ },
+ "wall": {
+  "id": 15,
+  "fp": [
+   1,
+   1
+  ],
+  "cost": {
+   "stone": 3
+  },
+  "hp": 250,
+  "stage": 3,
+  "max": [
+   0,
+   0
+  ],
+  "wall": true
+ },
+ "gate": {
+  "id": 16,
+  "fp": [
+   1,
+   1
+  ],
+  "cost": {
+   "stone": 4,
+   "wood": 4
+  },
+  "hp": 300,
+  "stage": 3,
+  "max": [
+   0,
+   0
+  ],
+  "wall": true,
+  "gate": true
+ }
+}

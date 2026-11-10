@@ -4,7 +4,11 @@
  ],
  "sim": [
   "src/sim/world.js",
-  "src/sim/sim.js"
+  "src/sim/sim.js",
+  "src/sim/ents.js",
+  "src/sim/path.js",
+  "src/sim/towns.js",
+  "src/sim/units.js"
  ],
  "client": [
   "src/client/assets.js",

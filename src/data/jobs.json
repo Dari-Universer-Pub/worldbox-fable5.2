@@ -1,0 +1,134 @@
+{
+ "none": {
+  "id": 0,
+  "look": "villager",
+  "task": "idle"
+ },
+ "lumberjack": {
+  "id": 1,
+  "look": "lumberjack",
+  "task": "chop",
+  "res": "wood"
+ },
+ "miner": {
+  "id": 2,
+  "look": "miner",
+  "task": "mine",
+  "res": "stone"
+ },
+ "farmer": {
+  "id": 3,
+  "look": "farmer",
+  "task": "farm",
+  "res": "food",
+  "needs": "farm"
+ },
+ "builder": {
+  "id": 4,
+  "look": "builder",
+  "task": "build"
+ },
+ "hunter": {
+  "id": 5,
+  "look": "hunter",
+  "task": "hunt",
+  "res": "food"
+ },
+ "fisher": {
+  "id": 6,
+  "look": "fisher",
+  "task": "fish",
+  "res": "food",
+  "needs": "port"
+ },
+ "herder": {
+  "id": 7,
+  "look": "herder",
+  "task": "herd",
+  "res": "food"
+ },
+ "blacksmith": {
+  "id": 8,
+  "look": "blacksmith",
+  "task": "smith",
+  "needs": "forge"
+ },
+ "merchant": {
+  "id": 9,
+  "look": "merchant",
+  "task": "trade",
+  "needs": "market"
+ },
+ "soldier": {
+  "id": 10,
+  "look": "soldier",
+  "task": "guard",
+  "needs": "barracks",
+  "military": true
+ },
+ "archer": {
+  "id": 11,
+  "look": "archer",
+  "task": "guard",
+  "needs": "barracks",
+  "military": true,
+  "ranged": true
+ },
+ "priest": {
+  "id": 12,
+  "look": "priest",
+  "task": "preach",
+  "needs": "temple"
+ },
+ "scholar": {
+  "id": 13,
+  "look": "scholar",
+  "task": "study",
+  "needs": "library"
+ },
+ "ruler": {
+  "id": 14,
+  "look": "ruler",
+  "task": "rule"
+ },
+ "knight": {
+  "id": 15,
+  "look": "knight",
+  "task": "guard",
+  "needs": "barracks",
+  "military": true,
+  "minStage": 4
+ },
+ "healer": {
+  "id": 16,
+  "look": "priest",
+  "task": "heal",
+  "needs": "hospital"
+ },
+ "sailor": {
+  "id": 17,
+  "look": "fisher",
+  "task": "sail",
+  "needs": "port"
+ },
+ "gatherer": {
+  "id": 18,
+  "look": "villager",
+  "task": "gather",
+  "res": "food"
+ },
+ "engineer": {
+  "id": 19,
+  "look": "builder",
+  "task": "siege",
+  "needs": "barracks",
+  "military": true,
+  "minStage": 4
+ },
+ "bard": {
+  "id": 20,
+  "look": "merchant",
+  "task": "entertain",
+  "needs": "tavern"
+ }
+}

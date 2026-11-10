@@ -1,0 +1,45 @@
+[
+ {
+  "name": "nomads",
+  "pop": 0
+ },
+ {
+  "name": "hamlet",
+  "pop": 6,
+  "need": [
+   "house"
+  ]
+ },
+ {
+  "name": "village",
+  "pop": 16,
+  "need": [
+   "farm",
+   "warehouse"
+  ]
+ },
+ {
+  "name": "town",
+  "pop": 36,
+  "need": [
+   "market",
+   "temple"
+  ]
+ },
+ {
+  "name": "city",
+  "pop": 80,
+  "need": [
+   "forge",
+   "library",
+   "barracks"
+  ]
+ },
+ {
+  "name": "realm",
+  "pop": 150,
+  "need": [
+   "tavern"
+  ]
+ }
+]

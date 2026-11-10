@@ -1,0 +1,206 @@
+{
+ "human": {
+  "id": 0,
+  "team": "red",
+  "atlas": "people_human",
+  "devSpeed": 1.0,
+  "strength": 1.0,
+  "fertility": 1.0,
+  "lifespan": 70,
+  "maturity": 16,
+  "speed": 1.0,
+  "courage": 0.5,
+  "hp": 100,
+  "likes": [
+   "grass",
+   "forest",
+   "hills"
+  ],
+  "hates": [
+   "swamp",
+   "snow",
+   "desert"
+  ],
+  "diet": "omni",
+  "buildSet": "human",
+  "lang": "human",
+  "culture": {
+   "war": 0.4,
+   "trade": 0.6,
+   "land": 0.7,
+   "lore": 0.5,
+   "faith": 0.5,
+   "sea": 0.4
+  }
+ },
+ "orc": {
+  "id": 1,
+  "team": "jungle",
+  "atlas": "people_orc",
+  "devSpeed": 0.75,
+  "strength": 1.5,
+  "fertility": 1.2,
+  "lifespan": 50,
+  "maturity": 12,
+  "speed": 1.05,
+  "courage": 0.8,
+  "hp": 140,
+  "likes": [
+   "savanna",
+   "hills",
+   "swamp",
+   "jungle"
+  ],
+  "hates": [
+   "snow",
+   "ice"
+  ],
+  "diet": "meat",
+  "buildSet": "orc",
+  "lang": "orc",
+  "culture": {
+   "war": 0.9,
+   "trade": 0.2,
+   "land": 0.4,
+   "lore": 0.15,
+   "faith": 0.5,
+   "sea": 0.2
+  }
+ },
+ "elf": {
+  "id": 2,
+  "team": "teal",
+  "atlas": "people_elf",
+  "provisional": true,
+  "devSpeed": 0.8,
+  "strength": 0.8,
+  "fertility": 0.5,
+  "lifespan": 220,
+  "maturity": 30,
+  "speed": 1.15,
+  "courage": 0.45,
+  "hp": 80,
+  "likes": [
+   "forest",
+   "jungle"
+  ],
+  "hates": [
+   "desert",
+   "volcanic"
+  ],
+  "diet": "plants",
+  "buildSet": "human",
+  "lang": "elf",
+  "culture": {
+   "war": 0.3,
+   "trade": 0.4,
+   "land": 0.5,
+   "lore": 0.9,
+   "faith": 0.6,
+   "sea": 0.3
+  }
+ },
+ "dwarf": {
+  "id": 3,
+  "team": "fire",
+  "atlas": "people_dwarf",
+  "provisional": true,
+  "devSpeed": 0.9,
+  "strength": 1.3,
+  "fertility": 0.6,
+  "lifespan": 140,
+  "maturity": 25,
+  "speed": 0.85,
+  "courage": 0.75,
+  "hp": 130,
+  "likes": [
+   "hills",
+   "tundra",
+   "snow"
+  ],
+  "hates": [
+   "swamp",
+   "jungle"
+  ],
+  "diet": "omni",
+  "buildSet": "human",
+  "lang": "dwarf",
+  "culture": {
+   "war": 0.5,
+   "trade": 0.6,
+   "land": 0.3,
+   "lore": 0.6,
+   "faith": 0.4,
+   "sea": 0.05
+  }
+ },
+ "myrrin": {
+  "id": 4,
+  "team": "magic",
+  "atlas": "people_myrrin",
+  "provisional": true,
+  "devSpeed": 0.9,
+  "strength": 0.6,
+  "fertility": 1.6,
+  "lifespan": 40,
+  "maturity": 8,
+  "speed": 0.9,
+  "courage": 0.25,
+  "hp": 60,
+  "likes": [
+   "swamp",
+   "forest",
+   "jungle"
+  ],
+  "hates": [
+   "desert",
+   "volcanic",
+   "snow"
+  ],
+  "diet": "plants",
+  "buildSet": "human",
+  "lang": "myrrin",
+  "culture": {
+   "war": 0.1,
+   "trade": 0.5,
+   "land": 0.8,
+   "lore": 0.5,
+   "faith": 0.8,
+   "sea": 0.2
+  }
+ },
+ "okari": {
+  "id": 5,
+  "team": "royal",
+  "atlas": "people_okari",
+  "provisional": true,
+  "devSpeed": 1.1,
+  "strength": 0.7,
+  "fertility": 0.8,
+  "lifespan": 60,
+  "maturity": 14,
+  "speed": 1.2,
+  "courage": 0.4,
+  "hp": 70,
+  "likes": [
+   "sand",
+   "grass",
+   "swamp"
+  ],
+  "hates": [
+   "tundra",
+   "volcanic"
+  ],
+  "diet": "fish",
+  "buildSet": "human",
+  "lang": "okari",
+  "culture": {
+   "war": 0.3,
+   "trade": 0.9,
+   "land": 0.3,
+   "lore": 0.6,
+   "faith": 0.4,
+   "sea": 1.0
+  }
+ }
+}

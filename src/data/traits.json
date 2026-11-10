@@ -1,0 +1,561 @@
+{
+ "strong": {
+  "id": 0,
+  "en": "Strong",
+  "fr": "Fort",
+  "mods": {
+   "attack": 1.3,
+   "work": 1.1
+  },
+  "opposite": "weak"
+ },
+ "weak": {
+  "id": 1,
+  "en": "Weak",
+  "fr": "Faible",
+  "mods": {
+   "attack": 0.75
+  },
+  "opposite": "strong"
+ },
+ "swift": {
+  "id": 2,
+  "en": "Swift",
+  "fr": "Rapide",
+  "mods": {
+   "speed": 1.25
+  },
+  "opposite": "slow"
+ },
+ "slow": {
+  "id": 3,
+  "en": "Slow",
+  "fr": "Lent",
+  "mods": {
+   "speed": 0.8
+  },
+  "opposite": "swift"
+ },
+ "tough": {
+  "id": 4,
+  "en": "Tough",
+  "fr": "Robuste",
+  "mods": {
+   "hp": 1.3
+  },
+  "opposite": "frail"
+ },
+ "frail": {
+  "id": 5,
+  "en": "Frail",
+  "fr": "Fr\u00eale",
+  "mods": {
+   "hp": 0.75
+  },
+  "opposite": "tough"
+ },
+ "fertile": {
+  "id": 6,
+  "en": "Fertile",
+  "fr": "Fertile",
+  "mods": {
+   "fertility": 1.6
+  },
+  "opposite": "barren"
+ },
+ "barren": {
+  "id": 7,
+  "en": "Barren",
+  "fr": "St\u00e9rile",
+  "mods": {
+   "fertility": 0.1
+  },
+  "opposite": "fertile"
+ },
+ "longlived": {
+  "id": 8,
+  "en": "Long-lived",
+  "fr": "Long\u00e9vif",
+  "mods": {
+   "lifespan": 1.3
+  },
+  "opposite": "sickly"
+ },
+ "sickly": {
+  "id": 9,
+  "en": "Sickly",
+  "fr": "Maladif",
+  "mods": {
+   "lifespan": 0.8,
+   "hp": 0.9
+  },
+  "opposite": "longlived"
+ },
+ "brave": {
+  "id": 10,
+  "en": "Brave",
+  "fr": "Brave",
+  "mods": {
+   "courage+": 0.3
+  },
+  "opposite": "coward"
+ },
+ "coward": {
+  "id": 11,
+  "en": "Cowardly",
+  "fr": "L\u00e2che",
+  "mods": {
+   "courage+": -0.3
+  },
+  "opposite": "brave"
+ },
+ "diligent": {
+  "id": 12,
+  "en": "Diligent",
+  "fr": "Travailleur",
+  "mods": {
+   "work": 1.3
+  },
+  "opposite": "lazy"
+ },
+ "lazy": {
+  "id": 13,
+  "en": "Lazy",
+  "fr": "Paresseux",
+  "mods": {
+   "work": 0.7
+  },
+  "opposite": "diligent"
+ },
+ "wise": {
+  "id": 14,
+  "en": "Wise",
+  "fr": "Sage",
+  "mods": {
+   "learn": 1.5
+  },
+  "opposite": "dull"
+ },
+ "dull": {
+  "id": 15,
+  "en": "Dull",
+  "fr": "Born\u00e9",
+  "mods": {
+   "learn": 0.6
+  },
+  "opposite": "wise"
+ },
+ "pious": {
+  "id": 16,
+  "en": "Pious",
+  "fr": "Pieux",
+  "mods": {
+   "faith": 1.6
+  },
+  "opposite": "skeptic"
+ },
+ "skeptic": {
+  "id": 17,
+  "en": "Skeptic",
+  "fr": "Sceptique",
+  "mods": {
+   "faith": 0.4
+  },
+  "opposite": "pious"
+ },
+ "gregarious": {
+  "id": 18,
+  "en": "Gregarious",
+  "fr": "Sociable",
+  "mods": {
+   "social": 1.4
+  },
+  "opposite": "loner"
+ },
+ "loner": {
+  "id": 19,
+  "en": "Loner",
+  "fr": "Solitaire",
+  "mods": {
+   "social": 0.5
+  },
+  "opposite": "gregarious"
+ },
+ "ambitious": {
+  "id": 20,
+  "en": "Ambitious",
+  "fr": "Ambitieux",
+  "mods": {
+   "ambition+": 0.35
+  },
+  "opposite": "content"
+ },
+ "content": {
+  "id": 21,
+  "en": "Content",
+  "fr": "Satisfait",
+  "mods": {
+   "ambition+": -0.25,
+   "mood+": 8
+  },
+  "opposite": "ambitious"
+ },
+ "kind": {
+  "id": 22,
+  "en": "Kind",
+  "fr": "Bienveillant",
+  "mods": {
+   "honor+": 0.25,
+   "mood+": 3
+  },
+  "opposite": "cruel"
+ },
+ "cruel": {
+  "id": 23,
+  "en": "Cruel",
+  "fr": "Cruel",
+  "mods": {
+   "honor+": -0.3,
+   "attack": 1.1
+  },
+  "opposite": "kind"
+ },
+ "honest": {
+  "id": 24,
+  "en": "Honest",
+  "fr": "Honn\u00eate",
+  "mods": {
+   "honor+": 0.3
+  },
+  "opposite": "deceitful"
+ },
+ "deceitful": {
+  "id": 25,
+  "en": "Deceitful",
+  "fr": "Fourbe",
+  "mods": {
+   "honor+": -0.35
+  },
+  "opposite": "honest"
+ },
+ "glutton": {
+  "id": 26,
+  "en": "Glutton",
+  "fr": "Glouton",
+  "mods": {
+   "eat": 1.4
+  },
+  "opposite": "frugal"
+ },
+ "frugal": {
+  "id": 27,
+  "en": "Frugal",
+  "fr": "Frugal",
+  "mods": {
+   "eat": 0.7
+  },
+  "opposite": "glutton"
+ },
+ "keeneyed": {
+  "id": 28,
+  "en": "Keen-eyed",
+  "fr": "\u0152il vif",
+  "mods": {
+   "range": 1.3,
+   "hunt": 1.3
+  }
+ },
+ "greenthumb": {
+  "id": 29,
+  "en": "Green thumb",
+  "fr": "Main verte",
+  "mods": {
+   "farm": 1.4
+  }
+ },
+ "stonehand": {
+  "id": 30,
+  "en": "Stone hand",
+  "fr": "Main de pierre",
+  "mods": {
+   "mine": 1.4
+  }
+ },
+ "woodwise": {
+  "id": 31,
+  "en": "Woodwise",
+  "fr": "Ami des bois",
+  "mods": {
+   "chop": 1.4
+  }
+ },
+ "craftsman": {
+  "id": 32,
+  "en": "Craftsman",
+  "fr": "Artisan",
+  "mods": {
+   "build": 1.4,
+   "smith": 1.3
+  }
+ },
+ "seafarer": {
+  "id": 33,
+  "en": "Seafarer",
+  "fr": "Marin",
+  "mods": {
+   "fish": 1.4,
+   "sail": 1.3
+  }
+ },
+ "silver": {
+  "id": 34,
+  "en": "Silver tongue",
+  "fr": "Beau parleur",
+  "mods": {
+   "trade": 1.4,
+   "diplo+": 0.2
+  }
+ },
+ "leader": {
+  "id": 35,
+  "en": "Born leader",
+  "fr": "Meneur n\u00e9",
+  "mods": {
+   "morale+": 0.2,
+   "renown": 1.5
+  }
+ },
+ "tactician": {
+  "id": 36,
+  "en": "Tactician",
+  "fr": "Tacticien",
+  "mods": {
+   "army": 1.2
+  }
+ },
+ "healerborn": {
+  "id": 37,
+  "en": "Healing hands",
+  "fr": "Mains gu\u00e9risseuses",
+  "mods": {
+   "heal": 1.6
+  }
+ },
+ "nightowl": {
+  "id": 38,
+  "en": "Night owl",
+  "fr": "Oiseau de nuit",
+  "mods": {
+   "sleep": 0.6
+  }
+ },
+ "heavysleeper": {
+  "id": 39,
+  "en": "Heavy sleeper",
+  "fr": "Gros dormeur",
+  "mods": {
+   "sleep": 1.4
+  }
+ },
+ "hotblooded": {
+  "id": 40,
+  "en": "Hot-blooded",
+  "fr": "Sang chaud",
+  "mods": {
+   "attack": 1.15,
+   "honor+": -0.1,
+   "ambition+": 0.1
+  },
+  "opposite": "calm"
+ },
+ "calm": {
+  "id": 41,
+  "en": "Calm",
+  "fr": "Calme",
+  "mods": {
+   "mood+": 5
+  },
+  "opposite": "hotblooded"
+ },
+ "lucky": {
+  "id": 42,
+  "en": "Lucky",
+  "fr": "Chanceux",
+  "mods": {
+   "dodge+": 0.15
+  },
+  "opposite": "unlucky"
+ },
+ "unlucky": {
+  "id": 43,
+  "en": "Unlucky",
+  "fr": "Malchanceux",
+  "mods": {
+   "dodge+": -0.1
+  },
+  "opposite": "lucky"
+ },
+ "giant": {
+  "id": 44,
+  "en": "Giant",
+  "fr": "G\u00e9ant",
+  "mods": {
+   "hp": 1.4,
+   "attack": 1.25,
+   "speed": 0.9,
+   "eat": 1.3
+  },
+  "opposite": "small"
+ },
+ "small": {
+  "id": 45,
+  "en": "Small",
+  "fr": "Petit",
+  "mods": {
+   "hp": 0.85,
+   "dodge+": 0.1
+  },
+  "opposite": "giant"
+ },
+ "immune": {
+  "id": 46,
+  "en": "Immune",
+  "fr": "Immunis\u00e9",
+  "mods": {
+   "disease": 0.1
+  }
+ },
+ "fireproof": {
+  "id": 47,
+  "en": "Fire-touched",
+  "fr": "Enfant du feu",
+  "mods": {
+   "fire": 0.3
+  }
+ },
+ "blessed": {
+  "id": 48,
+  "en": "Blessed",
+  "fr": "B\u00e9ni",
+  "mods": {
+   "hp": 1.2,
+   "mood+": 10,
+   "fertility": 1.2
+  },
+  "opposite": "cursed",
+  "acquired": true
+ },
+ "cursed": {
+  "id": 49,
+  "en": "Cursed",
+  "fr": "Maudit",
+  "mods": {
+   "hp": 0.8,
+   "mood+": -10,
+   "dodge+": -0.1
+  },
+  "opposite": "blessed",
+  "acquired": true
+ },
+ "mad": {
+  "id": 50,
+  "en": "Mad",
+  "fr": "Fou",
+  "mods": {
+   "mood+": -5
+  },
+  "acquired": true
+ },
+ "raging": {
+  "id": 51,
+  "en": "Enraged",
+  "fr": "Enrag\u00e9",
+  "mods": {
+   "attack": 1.5,
+   "courage+": 0.5
+  },
+  "acquired": true
+ },
+ "inspired": {
+  "id": 52,
+  "en": "Inspired",
+  "fr": "Inspir\u00e9",
+  "mods": {
+   "work": 1.3,
+   "learn": 1.5
+  },
+  "acquired": true
+ },
+ "prophet": {
+  "id": 53,
+  "en": "Prophet",
+  "fr": "Proph\u00e8te",
+  "mods": {
+   "faith": 2.0,
+   "renown": 2.0
+  },
+  "acquired": true
+ },
+ "hero": {
+  "id": 54,
+  "en": "Hero",
+  "fr": "H\u00e9ros",
+  "mods": {
+   "attack": 1.6,
+   "hp": 1.6,
+   "courage+": 0.4,
+   "renown": 2.0
+  },
+  "acquired": true
+ },
+ "veteran": {
+  "id": 55,
+  "en": "Veteran",
+  "fr": "V\u00e9t\u00e9ran",
+  "mods": {
+   "attack": 1.25,
+   "hp": 1.15
+  },
+  "acquired": true
+ },
+ "scarred": {
+  "id": 56,
+  "en": "Scarred",
+  "fr": "Balafr\u00e9",
+  "mods": {
+   "hp": 0.95,
+   "courage+": 0.1
+  },
+  "acquired": true
+ },
+ "plagued": {
+  "id": 57,
+  "en": "Plagued",
+  "fr": "Pestif\u00e9r\u00e9",
+  "mods": {
+   "hp": 0.6,
+   "speed": 0.8
+  },
+  "acquired": true
+ },
+ "poisoned": {
+  "id": 58,
+  "en": "Poisoned",
+  "fr": "Empoisonn\u00e9",
+  "mods": {
+   "hp": 0.8
+  },
+  "acquired": true
+ },
+ "mutant": {
+  "id": 59,
+  "en": "Mutant",
+  "fr": "Mutant",
+  "mods": {
+   "hp": 1.1,
+   "speed": 1.1,
+   "fertility": 0.7
+  },
+  "acquired": true
+ }
+}
