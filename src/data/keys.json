@@ -1,0 +1,21 @@
+{
+  "panLeft":  { "codes": ["KeyA", "ArrowLeft"],  "group": "camera" },
+  "panRight": { "codes": ["KeyD", "ArrowRight"], "group": "camera" },
+  "panUp":    { "codes": ["KeyW", "ArrowUp"],    "group": "camera" },
+  "panDown":  { "codes": ["KeyS", "ArrowDown"],  "group": "camera" },
+  "zoomIn":   { "codes": ["KeyE", "NumpadAdd"],  "group": "camera" },
+  "zoomOut":  { "codes": ["KeyQ", "NumpadSubtract"], "group": "camera" },
+  "pause":    { "codes": ["Space"],  "group": "time" },
+  "slower":   { "codes": ["Comma"],  "group": "time" },
+  "faster":   { "codes": ["Period"], "group": "time" },
+  "cancel":   { "codes": ["Escape"], "group": "ui" },
+  "brushSmaller": { "codes": ["BracketLeft"],  "group": "tools" },
+  "brushBigger":  { "codes": ["BracketRight"], "group": "tools" },
+  "brushShape":   { "codes": ["KeyB"], "group": "tools" },
+  "cat1": { "codes": ["Digit1"], "group": "tools" }, "cat2": { "codes": ["Digit2"], "group": "tools" }, "cat3": { "codes": ["Digit3"], "group": "tools" },
+  "cat4": { "codes": ["Digit4"], "group": "tools" }, "cat5": { "codes": ["Digit5"], "group": "tools" }, "cat6": { "codes": ["Digit6"], "group": "tools" }, "cat7": { "codes": ["Digit7"], "group": "tools" },
+  "nextPower": { "codes": ["Tab"], "group": "tools" }, "prevPower": { "codes": ["Backquote"], "group": "tools" },
+  "layerNext": { "codes": ["KeyL"], "group": "view" }, "minimap": { "codes": ["KeyM"], "group": "view" }, "cinema": { "codes": ["KeyC"], "group": "view" }, "follow": { "codes": ["KeyF"], "group": "view" },
+  "history": { "codes": ["KeyH"], "group": "windows" }, "kingdoms": { "codes": ["KeyK"], "group": "windows" }, "stats": { "codes": ["KeyG"], "group": "windows" }, "options": { "codes": ["KeyO"], "group": "windows" }, "saves": { "codes": ["F5"], "group": "windows" },
+  "fullscreen": { "codes": ["F11"], "group": "ui" }, "debug": { "codes": ["F3"], "group": "ui" }
+}

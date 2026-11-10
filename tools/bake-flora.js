@@ -92,5 +92,15 @@ S.ember = f => small(c => { for (let x = 5; x < 11; x++) c.set(x, 14, 'stone', 1
 // crops: wheat in 4 growth stages (stage as variant), roots in 4
 for (let st = 0; st < 4; st++) for (let f = 0; f < 4; f++) at.add(`wheat/${st}/${f}`, small(c => { for (let i = 0; i < 5; i++) { const x = 3 + i * 2.5, h = 2 + st * 2.4 + (i & 1); for (let y = 0; y < h; y++) c.set(x + (y > h - 3 && st > 1 ? SWAY[f] : 0), 14 - y, st < 3 ? 'grass' : 'sand', st < 3 ? (y & 1 ? 2 : 1) : 3); if (st >= 2) { c.set(x + SWAY[f], 14 - h, st === 3 ? 'fire' : 'grass', st === 3 ? 4 : 5); c.set(x + SWAY[f], 13 - h, st === 3 ? 'fire' : 'grass', st === 3 ? 3 : 4); if (st === 3) c.set(x + SWAY[f] + 1, 14 - h, 'fire', 3); } } }, true), 8, 14);
 for (const k in S) for (let f = 0; f < 4; f++) at.add(`${k}/0/${f}`, S[k](f), 8, 14);
+// mountain peaks 24x32: faceted cone, lit left face, shadowed right face, jagged ridge, optional snow cap
+function peak(v, snow) { const c = new Cv(W, H), s = 400 + v, top = [5, 9, 7][v], ax = [11, 13, 10][v], base = 30;
+  for (let y = top; y <= base; y++) { const t = (y - top) / (base - top), hw = 1 + t * (10.5 - (y > base - 2 ? (base - y) * -0.2 : 0)), l = ax - hw * (1.05 + 0.15 * Math.sin(y * 1.3 + v)) , r = ax + hw * (0.95 + 0.15 * Math.sin(y * 0.9 + v * 2));
+    const ridge = ax + Math.sin(y * 0.8 + v * 1.7) * 1.2 * t + t * 1.5;
+    for (let x = Math.round(l); x <= Math.round(r); x++) { if (x < 0 || x >= W) continue; const lit = x < ridge, u = lit ? (x - l) / Math.max(1, ridge - l) : (x - ridge) / Math.max(1, r - ridge); let tone;
+      if (lit) tone = u > 0.72 ? 5 : (hash(x >> 1, y >> 2, s) < 0.3 ? 3 : 4); else tone = u < 0.25 ? 2 : (hash(x >> 1, y >> 2, s + 1) < 0.35 ? 1 : 2);
+      if (y > base - 3 && hash(x, y, s + 2) < 0.45) tone = Math.min(tone + 1, 4);
+      const snowLine = top + (snow ? 9 : 4) + Math.sin(x * 1.1 + v) * 2; if ((snow || v === 1) && y < snowLine) c.set(x, y, 'ice', lit ? 5 : 3); else c.set(x, y, 'stone', tone); } }
+  return c.done(); }
+for (let v = 0; v < 3; v++) { at.add(`peak/${v}/0`, despeckle(peak(v, false)), 12, 30); at.add(`snowpeak/${v}/0`, despeckle(peak(v, true)), 12, 30); }
 at.save();
 console.log('flora atlas ' + at.img.w + 'x' + at.img.h + ', frames ' + Object.keys(at.frames).length);

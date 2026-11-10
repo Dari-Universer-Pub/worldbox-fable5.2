@@ -1,0 +1,20 @@
+{
+  "deep":     { "id": 0,  "rank": 0,  "cost": 0,   "water": 2, "flat": ["water", 1], "fert": 0,   "flam": 0,   "biome": "ocean" },
+  "shallow":  { "id": 1,  "rank": 1,  "cost": 0,   "water": 1, "flat": ["water", 3], "fert": 0,   "flam": 0,   "biome": "coast" },
+  "lava":     { "id": 2,  "rank": 2,  "cost": 0,   "water": 0, "flat": ["fire", 2],  "fert": 0,   "flam": 0,   "biome": "volcanic", "emissive": true },
+  "sand":     { "id": 3,  "rank": 3,  "cost": 1.2, "water": 0, "flat": ["sand", 5],  "fert": 0.1, "flam": 0,   "biome": "beach" },
+  "soil":     { "id": 4,  "rank": 4,  "cost": 1.0, "water": 0, "flat": ["sand", 2],  "fert": 1.0, "flam": 0.1, "biome": "plains" },
+  "road":     { "id": 5,  "rank": 5,  "cost": 0.6, "water": 0, "flat": ["sand", 3],  "fert": 0,   "flam": 0,   "biome": "plains" },
+  "desert":   { "id": 6,  "rank": 6,  "cost": 1.3, "water": 0, "flat": ["sand", 4],  "fert": 0.05,"flam": 0,   "biome": "desert" },
+  "savanna":  { "id": 7,  "rank": 7,  "cost": 1.0, "water": 0, "flat": ["sand", 3],  "fert": 0.5, "flam": 0.7, "biome": "savanna" },
+  "grass":    { "id": 8,  "rank": 8,  "cost": 1.0, "water": 0, "flat": ["grass", 4], "fert": 1.0, "flam": 0.4, "biome": "plains" },
+  "swamp":    { "id": 9,  "rank": 9,  "cost": 1.8, "water": 0, "flat": ["swamp", 4], "fert": 0.4, "flam": 0.1, "biome": "swamp" },
+  "forest":   { "id": 10, "rank": 10, "cost": 1.2, "water": 0, "flat": ["grass", 3], "fert": 0.8, "flam": 0.6, "biome": "forest" },
+  "jungle":   { "id": 11, "rank": 11, "cost": 1.5, "water": 0, "flat": ["jungle", 3],"fert": 0.9, "flam": 0.3, "biome": "jungle" },
+  "tundra":   { "id": 12, "rank": 12, "cost": 1.2, "water": 0, "flat": ["stone", 4], "fert": 0.2, "flam": 0.1, "biome": "tundra" },
+  "hills":    { "id": 13, "rank": 13, "cost": 1.7, "water": 0, "flat": ["grass", 3], "fert": 0.5, "flam": 0.3, "biome": "hills" },
+  "mountain": { "id": 14, "rank": 14, "cost": 0,   "water": 0, "flat": ["stone", 4], "fert": 0,   "flam": 0,   "biome": "mountains" },
+  "volcanic": { "id": 15, "rank": 15, "cost": 1.4, "water": 0, "flat": ["stone", 3], "fert": 0.3, "flam": 0,   "biome": "volcanic" },
+  "snow":     { "id": 16, "rank": 16, "cost": 1.6, "water": 0, "flat": ["ice", 5],   "fert": 0,   "flam": 0,   "biome": "snow" },
+  "ice":      { "id": 17, "rank": 17, "cost": 1.4, "water": 0, "flat": ["ice", 3],   "fert": 0,   "flam": 0,   "biome": "ice" }
+}

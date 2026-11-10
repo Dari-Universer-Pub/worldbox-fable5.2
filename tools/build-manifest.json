@@ -1,0 +1,24 @@
+{
+ "shared": [
+  "src/shared/core.js"
+ ],
+ "sim": [
+  "src/sim/world.js",
+  "src/sim/sim.js"
+ ],
+ "client": [
+  "src/client/assets.js",
+  "src/client/gl.js",
+  "src/client/audio.js",
+  "src/client/main.js",
+  "src/client/tools.js",
+  "src/client/boot.js"
+ ],
+ "atlases": [
+  "terrain",
+  "tmask",
+  "flora",
+  "people_human",
+  "people_orc"
+ ]
+}
