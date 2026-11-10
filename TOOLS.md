@@ -37,3 +37,9 @@ Added in later steps: bakers per category, `bake-all.js`, `build.js`, `validate-
 | `tools/bake-creatures.js` + `tools/art/creatures.js` | animals from the quadruped rig (three-quarter views for up/down) and the small bird and fish rigs: 8 species × idle/walk/run/eat/attack/hit/death/sleep | `node tools/bake-creatures.js` | `assets/creatures.*` |
 | `tests/eco-run.js` | headless ecosystem run: species census every 5,000 ticks, extinction/explosion check, flora counts, zombie outbreak against a village | `node tests/eco-run.js 20000 7` | ECO OK / FAIL |
 | `tests/war-run.js` | headless kingdoms run (humans and orcs 44 tiles apart): prints the chronicle; fails if there is no war, no battle, no end of war, no succession, or more than 12 wars | `node tests/war-run.js 40000 <seed> [--quiet]` | WAR OK / FAIL |
+
+## tools/bake-fx.js (+ tools/art/fx.js)
+Effects baker. `node tools/bake-fx.js` renders every procedural effect of `tools/art/fx.js` (54 types, 242 frames: fire, smoke, explosions, mushroom cloud, lightning, tornado, rings, sprays, state icons, rain cloud, weather particles) into the atlas `assets/fx.*` with frames named `fx/<name>/<i>`. Look at them with `node tools/sheet.js fx --match <regex> --scale 4 --out shots/x.png`. Included in `node tools/bake-all.js`.
+
+## tests/powers-run.js, tests/step8.js
+`node tests/powers-run.js`: headless, 34 cases, each power must change a measured quantity; checks determinism. `node tests/step8.js`: browser robot using real clicks/drags/keys for the powers, writes `shots/step8-*.png`.

@@ -79,6 +79,7 @@
     if (a === 'zoomIn') Game.zoomAt(1); else if (a === 'zoomOut') Game.zoomAt(-1);
     else if (a === 'pause') { if (Game.speed > 0) { Game.pausedFrom = Game.speed; Game.setSpeed(0); } else Game.setSpeed(Game.pausedFrom || 1); }
     else if (a === 'faster' || a === 'slower') { const cur = Game.speed > 0 ? Game.speed : (Game.pausedFrom || 1); let i = SPEEDS.indexOf(cur); if (i < 0) i = 1; i = AL.clamp(i + (a === 'faster' ? 1 : -1), 0, SPEEDS.length - 1); Game.setSpeed(SPEEDS[i]); }
+    else if (a === 'cancel') { if (Game.hud && Game.hud.ctl >= 0) AL.Tools.release(); Game.tool = { id: 'none', size: Game.tool.size, shape: Game.tool.shape }; }
     else if (a === 'layerNext') S.setLayer(S.layer ? 0 : 1);
     else if (a === 'brushBigger') Game.tool.size = Math.min(40, Game.tool.size + 1); else if (a === 'brushSmaller') Game.tool.size = Math.max(1, Game.tool.size - 1); };
 })(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));

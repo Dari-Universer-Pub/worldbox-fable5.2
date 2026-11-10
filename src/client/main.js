@@ -38,6 +38,7 @@
     const sp = 260 / c.z * dt * (Game.keys.ShiftLeft ? 2.2 : 1), K = Game.bind || {}; let dx = 0, dy = 0;
     if (Game.isDown('panLeft')) dx -= 1; if (Game.isDown('panRight')) dx += 1; if (Game.isDown('panUp')) dy -= 1; if (Game.isDown('panDown')) dy += 1;
     if (dx || dy) { c.x += dx * sp; c.y += dy * sp; Game.follow = -1; }
+    if (Game.follow >= 0 && AL.Scene) { const up = AL.Scene.unitPos(Game.follow); if (up) { const k = 1 - Math.exp(-dt * 6); c.x += (up[0] - G.W / 2 / c.z - c.x) * k; c.y += (up[1] - 8 - G.H / 2 / c.z - c.y) * k; } else Game.follow = -1; }
     if (Game.map) { const m = Game.map.n * 8, vw = G.W / c.z, vh = G.H / c.z, mg = 80 / c.z; c.x = vw > m + 2 * mg ? (m - vw) / 2 : AL.clamp(c.x, -mg, m - vw + mg); c.y = vh > m + 2 * mg ? (m - vh) / 2 : AL.clamp(c.y, -mg, m - vh + mg); } }
   // ---------------- key bindings (physical codes, from data, remappable)
   Game.loadBinds = function () { const def = AL.DATA.keys; Game.bind = {}; let user = {}; try { user = JSON.parse(localStorage.getItem('aeonloom.keys') || '{}'); } catch (e) { } for (const a in def) Game.bind[a] = (user[a] || def[a].codes).slice(); Game.codeToAction = {}; for (const a in Game.bind) for (const c of Game.bind[a]) Game.codeToAction[c] = a; };
@@ -64,7 +65,7 @@
   Game.env = { ambient: [1, 1, 1], tint: [0, 0, 0, 0], sun: [0.55, 0.38], time: 0, frame: 0, vig: 0.55, fade: 0, flash: 0, wind: 0.35 };
   function frame(now) {
     requestAnimationFrame(frame); const dt = Math.min(0.1, (now - last) / 1000 || 0.016); last = now; if (document.hidden) return;
-    const t0 = performance.now(); Game.time += dt; camUpdate(dt);
+    const t0 = performance.now(); if (Game.hitStop > 0) Game.hitStop -= dt; else Game.time += dt; camUpdate(dt);
     const env = Game.env; env.time = Game.time; env.frame = (Game.time * 3.2) | 0;
     if (Game.map && Game.ready) { const G = AL.Gfx; G.begin(); if (AL.Scene) AL.Scene.update(dt, env); drawFlora(env); if (AL.Scene) AL.Scene.draw(env); if (AL.Fx) AL.Fx.draw(dt, env);
       const c = Game.cam, snap = c.z === c.tz, cx = snap ? Math.round(c.x * c.z) / c.z : c.x, cy = snap ? Math.round(c.y * c.z) / c.z : c.y; G.draw({ x: cx, y: cy, z: c.z }, env); Game.stats.sprites = G.count(); }

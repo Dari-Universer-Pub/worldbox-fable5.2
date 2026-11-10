@@ -91,14 +91,14 @@
       U.face(E, i, E.x[t], E.y[t]); E.anim[i] = A.attack; if (tm === 7 && d2 <= 2.4 * 2.4) Fi.hit(sim, i, t, E.atk[i] * (0.8 + sim.rng.f() * 0.4), K.contagion ? 'zombie' : K.cls === 2 ? 'fight' : 'beast'); if (tm >= 14) { if (E.act[i] === CA.ATTACK) { E.act[i] = CA.CHASE; E.timer[i] = 0; } } return; }
     E.act[i] = CA.IDLE; };
   C.life = function (sim, i, K) { const E = sim.E, age = sim.tick - E.born[i], rng = sim.rng; if (age >= E.life[i]) { E.kill(sim, i, 'age'); return; } if (K.cls !== 1) return;
-    if (E.sex[i] === 1 && E.hunger[i] < 55 && age > E.life[i] * 0.15 && sim.nAnimals < sim.animalCap && rng.chance(0.05 * K.fertility)) { const c = E.query(E.x[i], E.y[i], 12); let same = 0, male = false; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] === E.kind[i] && !(E.flags[j] & F.DEAD)) { same++; if (E.sex[j] === 0) male = true; } }
+    if (E.sex[i] === 1 && E.hunger[i] < 55 && age > E.life[i] * 0.15 && sim.nAnimals < sim.animalCap && rng.chance(0.05 * K.fertility)) { const c = E.query(E.x[i], E.y[i], K.herd <= 1 ? 30 : 12); let same = 0, male = false; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] === E.kind[i] && !(E.flags[j] & F.DEAD)) { same++; if (E.sex[j] === 0) male = true; } }
       if (male && same < K.herd * 2 + 3) { const b = C.spawn(sim, E.kind[i], E.x[i], E.y[i], { age: 0 }); if (b >= 0) sim.emit('cub', E.x[i], E.y[i]); } } };
   // ------------------------------------------------------------ module
   AL.Sim.modules.push({
     name: 'creatures',
-    init(sim) { C.byGround = AL.GROUND.map(g => AL.KINDS.filter(K => K.cls === 1 && K.biomes && K.biomes.includes(g.name)).map(K => K.kid)); sim.nAnimals = 0; sim.animalCap = Math.round(sim.world.n * sim.world.n / 70); C.rise.length = 0; if (!sim.cfg.noFauna && !sim.cfg.empty) C.populate(sim, 1); },
-    tick(sim) { const E = sim.E, tk = sim.tick, np = AL.NPEOPLE; let na = 0;
-      for (let i = 0; i < E.hi; i++) { if (!E.alive[i] || E.kind[i] < np) continue; if (E.flags[i] & F.DEAD) { if (--E.timer[i] <= 0) E.remove(i); continue; } const K = AL.KINDS[E.kind[i]]; if (K.cls === 1) na++;
+    init(sim) { C.byGround = AL.GROUND.map(g => AL.KINDS.filter(K => K.cls === 1 && K.biomes && K.biomes.includes(g.name)).map(K => K.kid)); sim.nAnimals = 0; sim.kindCount = new Uint16Array(AL.KINDS.length); sim.animalCap = Math.round(sim.world.n * sim.world.n / 70); C.rise.length = 0; if (!sim.cfg.noFauna && !sim.cfg.empty) C.populate(sim, 1); },
+    tick(sim) { const E = sim.E, tk = sim.tick, np = AL.NPEOPLE, kc = sim.kindCount; let na = 0; kc.fill(0);
+      for (let i = 0; i < E.hi; i++) { if (!E.alive[i] || E.kind[i] < np) continue; if (E.flags[i] & F.DEAD) { if (--E.timer[i] <= 0) E.remove(i); continue; } const K = AL.KINDS[E.kind[i]]; if (K.cls === 1) { na++; kc[E.kind[i]]++; }
         E.hunger[i] += K.cls === 2 ? 0 : K.diet === 'pred' ? 0.022 : 0.06; if (K.diet === 'pred' && E.hunger[i] > 92 && ((i + tk) & 255) === 0 && sim.rng.chance(0.5)) E.hunger[i] -= 35; // mice, carrion
         if (E.hunger[i] >= 100) { E.hunger[i] = 100; E.hp[i] -= 0.1; if (E.hp[i] <= 0) { E.kill(sim, i, 'hunger'); continue; } } else if (E.hp[i] < E.hpMax[i]) E.hp[i] += 0.01;
         if (((i + tk) & 127) === 0) { C.life(sim, i, K); if (E.flags[i] & F.DEAD) continue; }
@@ -113,6 +113,8 @@
       sim.nAnimals = na;
       // the dead bitten by zombies rise again
       if (C.rise.length) { const zk = AL.K.zombie; for (let k = 0; k < C.rise.length; k += 2) if (zk != null) { const z = C.spawn(sim, zk, C.rise[k], C.rise[k + 1], { age: 0.2 }); if (z >= 0) sim.emit('rise', C.rise[k], C.rise[k + 1]); } C.rise.length = 0; }
+      // migration: a species that has almost vanished comes back as a small band from the edge of the map
+      if (tk % 1500 === 750 && !sim.cfg.noFauna && !sim.cfg.empty) { const W = sim.world, n = W.n, rng = sim.rng; for (let kd = np; kd < AL.KINDS.length; kd++) { const K = AL.KINDS[kd]; if (K.cls !== 1 || kc[kd] >= 4) continue; for (let t = 0; t < 60; t++) { const e = rng.int(4), q = 3 + rng.int(n - 6), d = 3 + rng.int(Math.max(4, n >> 3)), x = e === 0 ? d : e === 1 ? n - 1 - d : q, y = e === 2 ? d : e === 3 ? n - 1 - d : q, list = C.byGround[W.ground[y * n + x]]; if (!list || !list.includes(kd)) continue; let a0 = -1; for (let j = 0; j < 2 + rng.int(K.herd + 1); j++) { const b = C.spawn(sim, kd, x + rng.range(-1.5, 1.5), y + rng.range(-1.5, 1.5), null); if (b >= 0) { if (a0 < 0) a0 = b; else E.sex[b] = 1 - E.sex[a0]; } } if (a0 >= 0) sim.emit('migration', x, y, kd); break; } } }
       // wildlife wanders in from the wild when the world gets empty
       if (tk % 900 === 0 && na < sim.animalCap * 0.25 && !sim.cfg.noFauna && !sim.cfg.empty) C.populate(sim, 0.12); },
     // flora: saplings grow, forests spread and come back from stumps, meadows regrow

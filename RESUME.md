@@ -2,7 +2,7 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current step: 8 / 14 — God powers, disasters, effects, eras, weather, day and night — NOT STARTED
+## Current step: 9 / 14 — Second people, culture, languages, religions, history — NOT STARTED
 
 ### Finished and verified (steps 1–5, each committed)
 - **Steps 1–4.** Documents, tools, art direction, world + renderer (see git log and DECISIONS/STYLE/TOOLS). Robot `node tests/step4.js` = STEP4 OK.
@@ -17,7 +17,13 @@
 
 - **Step 7.** `src/sim/realm.js`: kingdoms (capital, ruler, colour ramp per people), clans and succession, colonisation by settlers, yearly diplomacy (relations, alliances, treaties, royal marriages, vassals and tribute, betrayal, rebellion/independence), `AL.War` (mobilisation, march, fights between people, sieges with building damage, capture/annexation code), `AL.Trade` (merchant trips swapping surpluses), worn paths become roads, chronicle + queries `kingdoms`, `chronicle`, `clans`, command `incite`. Measured: `node tests/war-run.js 40000 <seed>` = WAR OK on seeds 2, 3, 5, 7 (2–3 wars each, all ended, 0–4 starved); `node tests/step7.js` = STEP7 OK; screens looked at: `shots/step7-kingdoms.png`, `shots/step7-war.png`.
 
+- **Step 8.** `src/sim/powers.js` (`AL.Powers`): 44 powers in `src/data/powers.json` (brushes, 6 local weather zones, lightning, fire that spreads by ground flammability and wind and is damped by rain, tornado, earthquake, eruption, meteor, flood that recedes, 3 bombs incl. nuke with fallout zone, acid, heal/strength/fertility, curse, poison, plague with contagion, rage, madness, inspire, resurrect, death, teleport, prophet, relic, war/peace incitement, direct control `control`/`order`), global weather (clear/rain/storm/snow/fog + wind), 10 ages in `src/data/eras.json` with multipliers (`growMul/cropMul/fertMul/mutMul/fireMul`), acquired state traits 48–59 shown to the client as `ents.bf`. Measured: `node tests/powers-run.js` = POWERS OK 34 cases (each power has a measured effect; deterministic).
+  - Effects: `tools/art/fx.js` + `tools/bake-fx.js` → atlas `fx` (54 types, 242 frames; sheets `shots/fx-a.png`, `fx-b.png`, `fx-c.png` looked at). Client `src/client/fx.js` (`AL.Fx`): particle pool (2048, typed arrays), handlers for every simulation event, tile/building fires with lights and smoke, lava glow, rain/snow/fog/ash overlays, rain clouds over zones, tornado/flood/eruption drawing, state icons above units, screen shake, flash, hit-stop (`Game.hitStop`), age tint, positional sound calls (most sounds arrive at step 11). `AL.Tools.power` (press / drag / press-release for teleport / control + Escape). Sprites flagged 32 no longer cast shadows; scorched ground is drawn as clean masses.
+  - Robot `node tests/step8.js` = STEP8 OK (real clicks and drags: heal, curse, lightning, bomb crater, dragged fire spreading, rain zone, storm, tornado, meteor, teleport drag, night, nuke + fallout, age tint, control + Escape). Screens looked at: `shots/step8-fire-day.png`, `step8-night.png`, `step8-storm.png`, `step8-rainzone.png`, `step8-divine.png`, `step8-tornado.png`, `step8-bolt.png`, `step8-bomb.png`, `step8-nuke-a.png`. `node tests/run-all.js`: all OK (step5 "moves" check made robust).
+  - Ecosystem: a species below 4 individuals now comes back as a small band from the map edge (`migration` event); solitary species look for mates within 30 tiles. `node tests/eco-run.js 20000 7` and seed 3 = ECO OK.
+
 ### Not verified / known debts
+- Step 8: screenshots `step8-snow.png`, `step8-meteor.png`, `step8-impact.png`, `step8-nuke-b.png`, `step8-era-rime.png` written but not looked at. Rain streaks are faint on bright ground; scorched ground on snow is harsh; splash/blood/acid/crack effects are small. Flood wave, eruption, earthquake, acid rain, plague and resurrection were measured headless but not looked at in the browser. Powers have no icons or toolbar yet (step 10) and most have no sound yet (step 11). Direct control: move/attack orders only checked headless.
 - Step 7: town capture/annexation, royal marriage, rebellion and trade effects never occurred or were not checked in a test (code written, NOT verified). Armies are 2–6 soldiers.
 - Step 6: `shots/step6-hunt.png`, `step6-after.png`, `shots/creatures-silhouette.png` were written but not looked at. Rabbit sprite is poor. Only one seed was run for the ecosystem.
 - **No hand patches on key poses yet** (`tools/art/patches/people.json` does not exist); `tools/measure-sprite.js people_human` still fails its flicker threshold on 299 animations and counts 7.2% isolated pixels. This is an open art debt, not done.
@@ -36,10 +42,10 @@
 ```
 node tools/bake-all.js           # every baker + build (people: ~4 min uncached)
 node tools/build.js              # writes game/ and tests/sim-bundle.js
-node tests/run-all.js            # town-run + step4 + step5 robots + provenance
+node tests/run-all.js            # headless runs + robots step4..step8 + provenance
 node tests/shot.js shots/x.png "<js>" <wait-ms>   # screenshot of the running game
 node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] --out file.png
 ```
 
 ### Precise next action
-Step 8: `src/data/powers.json` (30 powers) + `src/sim/powers.js` (command `power`: bless, curse, plague, lightning, fire spreading by ground flammability and wind via the `tile()` hook and `W.fire`, meteor, earthquake, tornado, flood, rain, bombs, resurrection, incite war/peace…), eras (`eras.json`, multipliers `sim.growMul/cropMul/fertMul`), weather cells; client `src/client/fx.js` (`AL.Fx.event/draw/smoke/brushFeedback` hooks already called: particles and frame effects baked by a new `tools/bake-fx.js`, screen shake, flashes, rain/snow overlays). Robot `tests/step8.js` using `Game.tool = {id:'power:<name>'}` with real clicks, screenshots looked at, commit "Step 8".
+Step 9: second people. Orc buildings (`tools/art/buildings.js` build set `orc`, bake, look at the sheet) and orc traits in `peoples.json`; `src/sim/culture.js`: cultures with values that change kingdom behaviour, languages (name generators per culture for people, towns, kingdoms, slow drift), religions (`AL.Faith`: founded by a prophet through the existing `onProphet` hook, dogmas with effects from `dogmas.json`, temples, conversion, schism, religious tension feeding war causes), history book (dated chronicle with years and ages, notable characters with titles). Headless test `tests/culture-run.js`, robot `tests/step9.js`, update docs, commit "Step 9", push to `claude/sweet-ptolemy-b7zlpm`.

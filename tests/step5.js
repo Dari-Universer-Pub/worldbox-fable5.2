@@ -12,7 +12,8 @@ const { chromium } = require('playwright');
   await p.mouse.click(640, 360); await p.waitForTimeout(600);
   out.spawned = await p.evaluate(() => AL.Scene.cur ? Array.from(AL.Scene.cur.alive).reduce((a, v) => a + v, 0) : 0);
   // units move and are interpolated between snapshots
-  const pos0 = await p.evaluate(() => AL.Scene.unitPos(0)); await p.waitForTimeout(1500); const pos1 = await p.evaluate(() => AL.Scene.unitPos(0)); out.moves = !!pos0 && !!pos1 && (Math.abs(pos0[0] - pos1[0]) + Math.abs(pos0[1] - pos1[1]) > 0.5);
+  // (unit 0 may be a sleeping animal: measure the people that were just dropped)
+  const ppl = () => p.evaluate(() => { const m = AL.Scene.cur, o = []; for (let i = 0; i < m.n; i++) if (m.alive[i] && m.kind[i] < AL.NPEOPLE) o.push(m.x[i], m.y[i]); return o; }); const pos0 = await ppl(); await p.waitForTimeout(1500); const pos1 = await ppl(); let mv = 0; for (let i = 0; i < Math.min(pos0.length, pos1.length); i++) mv += Math.abs(pos0[i] - pos1[i]); out.moves = pos0.length > 0 && mv > 0.5;
   // speed up with the real key (Period = faster) until x50
   for (let i = 0; i < 6; i++) await p.keyboard.press('Period'); out.speed50 = await p.evaluate(() => AL.Game.speed) === 50;
   await p.waitForFunction(() => AL.Scene.blds && Array.from(AL.Scene.blds.state).filter((s, i) => AL.Scene.blds.alive[i] && s === 1).length >= 4, null, { timeout: 90000 }).catch(() => { });

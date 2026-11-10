@@ -10,7 +10,8 @@
   "src/sim/towns.js",
   "src/sim/units.js",
   "src/sim/creatures.js",
-  "src/sim/realm.js"
+  "src/sim/realm.js",
+  "src/sim/powers.js"
  ],
  "client": [
   "src/client/assets.js",
@@ -19,6 +20,7 @@
   "src/client/main.js",
   "src/client/tools.js",
   "src/client/scene.js",
+  "src/client/fx.js",
   "src/client/boot.js"
  ],
  "atlases": [
@@ -32,6 +34,7 @@
   "creatures",
   "people_zombie",
   "people_skeleton",
-  "people_demon"
+  "people_demon",
+  "fx"
  ]
 }
