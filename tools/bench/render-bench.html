@@ -1,0 +1,58 @@
+<!doctype html><meta charset="utf-8"><title>render bench</title>
+<canvas id="c" width="640" height="360" style="image-rendering:pixelated;width:1280px;height:720px"></canvas>
+<script>
+// Rendering test bench: same scene (256x256 tile map, 1500 moving units, 16x16 sprites, 8px tiles)
+// drawn with (a) Canvas 2D per-tile drawImage, (b) Canvas 2D chunk cache, (c) WebGL2 tile shader + instanced sprites.
+const MAP = 256, TILE = 8, N = 1500, W = 640, H = 360;
+let seed = 12345; const rnd = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+const tiles = new Uint8Array(MAP * MAP); for (let i = 0; i < tiles.length; i++) { const x = i % MAP, y = (i / MAP) | 0; tiles[i] = ((Math.sin(x * .07) + Math.cos(y * .09) + Math.sin((x + y) * .03)) * 2 + 4 + rnd()) & 7; }
+const ux = new Float32Array(N), uy = new Float32Array(N), vx = new Float32Array(N), vy = new Float32Array(N), uf = new Uint8Array(N);
+for (let i = 0; i < N; i++) { ux[i] = rnd() * MAP * TILE; uy[i] = rnd() * MAP * TILE; vx[i] = rnd() - .5; vy[i] = rnd() - .5; uf[i] = i & 7; }
+// tileset: 8 tile kinds x 8px, sprite sheet: 8 frames x 16px (bench-only programmatic patterns, never shipped)
+const ts = document.createElement('canvas'); ts.width = 64; ts.height = 8; const tg = ts.getContext('2d');
+for (let k = 0; k < 8; k++) for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) { const v = 40 + k * 22 + ((x * 3 + y * 5 + k) % 4) * 6; tg.fillStyle = `rgb(${v >> 1},${v},${255 - v})`; tg.fillRect(k * 8 + x, y, 1, 1); }
+const ss = document.createElement('canvas'); ss.width = 128; ss.height = 16; const sg = ss.getContext('2d');
+for (let k = 0; k < 8; k++) { sg.fillStyle = `hsl(${k * 45},70%,55%)`; sg.beginPath(); sg.arc(k * 16 + 8, 9, 5, 0, 7); sg.fill(); sg.fillStyle = '#221'; sg.fillRect(k * 16 + 6, 3 + (k & 1), 4, 4); }
+function step() { for (let i = 0; i < N; i++) { ux[i] += vx[i]; uy[i] += vy[i]; if (ux[i] < 0 || ux[i] > MAP * TILE) vx[i] = -vx[i]; if (uy[i] < 0 || uy[i] > MAP * TILE) vy[i] = -vy[i]; uf[i] = (uf[i] + 1) & 7; } }
+const modes = {};
+modes.c2d = () => { const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const g = cv.getContext('2d'); g.imageSmoothingEnabled = false;
+  return (cx, cy, z) => { g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = '#123'; g.fillRect(0, 0, W, H); const s = TILE * z;
+    const x0 = Math.max(0, (cx / TILE) | 0), y0 = Math.max(0, (cy / TILE) | 0), x1 = Math.min(MAP, x0 + Math.ceil(W / s) + 1), y1 = Math.min(MAP, y0 + Math.ceil(H / s) + 1);
+    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) g.drawImage(ts, tiles[y * MAP + x] * 8, 0, 8, 8, Math.floor((x * TILE - cx) * z), Math.floor((y * TILE - cy) * z), Math.ceil(s), Math.ceil(s));
+    for (let i = 0; i < N; i++) { const X = (ux[i] - cx) * z, Y = (uy[i] - cy) * z; if (X < -16 || Y < -16 || X > W || Y > H) continue; g.drawImage(ss, uf[i] * 16, 0, 16, 16, X | 0, Y | 0, 16 * z, 16 * z); }
+    return g.getImageData(0, 0, 1, 1).data[0]; }; };
+modes.c2dChunks = () => { const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const g = cv.getContext('2d'); g.imageSmoothingEnabled = false; const CH = 32, chunks = new Map();
+  const chunk = (cxi, cyi) => { const k = cyi * 64 + cxi; let c = chunks.get(k); if (!c) { c = document.createElement('canvas'); c.width = c.height = CH * TILE; const q = c.getContext('2d'); for (let y = 0; y < CH; y++) for (let x = 0; x < CH; x++) q.drawImage(ts, tiles[(cyi * CH + y) * MAP + cxi * CH + x] * 8, 0, 8, 8, x * TILE, y * TILE, 8, 8); chunks.set(k, c); } return c; };
+  return (cx, cy, z) => { g.fillStyle = '#123'; g.fillRect(0, 0, W, H); const cs = CH * TILE;
+    for (let j = Math.max(0, Math.floor(cy / cs)); j < MAP / CH && j * cs < cy + H / z; j++) for (let i = Math.max(0, Math.floor(cx / cs)); i < MAP / CH && i * cs < cx + W / z; i++) g.drawImage(chunk(i, j), Math.floor((i * cs - cx) * z), Math.floor((j * cs - cy) * z), Math.ceil(cs * z), Math.ceil(cs * z));
+    for (let i = 0; i < N; i++) { const X = (ux[i] - cx) * z, Y = (uy[i] - cy) * z; if (X < -16 || Y < -16 || X > W || Y > H) continue; g.drawImage(ss, uf[i] * 16, 0, 16, 16, X | 0, Y | 0, 16 * z, 16 * z); }
+    return g.getImageData(0, 0, 1, 1).data[0]; }; };
+modes.webgl2 = () => { const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const gl = cv.getContext('webgl2', { antialias: false, alpha: false });
+  const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(o); return o; };
+  const prog = (v, f) => { const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, v)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, f)); gl.linkProgram(p); return p; };
+  const tex = (src, w, h, fmt) => { const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); if (fmt) gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, w, h, 0, gl.RED, gl.UNSIGNED_BYTE, src); else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); return t; };
+  const tMap = tex(tiles, MAP, MAP, 1), tSet = tex(ts), tSpr = tex(ss);
+  const pT = prog(`#version 300 es
+  in vec2 a; out vec2 uv; void main(){uv=a*.5+.5; uv.y=1.-uv.y; gl_Position=vec4(a,0,1);}`, `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o; uniform sampler2D m,t; uniform vec3 cam; void main(){ vec2 w=cam.xy+uv*vec2(640.,360.)/cam.z; vec2 tc=floor(w/8.); if(tc.x<0.||tc.y<0.||tc.x>=256.||tc.y>=256.){o=vec4(.07,.13,.2,1);return;} float k=floor(texelFetch(m,ivec2(tc),0).r*255.+.5); vec2 f=floor(w-tc*8.); o=texelFetch(t,ivec2(int(k)*8+int(f.x),int(f.y)),0);}`);
+  const pS = prog(`#version 300 es
+  in vec2 a; in vec3 inst; out vec2 uv; uniform vec3 cam; void main(){ vec2 p=(floor((inst.xy-cam.xy)*cam.z)+a*16.*cam.z)/vec2(640.,360.)*2.-1.; uv=vec2((inst.z+a.x)*16.,a.y*16.); gl_Position=vec4(p.x,-p.y,0,1);}`, `#version 300 es
+  precision highp float; in vec2 uv; out vec4 o; uniform sampler2D t; void main(){ o=texelFetch(t,ivec2(uv),0); if(o.a<.5)discard; }`);
+  const quad = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+  const vaoT = gl.createVertexArray(); gl.bindVertexArray(vaoT); gl.enableVertexAttribArray(0); gl.bindAttribLocation(pT, 0, 'a'); gl.vertexAttribPointer(gl.getAttribLocation(pT, 'a'), 2, gl.FLOAT, false, 0, 0);
+  const q2 = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, q2); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]), gl.STATIC_DRAW);
+  const vaoS = gl.createVertexArray(); gl.bindVertexArray(vaoS); const la = gl.getAttribLocation(pS, 'a'), li = gl.getAttribLocation(pS, 'inst'); gl.enableVertexAttribArray(la); gl.vertexAttribPointer(la, 2, gl.FLOAT, false, 0, 0);
+  const ib = gl.createBuffer(), idata = new Float32Array(N * 3); gl.bindBuffer(gl.ARRAY_BUFFER, ib); gl.bufferData(gl.ARRAY_BUFFER, idata.byteLength, gl.DYNAMIC_DRAW); gl.enableVertexAttribArray(li); gl.vertexAttribPointer(li, 3, gl.FLOAT, false, 0, 0); gl.vertexAttribDivisor(li, 1);
+  const px = new Uint8Array(4);
+  return (cx, cy, z) => { gl.viewport(0, 0, W, H); gl.useProgram(pT); gl.bindVertexArray(vaoT); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tMap); gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tSet); gl.uniform1i(gl.getUniformLocation(pT, 'm'), 0); gl.uniform1i(gl.getUniformLocation(pT, 't'), 1); gl.uniform3f(gl.getUniformLocation(pT, 'cam'), cx, cy, z); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    let n = 0; for (let i = 0; i < N; i++) { const X = (ux[i] - cx) * z, Y = (uy[i] - cy) * z; if (X < -16 || Y < -16 || X > W || Y > H) continue; idata[n * 3] = ux[i]; idata[n * 3 + 1] = uy[i]; idata[n * 3 + 2] = uf[i]; n++; }
+    gl.useProgram(pS); gl.bindVertexArray(vaoS); gl.bindBuffer(gl.ARRAY_BUFFER, ib); gl.bufferSubData(gl.ARRAY_BUFFER, 0, idata, 0, n * 3); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tSpr); gl.uniform1i(gl.getUniformLocation(pS, 't'), 0); gl.uniform3f(gl.getUniformLocation(pS, 'cam'), cx, cy, z); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, n);
+    gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px); return px[0]; }; };
+window.runBench = (frames = 300) => { const res = {};
+  for (const name of Object.keys(modes)) { const draw = modes[name]();
+    for (const [label, z, cx, cy] of [['zoom1', 1, 700, 700], ['zoom0.31_wholemap', 0.3125, 0, 0], ['zoom3', 3, 900, 900]]) {
+      for (let i = 0; i < 20; i++) { step(); draw(cx, cy, z); }
+      const ts = []; for (let i = 0; i < frames; i++) { const t0 = performance.now(); step(); draw(cx + i * .5, cy, z); ts.push(performance.now() - t0); }
+      ts.sort((a, b) => a - b); res[name + ' ' + label] = { avg: +(ts.reduce((a, b) => a + b) / frames).toFixed(2), p95: +ts[(frames * .95) | 0].toFixed(2), max: +ts[frames - 1].toFixed(2) }; } }
+  return res; };
+</script>
