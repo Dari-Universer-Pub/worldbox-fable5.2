@@ -2,7 +2,7 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current step: 12 / 14 — Data skeleton for the rest of the final vision, readable placeholders — NOT STARTED
+## Current step: 12 / 14 — Data skeleton for the rest of the final vision, readable placeholders — STARTED (session stopped by the user, handoff below)
 
 ### Finished and verified (steps 1–5, each committed)
 - **Steps 1–4.** Documents, tools, art direction, world + renderer (see git log and DECISIONS/STYLE/TOOLS). Robot `node tests/step4.js` = STEP4 OK.
@@ -63,4 +63,16 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-Step 12: data skeleton. Extend `src/data` to the final vision with entries flagged `"provisional": true`: animals 8 → 40, monsters 3 → 20, powers 44 → 100, building stages 3 → 5, sounds 76 → 120, music 3 → 8, traits/dogmas/eras/jobs/flora already at target (check counts). Each provisional being needs a readable sprite in the style (stand-in bake from the existing rigs with its own proportions/palette, flagged PROVISIONAL), each provisional power an icon. Write `tools/validate-data.js` (schema per file with `tools/lib/schema.js`, cross-references: sprites exist in atlases, i18n keys exist EN/FR, sounds referenced exist, counts vs final vision table printed). Sheet of the provisional sprites looked at. Add to `tests/run-all.js`. Commit "Step 12", push to `claude/sweet-ptolemy-b7zlpm`.
+**Handoff state (step 12 in progress, nothing of step 12 is verified).** Steps 1–11 are committed and pushed; `node tests/run-all.js` was 16/16 OK at the step 11 commit. Work only on branch `claude/sweet-ptolemy-b7zlpm`, no pull request unless Julien asks. Commit messages end with the `Co-Authored-By` / `Claude-Session` trailer lines used in the last commits.
+
+Written but NEVER RUN for step 12 (in this commit):
+- `tools/art/creatures.js`: block `PROV` = 40 provisional species on the existing rigs (32 animals: fox, horse, cow, goat, bison, lion, tiger, elk, moose, camel, hyena, lynx, badger, squirrel, hedgehog, beaver, crocodile, turtle, frog, rat, elephant, rhino, panther, yak, crow, gull, owl, parrot, tuna, carp, pike, shark; 8 monsters: hellhound, direwolf, basilisk, behemoth, dragon, roc, harpy, leviathan), short animation sets (`QAP`/`BAP`/`FAP`: idle, walk or fly or swim, death).
+- `tools/bake-creatures.js`: now writes two atlases, `creatures` (polished 8) and `creatures2` (provisional). The bake was interrupted before it finished: `assets/creatures*` are still the step 11 files and `assets/creatures2.*` does not exist. The specs may throw or overflow their cells (untested).
+
+Next actions, in order:
+1. `node tools/bake-creatures.js` (about 2–3 min); fix any error or "touches the border"; `node tools/sheet.js creatures2 --match "/idle/left/0$" --scale 4 --out shots/creatures2.png` and LOOK at the sheet; fix unreadable species (the rig parameters are in `tools/art/rigs/quadruped.js`). Check `assets/creatures.*` are byte-identical to before (`git status`).
+2. Add `creatures2` to `atlases` in `tools/build-manifest.json`; check the sprite page still fits (`AL.Assets` throws "sprite page overflow" otherwise). Add the entries to `src/data/animals.json` (32, `"provisional": true`, `"atlas": "creatures2"`, `"density": 0`) and `src/data/monsters.json` (8 on the rigs + 9 humanoid stand-ins with `"sprite": "<zombie|skeleton|demon>"` — needs `(K.sprite || K.name)` in `scene.js` `framesOf` and `ui.js` `kindPic`), keep provisional kinds out of natural spawning (`C.byGround` in `src/sim/creatures.js`) and out of the toolbar unless `Game.options.showProvisional` (already handled in `ui.js` `buildModel`). Add `kind.<name>` EN/FR keys to `src/data/i18n.json`.
+3. Powers 44 → 100: 56 provisional entries in `src/data/powers.json` with `"provisional": true` and `"like": "<existing power>"` (route in `Pw.use`, icon and i18n of the stand-in or new keys); sounds 76 → 120 (derived provisional patches in `tools/art/sounds.py`, then `node tools/level-audio.js`); music 3 → 8 (5 short provisional tracks); buildings: declare stages 3–4 provisional (sprites exist for stages 0–2 only); the 4 provisional peoples already have baked atlases (`assets/people_elf|dwarf|myrrin|okari.*`) that are not in the build manifest — add them if the page and the weight allow.
+4. `tools/validate-data.js` (uses `tools/lib/schema.js`): one schema per data file, cross-references (atlas frames exist, i18n keys EN/FR exist, sounds/icons referenced exist), table of counts against the final vision (6 peoples, 14 biomes, 40 animals, 20 monsters, 100 powers, 10 eras, 60 traits, 12 dogmas, 15 building types × 5 stages, 20 jobs, 25 flora, 120 sounds, 8 tracks). Add it to `tests/run-all.js`.
+5. Run `node tests/run-all.js`, update RESUME/PLAYTEST/IDEAS/TOOLS/PROVENANCE, commit "Step 12", push.
+Then step 13 (title and loading screens, logo, game and web-app icons, README launch page, delivery of `game/`), step 14 (all robots, screenshots at several zooms / biomes / day and night, successive animation frames, measurements of the priority 1–3 requirements, real performance numbers, two long playtests of ≥ 30 game minutes each in PLAYTEST.md, independent sub-agent review with every defect fixed, honest REPORT.md, list of what Julien must judge himself).
