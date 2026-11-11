@@ -1,0 +1,17 @@
+// AL.Store — saved worlds in the browser (IndexedDB, with an in-memory fallback), export to and import from a file.
+(function (AL) {
+  'use strict';
+  const St = AL.Store = { db: null, mem: {}, ok: false, ready: null }, Game = AL.Game;
+  St.open = function () { if (St.ready) return St.ready; St.ready = new Promise(res => { try { const rq = indexedDB.open('aeonloom', 1); rq.onupgradeneeded = () => rq.result.createObjectStore('saves'); rq.onsuccess = () => { St.db = rq.result; St.ok = true; res(true); }; rq.onerror = () => res(false); rq.onblocked = () => res(false); } catch (e) { res(false); } }); return St.ready; };
+  const tx = (mode, fn) => new Promise(res => { St.open().then(() => { if (!St.db) return res(fn(null)); try { const t = St.db.transaction('saves', mode), s = t.objectStore('saves'), r = fn(s); if (r && 'onsuccess' in r) { r.onsuccess = () => res(r.result); r.onerror = () => res(null); } else t.oncomplete = () => res(r); } catch (e) { res(fn(null)); } }); });
+  St.put = (key, val) => tx('readwrite', s => s ? s.put(val, key) : (St.mem[key] = val));
+  St.get = key => tx('readonly', s => s ? s.get(key) : St.mem[key]);
+  St.del = key => tx('readwrite', s => s ? s.delete(key) : delete St.mem[key]);
+  St.list = () => new Promise(res => { St.open().then(() => { if (!St.db) return res(Object.keys(St.mem).map(k => ({ key: k, meta: St.mem[k].meta }))); try { const out = [], rq = St.db.transaction('saves', 'readonly').objectStore('saves').openCursor(); rq.onsuccess = () => { const c = rq.result; if (c) { out.push({ key: c.key, meta: c.value.meta }); c.continue(); } else res(out); }; rq.onerror = () => res([]); } catch (e) { res([]); } }); });
+  Game.meta = function () { const h = Game.hud || {}; return { year: 1 + Math.floor((Game.tick || 0) / AL.YEAR), pop: h.pop || 0, size: Game.map ? Game.map.n : 0, date: new Date().toISOString().slice(0, 16).replace('T', ' '), era: h.era || 0 }; };
+  Game.saveSlot = function (slot) { return AL.Link.request({ t: 'save' }).then(m => St.put(slot, { meta: Game.meta(), buf: m.buf }).then(() => m.buf)); };
+  Game.loadBuf = function (buf) { Game.ready = false; Game.hud = null; if (AL.Scene) { AL.Scene.cur = null; AL.Scene.prev = null; AL.Scene.blds = null; } AL.Link.send({ t: 'load', buf }); };
+  Game.loadSlot = function (slot) { return St.get(slot).then(v => { if (!v || !v.buf) return false; Game.loadBuf(v.buf.slice(0)); return true; }); };
+  Game.exportFile = function () { return AL.Link.request({ t: 'save' }).then(m => { const a = document.createElement('a'), url = URL.createObjectURL(new Blob([m.buf], { type: 'application/octet-stream' })); a.href = url; a.download = 'aeonloom-year' + Game.meta().year + '.aeon'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000); Game.lastExport = m.buf; return m.buf; }); };
+  Game.importFile = function () { return new Promise(res => { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.aeon'; inp.style.display = 'none'; document.body.appendChild(inp); inp.onchange = () => { const f = inp.files[0]; inp.remove(); if (!f) return res(false); f.arrayBuffer().then(buf => { const u = new Uint8Array(buf); if (u[0] !== 65 || u[1] !== 69 || u[2] !== 79 || u[3] !== 78) return res(false); Game.loadBuf(buf); res(true); }); }; Game._importInput = inp; inp.click(); }); };
+})(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));

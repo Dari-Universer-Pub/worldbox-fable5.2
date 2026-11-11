@@ -21,3 +21,9 @@
 - Languages: grammar for kingdom names (compound forms), bynames for rulers ("the Bold"), script glyphs per culture.
 - Religions: holy sites as pilgrimage targets, religious buildings per faith, more than one prophet title; dogma effects on build speed, trade and courage are not hooked.
 - Chronicle through i18n keys with arguments instead of English sentences.
+
+## After step 10
+- Interface: selection marker and path preview on the map, drag to move windows, search in lists, pinned sheets, relation matrix between kingdoms, family tree view, tutorial hints for first-time players.
+- War layer with fronts and army arrows; religion/culture legends inside the layer; minimap modes.
+- Weak icons to redraw: creatures (paw), peace (dove), import/export, culture (vase), flood.
+- Touch: long-press tooltips, bigger hit areas at interface size x2.

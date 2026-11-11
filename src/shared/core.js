@@ -15,6 +15,10 @@
   Rng.prototype.state = function () { return Array.from(this.s); };
   Rng.prototype.restore = function (a) { this.s.set(a); };
   AL.Rng = Rng;
+  // texts for players: AL.t('key') in the current language (src/data/i18n.json), AL.tn(dataItem) for data with en/fr fields
+  AL.lang = 'en';
+  AL.t = function (key, fallback) { const T = AL.DATA && AL.DATA.i18n; if (!T) return fallback == null ? key : fallback; const v = (T[AL.lang] && T[AL.lang][key]); return v != null ? v : (T.en[key] != null ? T.en[key] : (fallback == null ? key : fallback)); };
+  AL.tn = function (o) { return o ? (o[AL.lang] || o.en || o.name || '') : ''; };
   AL.hash2 = function (x, y, s) { let h = (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263) + Math.imul(s | 0, 1274126177)) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
   AL.strHash = function (str) { let h = 2166136261; for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619); return h >>> 0; };
   // value noise + fbm (deterministic, seedable)

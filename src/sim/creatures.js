@@ -96,7 +96,7 @@
   // ------------------------------------------------------------ module
   AL.Sim.modules.push({
     name: 'creatures',
-    init(sim) { C.byGround = AL.GROUND.map(g => AL.KINDS.filter(K => K.cls === 1 && K.biomes && K.biomes.includes(g.name)).map(K => K.kid)); sim.nAnimals = 0; sim.kindCount = new Uint16Array(AL.KINDS.length); sim.animalCap = Math.round(sim.world.n * sim.world.n / 70); C.rise.length = 0; if (!sim.cfg.noFauna && !sim.cfg.empty) C.populate(sim, 1); },
+    init(sim) { C.byGround = AL.GROUND.map(g => AL.KINDS.filter(K => K.cls === 1 && K.biomes && K.biomes.includes(g.name)).map(K => K.kid)); sim.rise = C.rise = []; sim.nAnimals = 0; sim.kindCount = new Uint16Array(AL.KINDS.length); sim.animalCap = Math.round(sim.world.n * sim.world.n / 70); C.rise.length = 0; if (!sim.cfg.noFauna && !sim.cfg.empty) C.populate(sim, 1); },
     tick(sim) { const E = sim.E, tk = sim.tick, np = AL.NPEOPLE, kc = sim.kindCount; let na = 0; kc.fill(0);
       for (let i = 0; i < E.hi; i++) { if (!E.alive[i] || E.kind[i] < np) continue; if (E.flags[i] & F.DEAD) { if (--E.timer[i] <= 0) E.remove(i); continue; } const K = AL.KINDS[E.kind[i]]; if (K.cls === 1) { na++; kc[E.kind[i]]++; }
         E.hunger[i] += K.cls === 2 ? 0 : K.diet === 'pred' ? 0.022 : 0.06; if (K.diet === 'pred' && E.hunger[i] > 92 && ((i + tk) & 255) === 0 && sim.rng.chance(0.5)) E.hunger[i] -= 35; // mice, carrion
@@ -124,6 +124,7 @@
         else if (rng.chance(0.003)) { const n = W.n, X = x + rng.int(5) - 2, Y = y + rng.int(5) - 2; if (W.inb(X, Y)) { const j = Y * n + X, gj = W.ground[j]; if (!W.feature[j] && !(W.flags[j] & 10) && AL.gFert[gj] > 0.3 && AL.floraByBiome[gj].trees.includes(f) && W.road[j] < 60) { let near = 0; for (let d = 0; d < 4; d++) { const q = j + (d === 0 ? 1 : d === 1 ? -1 : d === 2 ? n : -n); if (q >= 0 && q < n * n && AL.fKind[W.feature[q]] === 1) near++; } if (near < 3) { W.feature[j] = f; W.fgrow[j] = 8; W.mark(X, Y); } } } } }
       else if (f === AL.F.stump && rng.chance(0.03)) { const fb = AL.floraByBiome[g]; if (fb.trees.length && rng.chance(0.55) && !(W.flags[i] & 10) && W.road[i] < 60) { W.feature[i] = fb.trees[rng.int(fb.trees.length)]; W.fgrow[i] = 8; } else W.feature[i] = 0; W.mark(x, y); } },
     query(sim, m) { if (m.q === 'census') { const E = sim.E, c = {}; for (let i = 0; i < E.hi; i++) if (E.alive[i] && !(E.flags[i] & F.DEAD)) { const k = AL.KINDS[E.kind[i]].name; c[k] = (c[k] || 0) + 1; } return c; } },
+    afterLoad(sim) { C.rise = sim.rise || (sim.rise = []); },
     onDeath(sim, i, cause) { const E = sim.E; if (E.kind[i] >= AL.NPEOPLE) sim.emit('death', E.x[i], E.y[i], E.kind[i], 2); },
   });
 })(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));

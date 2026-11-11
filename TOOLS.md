@@ -46,3 +46,9 @@ Effects baker. `node tools/bake-fx.js` renders every procedural effect of `tools
 
 ## tests/culture-run.js, tests/step9.js
 `node tests/culture-run.js [ticks] [seed] [--quiet]`: headless run of two peoples; checks cultures, languages, religion founding, dogma modifiers, schism, drift, notables, calendar, determinism. `node tests/step9.js`: browser robot (real clicks), writes `shots/step9-*.png`.
+
+## tools/bake-ui.js (fonts, marks, icons)
+`node tools/bake-ui.js` bakes the two pixel fonts (`font`, `fontb`), the far-view unit mark and the icon atlas (`icons`, frames `ic/<name>`, 123 icons from `tools/art/icons.js`: shape lists on a 16x16 grid + automatic coloured outline). Sheet: `node tools/sheet.js icons --scale 4 --cols 14 --out shots/icons.png`.
+
+## tests/save-run.js, tests/step10.js
+`node tests/save-run.js [ticks] [seed]`: save → reload → compare signatures and bytes → play both 3000 ticks → compare. `node tests/step10.js`: interface robot (real clicks on the rectangles published in `AL.UI.btn`), writes `shots/step10-*.png`.

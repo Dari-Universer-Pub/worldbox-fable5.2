@@ -32,3 +32,8 @@
 - Ugly, fixed: orc stage-1 roofs were flat green slabs hiding the walls → taller log walls, lower roofs, ridge beam, 3 roof materials by trade; moss far too saturated → darker ramp tones.
 - Broken, fixed: a village starved with 180 stone in stock and no farm (posts for miner/soldier/priest kept while nobody gathered; one burnt construction site blocked building forever) → see RESUME step 9; four "heroes" after 9 years because hunting kills counted → heroes need 5 kills as soldiers.
 - Still weak: orc trades are told by props only; chronicle is English only.
+
+## Step 10 — interface (robot `tests/step10.js`)
+- Seen: the bar, toolbar and windows share one dark-blue pixel style; the unit sheet shows a portrait, bars, family and culture; the new-world window redraws its preview when a setting changes; French accents render (Âge de la Première Lueur).
+- Broken, fixed: town sheet never appeared (query argument `id` collided with the reply id); a fast click on the minimap was ignored; the middle dot was missing from the font (showed "?"); column titles overlapped in the kingdoms list; the options labels ran under their buttons in French.
+- Still weak: tooltip of a side button stays over the window it opened; animals crushed the population graph (removed from that tab).

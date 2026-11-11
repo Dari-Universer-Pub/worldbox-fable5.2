@@ -18,13 +18,25 @@
   Game.on('ents', m => { if (!m.n) { S.cur = null; S.prev = null; return; } if (S.cur && m.tick === S.cur.tick) return; const now = performance.now() / 1000;
     S.prev = S.cur; S.cur = m; S.dur = Math.max(0.016, Math.min(0.25, now - S.lastAt)); S.lastAt = now; S.t0 = now; });
   Game.on('blds', m => { S.blds = m; S.bldFrames = null; });
-  Game.on('owner', m => { if (!Game.map) return; Game.map.owner.set(m.owner); S.towns = m.towns; Game.kingdomRamp = m.kr || []; if (S.blds) { S.blds.tk = m.towns.map(t => t ? t[0] : -1); } if (S.layer) S.applyLayer(); });
+  Game.on('owner', m => { if (!Game.map) return; Game.map.owner.set(m.owner); S.towns = m.towns; S.kw = m.kw || []; S.ka = m.ka || []; S.kn = m.kn || []; Game.kingdomRamp = m.kr || []; if (S.blds) { S.blds.tk = m.towns.map(t => t ? t[0] : -1); } if (S.layer) S.applyLayer(); });
   // ---- kingdoms layer: territory tint and borders
+  // map layers: 1 kingdoms, 2 wars, 3 alliances, 4 religions, 5 cultures, 6 resources, 7 population. One id per group, one colour per id.
+  const LRAMP = [9, 14, 13, 10, 11, 15, 6, 2, 3, 12, 7, 0];
   S.applyLayer = function () { const M = Game.map, G = AL.Gfx, A = AL.Assets; if (!M) return; if (!S.layer) { G.layerOn = 0; return; }
-    const n = M.n, ids = S._ids && S._ids.length === n * n ? S._ids : (S._ids = new Uint8Array(n * n)), o = M.owner, pal = new Uint8Array(1024), tw = S.towns || [];
-    // one id per kingdom (towns of a kingdom merge into one territory); kingdom-less towns keep their own id
-    for (let i = 0; i < ids.length; i++) { const v = o[i]; if (!v) { ids[i] = 0; continue; } const t = tw[v - 1]; ids[i] = t && t[0] >= 0 ? (t[0] % 200) + 1 : 201 + ((v - 1) % 54); }
-    for (let t = 0; t < tw.length; t++) { if (!tw[t]) continue; const id = tw[t][0] >= 0 ? (tw[t][0] % 200) + 1 : 201 + (t % 54), ramp = S.teamOf(tw[t][1], tw[t][0]), c = A.palette.rgb[ramp * 6 + 3]; pal[id * 4] = c[0]; pal[id * 4 + 1] = c[1]; pal[id * 4 + 2] = c[2]; pal[id * 4 + 3] = 255; }
+    const n = M.n, ids = S._ids && S._ids.length === n * n ? S._ids : (S._ids = new Uint8Array(n * n)), o = M.owner, pal = new Uint8Array(1024), tw = S.towns || [], L = S.layer, kw = S.kw || [], ka = S.ka || [];
+    const setc = (id, ramp, tone) => { const c = A.palette.rgb[ramp * 6 + tone]; pal[id * 4] = c[0]; pal[id * 4 + 1] = c[1]; pal[id * 4 + 2] = c[2]; pal[id * 4 + 3] = 255; };
+    if (L === 6) { const ft = M.feature, F = AL.F, gr = M.ground; setc(1, 10, 2); setc(2, 5, 4); setc(3, 10, 4); setc(4, 11, 4); setc(5, 1, 2); setc(6, 5, 2); setc(7, 6, 4);
+      for (let i = 0; i < ids.length; i++) { const f = ft[i]; ids[i] = f === F.ore_copper ? 1 : f === F.ore_iron ? 2 : f === F.ore_gold ? 3 : f === F.ore_aether ? 4 : AL.fKind[f] === 1 ? 5 : f === F.rock || gr[i] === AL.G.mountain ? 6 : gr[i] === AL.G.shallow ? 7 : 0; } G.setLayer(ids, pal); G.layerOn = 1; return; }
+    const idOf = [];
+    for (let t = 0; t < tw.length; t++) { const T = tw[t]; if (!T) { idOf[t] = 0; continue; } const kd = T[0]; let id, ramp, tone = 3;
+      if (L === 1) { id = kd >= 0 ? (kd % 200) + 1 : 201 + (t % 54); ramp = S.teamOf(T[1], kd); }
+      else if (L === 2) { const w = kd >= 0 && kw[kd] > 0; id = w ? 1 + (kd % 100) : 150; ramp = w ? 9 : 5; tone = w ? 2 + (kd % 3) : 3; }
+      else if (L === 3) { const a = kd >= 0 ? ka[kd] : -1; id = a >= 0 ? 1 + (a % 100) : 150; ramp = a >= 0 ? LRAMP[(a + 1) % LRAMP.length] : 5; }
+      else if (L === 4) { const r = T[5]; id = r >= 0 ? 1 + (r % 100) : 150; ramp = r >= 0 ? LRAMP[(r * 5 + 3) % LRAMP.length] : 5; tone = r >= 0 ? 3 + (r % 2) : 3; }
+      else if (L === 5) { const c = T[6]; id = c >= 0 ? 1 + (c % 100) : 150; ramp = c >= 0 ? LRAMP[(c * 7 + 1) % LRAMP.length] : 5; tone = c >= 0 ? 2 + (c % 3) : 3; }
+      else { const p = T[7] || 0, b = p < 10 ? 1 : p < 25 ? 2 : p < 50 ? 3 : 4; id = b; ramp = 10; tone = b; }
+      idOf[t] = id; setc(id, ramp, tone); }
+    for (let i = 0; i < ids.length; i++) { const v = o[i]; ids[i] = v ? (idOf[v - 1] || 0) : 0; }
     G.setLayer(ids, pal); G.layerOn = 1; };
   S.setLayer = function (v) { S.layer = v; S.applyLayer(); };
   // ---- day / night ambience (refined with weather and ages in the effects module)
@@ -80,6 +92,6 @@
     else if (a === 'pause') { if (Game.speed > 0) { Game.pausedFrom = Game.speed; Game.setSpeed(0); } else Game.setSpeed(Game.pausedFrom || 1); }
     else if (a === 'faster' || a === 'slower') { const cur = Game.speed > 0 ? Game.speed : (Game.pausedFrom || 1); let i = SPEEDS.indexOf(cur); if (i < 0) i = 1; i = AL.clamp(i + (a === 'faster' ? 1 : -1), 0, SPEEDS.length - 1); Game.setSpeed(SPEEDS[i]); }
     else if (a === 'cancel') { if (Game.hud && Game.hud.ctl >= 0) AL.Tools.release(); Game.tool = { id: 'none', size: Game.tool.size, shape: Game.tool.shape }; }
-    else if (a === 'layerNext') S.setLayer(S.layer ? 0 : 1);
+    else if (a === 'layerNext') S.setLayer((S.layer + 1) % 8);
     else if (a === 'brushBigger') Game.tool.size = Math.min(40, Game.tool.size + 1); else if (a === 'brushSmaller') Game.tool.size = Math.max(1, Game.tool.size - 1); };
 })(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));
