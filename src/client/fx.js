@@ -26,7 +26,7 @@
   Fx.glow = []; // transient lights [wx, wy, radius, intensity, kind, life]
   const GOOD = { heal: 1, strength: 1, fertility: 1, resurrect: 1, prophet: 1, inspire: 1, peace: 1, relic: 1 }, OWNFX = { bolt: 1, meteor: 1, wave: 1, crack: 1, mushroom: 1, boom: 1, blast: 1, teleport: 1 };
   const EV = {
-    hit(x, y, t, d) { S.flash[t] = Game.time + 0.12; if (!Fx.vis(x, y)) return; Fx.add('spark', x + rnd(-3, 3), y - 9); if (d >= 10) { Fx.add('blood', x, y - 6); } Fx.snd(d >= 10 ? 'hit_heavy' : 'hit', x, y, 0.7); },
+    hit(x, y, t, d) { S.flash[t] = Game.time + 0.12; if (!Fx.vis(x, y)) return; Fx.add('spark', x + rnd(-3, 3), y - 9); if (d >= 10) { Fx.add('blood', x, y - 6); } const r = Math.random(); Fx.snd(d >= 10 ? 'hit_heavy' : r < 0.3 ? 'sword' : r < 0.45 ? 'shield' : 'hit', x, y, 0.7); },
     death(x, y, k, c) { if (!Fx.vis(x, y)) return; if (c === 2) Fx.add('blood', x, y - 4); else Fx.add('soot', x, y - 6, { vy: -6, life: 1 }); Fx.snd(k < AL.NPEOPLE ? 'death' : 'death_beast', x, y, 0.6); },
     chop(x, y) { if (!Fx.vis(x, y)) return; Fx.add('dust', x + rnd(-4, 4), y - 2); Fx.snd('chop', x, y, 0.6); },
     mine(x, y) { if (!Fx.vis(x, y)) return; Fx.add('spark', x + rnd(-4, 4), y - 6); Fx.snd('pick', x, y, 0.6); },
@@ -41,7 +41,7 @@
     cub(x, y) { if (Fx.vis(x, y)) Fx.add('heart', x, y - 12, { vy: -8, life: 0.9 }); },
     spawn(x, y) { if (Fx.vis(x, y)) { Fx.add('magic', x, y + 4, { zb: 20 }); Fx.glow.push([x, y, 26, 0.8, 3, 0.5]); Fx.snd('spawn', x, y, 0.7); } },
     rise(x, y) { if (Fx.vis(x, y)) { Fx.add('dark', x, y + 8, { zb: -20 }); burst('soot', x, y - 4, 3, 6, { vy: -8, life: 1 }); Fx.snd('rise', x, y, 0.7); } },
-    risen(x, y) { if (Fx.vis(x, y)) { Fx.add('holy', x, y + 8, { zb: -20 }); burst('heal', x, y - 8, 4, 8, { vy: -10 }); Fx.glow.push([x, y, 30, 0.9, 5, 0.6]); } },
+    risen(x, y) { if (Fx.vis(x, y)) { Fx.add('holy', x, y + 8, { zb: -20 }); burst('heal', x, y - 8, 4, 8, { vy: -10 }); Fx.glow.push([x, y, 30, 0.9, 5, 0.6]); Fx.snd('heal', x, y, 0.8); } },
     stomp(x, y) { if (!Fx.vis(x, y, 200)) return; Fx.add('shock', x, y + 24, { zb: -30, life: 0.4 }); burst('dust', x, y, 6, 20); Fx.kick(3.5, 0, 0.03); Fx.snd('stomp', x, y, 1); },
     arrow(x0, y0, x, y) { if (!Fx.vis(x0, y0) && !Fx.vis(x, y)) return; const dx = x - x0, dy = y - y0, d = Math.hypot(dx, dy) || 1, T = Math.max(0.12, d / 150), ax = Math.abs(dx), ay = Math.abs(dy); Fx.add('arrow', x0, y0, { z: 10, vx: dx / T, vy: dy / T, vz: d * 0.25 / T, g: d * 0.5 / (T * T), life: T, fix: ax > 2 * ay ? 0 : ay > 2 * ax ? 2 : 1, flip: dx < 0 }); Fx.snd('bow', x0, y0, 0.5); },
     bomb(x0, y0, x, y) { if (!Fx.vis(x0, y0, 300) && !Fx.vis(x, y, 100)) return; const dx = x - x0, dy = y - y0, T = 1.1; Fx.add('fire/a', x0, y0, { z: 8, vx: dx / T, vy: dy / T, vz: 150, g: 2 * 150 / T + 14, life: T, end: 1, zb: 30 }); },
@@ -54,11 +54,13 @@
     quake(x, y, r) { Fx.quakeT = 6 / Math.max(0.5, Game.effSpeed || 1); Fx.snd('quake', x, y, 1); },
     crack(x, y) { x = x * 8 + 4; y = y * 8 + 6; if (!Fx.vis(x, y)) return; Fx.add('crack', x, y + 8, { life: 30, zb: -40, fix: 2, flip: Math.random() < 0.5 }); Fx.add('dust', x, y); },
     flood(x, y) { Fx.snd('wave', x, y, 1); Fx.kick(1.5, 0, 0); },
-    teleport(x0, y0, x, y) { Fx.add('teleport', x0, y0 + 4, { zb: 20 }); Fx.add('teleport', x, y + 4, { zb: 20, delay: 0.15 }); Fx.glow.push([x, y, 40, 1, 3, 0.6]); Fx.snd('magic', x, y, 0.9); },
+    teleport(x0, y0, x, y) { Fx.add('teleport', x0, y0 + 4, { zb: 20 }); Fx.add('teleport', x, y + 4, { zb: 20, delay: 0.15 }); Fx.glow.push([x, y, 40, 1, 3, 0.6]); Fx.snd('teleport', x, y, 0.9); },
     town(x, y) { x *= 8; y *= 8; if (Fx.vis(x, y)) { Fx.add('holy', x, y + 8, { zb: -20 }); burst('heal', x, y - 6, 5, 16, { vy: -9 }); } Fx.snd('town', x, y, 0.8); },
     stage(x, y) { x *= 8; y *= 8; if (Fx.vis(x, y)) { Fx.add('holy', x, y + 8, { zb: -20, scale: 2 }); burst('bless', x, y - 6, 8, 30, { vy: -9 }); } Fx.snd('stage', x, y, 0.9); },
     capture(x, y) { x *= 8; y *= 8; if (Fx.vis(x, y)) { Fx.add('dark', x, y + 8, { zb: -20, scale: 2 }); burst('smoke', x, y - 6, 6, 30, { vy: -8, life: 1.6 }); } Fx.snd('horn', x, y, 0.9); },
     siege(x, y) { if (Fx.vis(x, y)) { fling('debris', x, y - 8, 3, 26, 70, 0.7); Fx.add('dust', x, y - 4); Fx.snd('siege', x, y, 0.7); } },
+    trade(x, y) { if (Fx.vis(x, y)) Fx.snd('coins', x, y, 0.5); },
+    grownup(x, y) { },
     era() { Fx.kick(0, 0.5, 0); const A = AL.Audio; if (A && A.play) A.play('era', { vol: 1 }); },
     weather() { },
     pw(id, x, y, r) { const d = AL.DATA.powers[id]; if (!d) return; x *= 1; if (d.fx && !OWNFX[d.fx] && d.kind !== 'brush') { const n = AL.clamp((r * r * 0.7) | 0, 3, 36), big = an(d.fx)[0] && an(d.fx)[0][2] > 16; for (let k = 0; k < (big ? Math.max(1, n >> 3) : n); k++) { const a = Math.random() * 6.283, q = Math.sqrt(Math.random()) * r * 8 * 0.9; Fx.add(d.fx, x + Math.cos(a) * q, y + Math.sin(a) * q * 0.8 - (big ? 0 : 6), { delay: Math.random() * 0.5, vy: big ? 0 : -8, zb: 20 }); } }
@@ -66,7 +68,7 @@
       if (d.zone) Fx.glow.push([x, y, r * 8, 0.5, 2, 0.5]);
       if (d.snd && d.fx !== 'bolt' && !/boom|nuke/.test(d.snd)) Fx.snd(d.snd, x, y, 1); }
   };
-  const TILEEV = { hit: 1, death: 1, chop: 1, mine: 1, hammer: 1, anvil: 1, built: 1, collapse: 1, splash: 1, love: 1, birth: 1, cub: 1, spawn: 1, rise: 1, risen: 1, stomp: 1, bolt: 1, boom: 1, nuke: 1, impact: 1, meteor: 1, quake: 1, flood: 1, siege: 1 };
+  const TILEEV = { hit: 1, death: 1, chop: 1, mine: 1, hammer: 1, anvil: 1, built: 1, collapse: 1, splash: 1, love: 1, birth: 1, cub: 1, spawn: 1, rise: 1, risen: 1, stomp: 1, bolt: 1, boom: 1, nuke: 1, impact: 1, meteor: 1, quake: 1, flood: 1, siege: 1, trade: 1 };
   Fx.event = function (e) { const t = e[0], h = EV[t]; Fx.counts['ev:' + t] = (Fx.counts['ev:' + t] || 0) + 1; if (!h) return;
     if (t === 'pw') h(e[1], e[2] * 8, e[3] * 8, e[4]); else if (t === 'arrow' || t === 'bomb' || t === 'teleport') h(e[1] * 8, e[2] * 8, e[3] * 8 + (t === 'bomb' ? 4 : 0), e[4] * 8 + (t === 'bomb' ? 4 : 0)); else if (TILEEV[t]) h(e[1] * 8, e[2] * 8, e[3], e[4]); else h(e[1], e[2], e[3], e[4]); };
   // chimney smoke (called by the scene for each visible finished building with a chimney)
@@ -111,7 +113,7 @@
         if (kd === 6 && !far) G.light(zx, zy, r, 0.18, 1); if (kd === 5 && !far) G.light(zx, zy, r, 0.14, 2); }
       const P = hud.phen, tf = an('tornado'), wv = an('wave'); for (let q = 0; q < P.length; q++) { const p = P[q], kd = p[0], px = p[1] * 8, py = p[2] * 8;
         if (kd === 'tornado') { const s = Fx.tor[q] || (Fx.tor[q] = { x: px, y: py }); if (Math.abs(s.x - px) > 80 || Math.abs(s.y - py) > 80) { s.x = px; s.y = py; } s.x += (px - s.x) * Math.min(1, dt * 4); s.y += (py - s.y) * Math.min(1, dt * 4); if (!Fx.vis(s.x, s.y, 80)) continue;
-          G.spr(tf[((t * 12) | 0) % tf.length], s.x + Math.sin(t * 5) * 2, s.y + 4, 0, 32, 0, 1, far ? 2 : 1, 20); if (!far && Fx.n < CAP - 200 && Math.random() < dt * 14) { const a = Math.random() * 6.283; Fx.add(Math.random() < 0.6 ? 'dust' : 'debris', s.x + Math.cos(a) * 10, s.y + Math.sin(a) * 4, { vx: -Math.sin(a) * 50, vy: Math.cos(a) * 16, vz: 60, g: 90, life: 0.7, fix: Math.random() < 0.5 ? 1 : null }); } if (Math.random() < dt * 0.8) Fx.snd('wind', s.x, s.y, 0.8); }
+          G.spr(tf[((t * 12) | 0) % tf.length], s.x + Math.sin(t * 5) * 2, s.y + 4, 0, 32, 0, 1, far ? 2 : 1, 20); if (!far && Fx.n < CAP - 200 && Math.random() < dt * 14) { const a = Math.random() * 6.283; Fx.add(Math.random() < 0.6 ? 'dust' : 'debris', s.x + Math.cos(a) * 10, s.y + Math.sin(a) * 4, { vx: -Math.sin(a) * 50, vy: Math.cos(a) * 16, vz: 60, g: 90, life: 0.7, fix: Math.random() < 0.5 ? 1 : null }); } if (Math.random() < dt * 0.6) Fx.snd('tornado', s.x, s.y, 0.8); }
         else if (kd === 'eruption') { if (!Fx.vis(px, py, 160)) continue; G.light(px, py, 90 + Math.sin(t * 6) * 6, 1.1, 1); if (Fx.n < CAP - 200 && Math.random() < dt * 9) Fx.add(Math.random() < 0.7 ? 'smoke' : 'ember', px + rnd(-12, 12), py - 8, { vy: -22, vx: Fx.windX * 12, life: 2.4, zb: 80, scale: Math.random() < 0.3 ? 2 : 1 }); if (Fx.shake < 1.2) Fx.shake = 1.2; }
         else if (kd === 'flood') { const R = p[3] * 8; if (R < 4 || !Fx.vis(px, py, R + 40)) continue; const nw = Math.min(40, (p[3] * 1.6) | 0); for (let d = 0; d < nw; d++) { const a = d / nw * 6.283 + AL.hash2(d, q, 31); G.spr(wv[((t * 7 + d) | 0) % wv.length], px + Math.cos(a) * R, py + Math.sin(a) * R * 0.9 + 6, 0, 32 | (Math.cos(a) < 0 ? 1 : 0), 0, 1, 1, 2); } } } }
     // --- global weather

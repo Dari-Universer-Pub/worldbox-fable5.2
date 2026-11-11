@@ -52,3 +52,9 @@ Effects baker. `node tools/bake-fx.js` renders every procedural effect of `tools
 
 ## tests/save-run.js, tests/step10.js
 `node tests/save-run.js [ticks] [seed]`: save → reload → compare signatures and bytes → play both 3000 ticks → compare. `node tests/step10.js`: interface robot (real clicks on the rectangles published in `AL.UI.btn`), writes `shots/step10-*.png`.
+
+## tools/art/sounds.py, tools/level-audio.js, tools/measure-audio.js
+`python3 tools/art/sounds.py` writes `src/data/sounds.json` from the patch source (layers of oscillators, noise, plucked strings, filters, envelopes, FM, tremolo, reverb sends; intent windows). `node tools/level-audio.js` measures and writes the `vol` factors so that each sound sits within 3 dB of its category median (kept by the next run of sounds.py). `node tools/measure-audio.js [--quiet] [--music] [--json f]` renders every variant and track offline in headless Chromium and checks clipping, clicks, levels, duration and spectral centroid.
+
+## tests/step11.js
+Browser robot for sound: first-gesture start, sounds triggered by real actions (counted in `AL.Mixer.counts`), adaptive track changes, ambience, volume option.

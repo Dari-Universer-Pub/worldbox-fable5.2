@@ -23,6 +23,7 @@
   "src/client/tools.js",
   "src/client/scene.js",
   "src/client/fx.js",
+  "src/client/mixer.js",
   "src/client/store.js",
   "src/client/ui.js",
   "src/client/boot.js"

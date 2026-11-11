@@ -27,3 +27,7 @@
 - War layer with fronts and army arrows; religion/culture legends inside the layer; minimap modes.
 - Weak icons to redraw: creatures (paw), peace (dove), import/export, culture (vase), flood.
 - Touch: long-press tooltips, bigger hit areas at interface size x2.
+
+## After step 11
+- Sound must be listened to and re-voiced by ear; the war track needs a real brass/choir timbre; per-climate tracks (ice, desert, jungle), a disaster track, a title theme, stingers for ages and victories.
+- Reverb sends per bus, ducking of music under large explosions, footsteps per ground, voices per people (pitch/formants from the language data).

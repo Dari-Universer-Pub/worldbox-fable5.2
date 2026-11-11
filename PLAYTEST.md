@@ -37,3 +37,8 @@
 - Seen: the bar, toolbar and windows share one dark-blue pixel style; the unit sheet shows a portrait, bars, family and culture; the new-world window redraws its preview when a setting changes; French accents render (Âge de la Première Lueur).
 - Broken, fixed: town sheet never appeared (query argument `id` collided with the reply id); a fast click on the minimap was ignored; the middle dot was missing from the font (showed "?"); column titles overlapped in the kingdoms list; the options labels ran under their buttons in French.
 - Still weak: tooltip of a side button stays over the window it opened; animals crushed the population graph (removed from that tab).
+
+## Step 11 — sound (robot `tests/step11.js`, `tools/measure-audio.js`) — NOT LISTENED TO
+- Measured only: the engine stays silent until the first click; a tornado switches the music to the war track within 2.5 s and night brings the night track; over one short session 13 different sounds were triggered (clicks, thunder, bomb, healing, earth, tornado, animal calls, hits).
+- Fixed from measurements: impacts (hit, hammer, chop, shield) were dull thuds (centroid 140–290 Hz) → more noise, less sine body; wave, fire and acid were hiss (centroid 6.5–11 kHz) → band-limited; 43 levels were out of their category range → calibrated.
+- To be judged by ear by Julien: everything.

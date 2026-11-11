@@ -1,0 +1,38 @@
+// AL.Mixer — decides what is heard: starts the audio engine on the first gesture, picks the music track from what happens
+// (night, war, disaster), mixes its layers (melody, pad, bells, rhythm, tension), cross-fades the ambience beds from the
+// ground under the camera, the weather and the fires, and lets animals, towns and crowds be heard now and then.
+(function (AL) {
+  'use strict';
+  const Game = AL.Game, A = AL.Audio, S = AL.Scene, Mx = AL.Mixer = { on: false, t: 0, life: 3, state: '', amb: {}, counts: {}, track: '', menu: false };
+  // count what is played (tests and the debug overlay)
+  const play0 = A.play; A.play = function (name, o) { const r = play0(name, o); if (r) Mx.counts[name] = (Mx.counts[name] || 0) + 1; return r; };
+  Mx.start = function () { if (Mx.on) return; try { A.init(); } catch (e) { return; } Mx.on = true; const v = (Game.options && Game.options.vol) || {}; for (const k in v) A.setVolume(k, v[k]); A.setVolume('amb', (v.sfx == null ? 0.8 : v.sfx) * 0.7); };
+  if (typeof window !== 'undefined') for (const ev of ['mousedown', 'keydown', 'touchstart']) window.addEventListener(ev, () => { Mx.start(); if (A.ready) A.resume(); }, { capture: true });
+  const AMBG = { deep: 'waves', shallow: 'waves', sand: 'waves', desert: 'desert', savanna: 'desert', forest: 'forest', jungle: 'forest', swamp: 'forest', snow: 'ice', ice: 'ice', tundra: 'wind', mountain: 'wind', hills: 'wind', volcanic: 'wind', grass: 'forest' };
+  const CALLS = { wolf: 'wolf_howl', bear: 'bear_growl', deer: 'deer_call', sheep: 'sheep_bleat', boar: 'boar_grunt', eagle: 'eagle_cry', rabbit: 'rabbit_thump', salmon: 'fish_plop', zombie: 'zombie_moan', skeleton: 'skeleton_rattle', demon: 'demon_roar' };
+  Mx.frame = function (dt) { if (!Mx.on || !A.ready) return; Mx.t -= dt; Mx.life -= dt; const G = AL.Gfx, c = Game.cam, hud = Game.hud, M = Game.map;
+    if (Mx.t <= 0) { Mx.t = 0.5;
+      if (Mx.menu || !M || !hud) { A.Music.play('calm', 3); A.Music.setLayers({ base: 1, melody: 1, pad: 0.8, bells: 0.6, rhythm: 0, tension: 0 }); A.ambience({ wind: 0.4 }); return; }
+      // what is on screen
+      const m = S.cur; let soldiers = 0, people = 0, monsters = 0; const x0 = c.x / 8, y0 = c.y / 8, x1 = x0 + G.W / c.z / 8, y1 = y0 + G.H / c.z / 8;
+      if (m) for (let i = 0; i < m.n; i++) { if (!m.alive[i] || m.x[i] < x0 || m.x[i] > x1 || m.y[i] < y0 || m.y[i] > y1) continue; const k = m.kind[i]; if (k < AL.NPEOPLE) { people++; if (m.flags[i] & 4096) soldiers++; } else if (AL.KINDS[k].cls === 2) monsters++; }
+      const fires = AL.Fx ? AL.Fx.nFireSeen || 0 : 0, dis = hud.phen.length > 0 || fires > 25 || (AL.Fx && AL.Fx.shake > 2), war = soldiers >= 3 || monsters >= 3, night = S.night > 0.6;
+      const tr = war || dis ? 'war' : night ? 'night' : 'calm'; Mx.state = (war ? 'war ' : '') + (dis ? 'disaster ' : '') + (night ? 'night' : 'day');
+      if (tr !== Mx.track) { Mx.track = tr; A.Music.play(tr, tr === 'war' ? 1.5 : 4); }
+      const town = S.nBlds > 2 ? 1 : 0, far = c.z < 0.74;
+      A.Music.setLayers(tr === 'war' ? { base: 1, melody: war ? 1 : 0.4, pad: 0.8, rhythm: soldiers >= 6 || dis ? 1 : 0.5, tension: dis ? 1 : 0.3 } : tr === 'night' ? { base: 1, melody: 0.9, bells: far ? 0.3 : 0.8, pad: 0.7, rhythm: town * 0.6, tension: monsters ? 1 : fires > 3 ? 0.6 : 0 } : { base: 1, melody: 1, pad: far ? 1 : 0.6, bells: town ? 0.8 : 0.3, rhythm: town && people > 6 ? 0.9 : 0, tension: fires > 3 ? 0.8 : 0 });
+      // ambience from the ground under the camera (5x5 samples)
+      const am = { wind: 0.15, waves: 0, forest: 0, desert: 0, ice: 0, rain: 0, fire: 0, night: 0, town: 0, battle: 0 }; let ns = 0;
+      for (let sy = 0; sy < 5; sy++) for (let sx = 0; sx < 5; sx++) { const X = Math.floor(x0 + (x1 - x0) * (sx + 0.5) / 5), Y = Math.floor(y0 + (y1 - y0) * (sy + 0.5) / 5); if (X < 0 || Y < 0 || X >= M.n || Y >= M.n) continue; ns++; const g = AL.GROUND[M.ground[Y * M.n + X]], b = AMBG[g.name]; if (b) am[b] += AL.fKind[M.feature[Y * M.n + X]] === 1 && b !== 'forest' ? 0.5 : 1; if (AL.fKind[M.feature[Y * M.n + X]] === 1) am.forest += 0.6; }
+      for (const k of ['waves', 'forest', 'desert', 'ice', 'wind']) am[k] = Math.min(1, am[k] / Math.max(1, ns) * (k === 'wind' ? 1.4 : 1.2) + (k === 'wind' ? 0.15 + (far ? 0.25 : 0) : 0)); if (night) { am.forest *= 0.3; am.night = 0.8 * (1 - am.waves) * (1 - am.ice); }
+      let rain = hud.wx === 1 ? 0.7 : hud.wx === 2 ? 1 : 0; for (const zn of hud.zones) if ((zn[0] === 1 || zn[0] === 2 || zn[0] === 3) && zn[1] > x0 - zn[3] && zn[1] < x1 + zn[3] && zn[2] > y0 - zn[3] && zn[2] < y1 + zn[3]) rain = Math.max(rain, 0.8); am.rain = rain; if (hud.wx === 2 || hud.wx === 3) am.wind = Math.min(1, am.wind + 0.4);
+      am.fire = Math.min(1, fires / 14); am.town = Math.min(1, people / 25) * (night ? 0.3 : 1) * (far ? 0.4 : 1); am.battle = Math.min(1, soldiers / 10); Mx.amb = am; A.ambience(am); }
+    // life: a call from something that is on screen, a bird, a bell, voices
+    if (Mx.life <= 0 && Game.map && S.cur && !Mx.menu) { Mx.life = 2.5 + Math.random() * 5; const m = S.cur, far = c.z < 0.74; if (far) return; let pick = -1;
+      for (let k = 0; k < 40 && pick < 0; k++) { const i = (Math.random() * m.n) | 0; if (m.alive[i] && !(m.flags[i] & 1) && AL.Fx.vis(m.x[i] * 8, m.y[i] * 8, 0)) pick = i; }
+      if (pick < 0) { if (Mx.amb.forest > 0.3 && S.night < 0.5) AL.Fx.snd('bird_chirp', c.x + Math.random() * G.W / c.z, c.y + G.H / c.z / 2, 0.6); return; }
+      const K = AL.KINDS[m.kind[pick]], wx = m.x[pick] * 8, wy = m.y[pick] * 8;
+      if (K.cls === 0) { const an = m.anim[pick], r = Math.random(); AL.Fx.snd(an === AL.ANIM.pray ? 'pray_chant' : an === AL.ANIM.joy ? 'cheer' : (m.flags[pick] & 256) ? 'cry' : (m.flags[pick] & 4096) ? (r < 0.5 ? 'drum_war' : 'charge') : S.nBlds > 4 && r < 0.12 ? 'bell' : r < 0.6 ? 'chatter' : 'footstep', wx, wy, 0.6); }
+      else if (CALLS[K.name] && (K.name !== 'wolf' || S.night > 0.5 || Math.random() < 0.3)) AL.Fx.snd(CALLS[K.name], wx, wy, 0.7);
+      else if (Mx.amb.forest > 0.3 && S.night < 0.5) AL.Fx.snd('bird_chirp', wx, wy, 0.6); } };
+})(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));

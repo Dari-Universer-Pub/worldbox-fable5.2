@@ -69,7 +69,7 @@
     const env = Game.env; env.time = Game.time; env.frame = (Game.time * 3.2) | 0;
     if (Game.map && Game.ready) { const G = AL.Gfx; G.begin(); if (AL.Scene) AL.Scene.update(dt, env); drawFlora(env); if (AL.Scene) AL.Scene.draw(env); if (AL.Fx) AL.Fx.draw(dt, env);
       const c = Game.cam, snap = c.z === c.tz, cx = snap ? Math.round(c.x * c.z) / c.z : c.x, cy = snap ? Math.round(c.y * c.z) / c.z : c.y; G.draw({ x: cx, y: cy, z: c.z }, env); Game.stats.sprites = G.count(); }
-    if (AL.Tools) AL.Tools.frame(dt); if (AL.UI) AL.UI.frame(dt);
+    if (AL.Tools) AL.Tools.frame(dt); if (AL.UI) AL.UI.frame(dt); if (AL.Mixer) AL.Mixer.frame(dt);
     const ms = performance.now() - t0; fpsAcc += ms; fpsN++; fpsT += dt; Game.stats.maxMs = Math.max(Game.stats.maxMs * 0.995, ms);
     if (fpsT >= 0.5) { Game.stats.fps = Math.round(fpsN / fpsT); Game.stats.frameMs = fpsAcc / fpsN; fpsAcc = 0; fpsN = 0; fpsT = 0; }
   }

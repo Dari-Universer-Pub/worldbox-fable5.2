@@ -7,7 +7,7 @@
 const fs = require('fs'), path = require('path'), crypto = require('crypto');
 const ROOT = path.join(__dirname, '..'); let fail = 0; const counts = {};
 const FORBID = /\.(wav|mp3|ogg|flac|aac|m4a|mid|midi|sf2|ttf|otf|woff2?|eot|obj|fbx|gltf|glb|blend|dae|psd|ase|aseprite|xcf|kra|svg|jpg|jpeg|gif|webp|bmp|tga|mp4|webm|zip|tar|gz|wasm)$/i;
-const ALLOW = /\.(js|json|md|html|css|txt|png|bin|webmanifest|ico|aeon|gitignore)$/i;
+const ALLOW = /\.(js|py|json|md|html|css|txt|png|bin|webmanifest|ico|aeon|gitignore)$/i;
 function walk(d) { for (const f of fs.readdirSync(d)) { if (f === '.git' || f === 'node_modules') continue; const p = path.join(d, f), st = fs.statSync(p); if (st.isDirectory()) walk(p); else check(p); } }
 const manifestFile = path.join(ROOT, 'assets/manifest.json'); const manifest = fs.existsSync(manifestFile) ? JSON.parse(fs.readFileSync(manifestFile, 'utf8')) : null;
 function check(p) {
