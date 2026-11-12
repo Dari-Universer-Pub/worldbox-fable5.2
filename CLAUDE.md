@@ -1,8 +1,8 @@
 # CLAUDE.md — DUSTCROWN
 
-Read `RESUME.md` first at the start of every session. `INVENTAIRE.md` lists exactly what content exists and what is missing; `BALANCE.md` explains the balance robot and its targets; `BUGS.md` lists the bugs found while playing and how they were repaired. It says the current step (out of 14), what is verified, and the precise next action.
+Read `RESUME.md` first at the start of every session, then `CHANTIER.md` (the roadmap after step 13). `INVENTAIRE.md` lists exactly what content exists and what is missing; `BALANCE.md` explains the balance robot and its targets; `BUGS.md` lists the bugs found while playing and how they were repaired. It says the current step (out of 14), what is verified, and the precise next action.
 
-> **SCOPE OF THE AGENT WORKING NOW (decided by Julien, overrides everything below).** Do steps **12 and 13 ONLY**, then STOP. Do **NOT** do step 14: no independent review sub-agent, no final `REPORT.md`, no long browser playtests, no final measurement campaign, no final screenshot campaign. A different agent will do step 14 afterwards. Part 2 rules 5, 7 and 9 and step 14 of Part 10 are reserved for that agent. Still work honestly on steps 12 and 13: sheets really looked at, tests green, `RESUME.md`, `TOOLS.md`, `PROVENANCE.md`, `IDEAS.md` kept up to date, one commit per step. Keep the cost down: no sub-agents, no repeated full browser runs; run `node tests/run-all.js` once per step.
+> **SCOPE (decided by Julien after step 13, overrides everything below).** Step 14 is set aside. The work now follows **`CHANTIER.md`**, in order: 0 technical prerequisite, A provisional content raised to the target level, B missing systems, C finish. Read `RESUME.md` then `CHANTIER.md`. One commit per finished task, both files updated in the same commit; a line is ticked only when verified. No sub-agents; `node tests/run-all.js` once per task that touches the game; the balance battery after any change of simulation rules.
 
 - Game name: **Dustcrown** (original; a pixel-art god simulation, top-down, web).
 - Part A below: code conventions. Part B: the rules of the founding prompt, copied in full.

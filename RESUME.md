@@ -1,11 +1,11 @@
 # RESUME — handoff file
 
-> **LES ÉTAPES DE CONTENU SONT FINIES (1 à 13). L'ÉTAPE SUIVANTE EST L'ÉTAPE 14 (vérification finale), réservée à un autre agent.** L'agent des étapes 12 et 13 s'est arrêté ici, comme demandé par Julien : pas de revue par sous-agent, pas de REPORT.md final, pas de longues parties, pas de campagne finale de mesures ni de captures.
-> **NOM DU JEU : Dustcrown** (décidé par Julien pendant l'étape 12 ; l'ancien nom était Aeonloom). L'univers de `BIBLE.md` (le Tisserand, la Trame) n'a pas été réécrit ; les identifiants internes de sauvegarde gardent l'ancien nom pour ne pas perdre les mondes enregistrés (voir `IDEAS.md`).
+> **APRÈS L'ÉTAPE 13 : Julien a mis l'étape 14 de côté. Le travail suit maintenant `CHANTIER.md`** (0 préalable technique, A contenu provisoire au niveau visé, B systèmes absents, C finitions). Lire ce fichier-ci puis `CHANTIER.md`.
+> **NOM DU JEU : Dustcrown** (l'ancien nom était Aeonloom ; les identifiants internes de sauvegarde gardent l'ancien nom, voir `IDEAS.md`).
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current step: 13 / 14 DONE. Next: step 14 (final verification), for another agent.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — task in progress: **0.1 trim the sprite frames at build time**.
 
 ### Step 13 (done, verified as written below)
 - **Name**: Dustcrown everywhere a player or a reader sees it (title, logo, page title, manifest, README, documents, export file `dustcrown-year<N>.dust`); the delivered script is `game/dustcrown.js`.
@@ -95,4 +95,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-**For the agent of step 14** (not started). Read `CLAUDE.md` Part 10 step 14 for the list (a) to (e). State you start from: `node tests/run-all.js` to re-run first (see step 13 above: 20/21 at the only full run, the failing robot fixed and green alone), `node tools/balance-bot.js battery` 136/136, `node tools/validate-data.js` OK, everything committed and pushed on `claude/ecstatic-lovelace-b5e456`. Things this agent knows are weak and did not check, to look at first: the provisional toolbar (Options → Provisional content) was never looked at with its 49 extra creatures and 56 extra powers; the 4 provisional peoples were only played alone by the balance robot (never at war, never in a browser game); provisional sounds and tracks were never heard; the sprite page is now 4096×8192 (check on real hardware); the universe text in `BIBLE.md` still tells the story of the old name. `REPORT.md` is still the empty stub: writing it is step 14.
+See the first unticked line of `CHANTIER.md`. Right now: **0.1** — trim every sprite frame to its content in `tools/build.js` (pivot corrected) so that the sprite page fits 4096×4096 again, check with all robots; then **0.2** full `node tests/run-all.js`; then A.1 (resource icons), A.2 (full animation sets of the 49 provisional creatures), and so on in order.
