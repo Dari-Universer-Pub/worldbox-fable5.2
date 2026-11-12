@@ -37,7 +37,6 @@
  },
  "hellhound": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 24,
   "hp": 120,
   "speed": 1.5,
@@ -45,44 +44,45 @@
   "lifespan": 40,
   "hostile": true,
   "courage": 1,
-  "fire": true
+  "fire": true,
+  "ability": "hellhound"
  },
  "direwolf": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 32,
   "hp": 150,
   "speed": 1.4,
   "attack": 20,
   "lifespan": 30,
   "hostile": true,
-  "courage": 1
+  "courage": 1,
+  "ability": "direwolf"
  },
  "basilisk": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 32,
   "hp": 180,
   "speed": 0.9,
   "attack": 24,
   "lifespan": 120,
   "hostile": true,
-  "courage": 1
+  "courage": 1,
+  "ability": "basilisk"
  },
  "behemoth": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 48,
   "hp": 700,
   "speed": 0.8,
   "attack": 45,
   "lifespan": 300,
   "hostile": true,
-  "courage": 1
+  "courage": 1,
+  "ability": "behemoth",
+  "armor": 0.25
  },
  "dragon": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 48,
   "hp": 900,
   "speed": 1.1,
@@ -90,11 +90,12 @@
   "lifespan": 500,
   "hostile": true,
   "courage": 1,
-  "fire": true
+  "fire": true,
+  "ability": "dragon",
+  "armor": 0.4
  },
  "roc": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 32,
   "hp": 220,
   "speed": 1.7,
@@ -102,11 +103,11 @@
   "lifespan": 120,
   "hostile": true,
   "courage": 1,
-  "fly": true
+  "fly": true,
+  "ability": "roc"
  },
  "harpy": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 24,
   "hp": 60,
   "speed": 1.6,
@@ -114,11 +115,11 @@
   "lifespan": 40,
   "hostile": true,
   "courage": 1,
-  "fly": true
+  "fly": true,
+  "ability": "harpy"
  },
  "leviathan": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 48,
   "hp": 800,
   "speed": 1.2,
@@ -126,88 +127,89 @@
   "lifespan": 500,
   "hostile": true,
   "courage": 1,
-  "swim": true
+  "swim": true,
+  "ability": "leviathan"
  },
  "giant": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 48,
   "hp": 500,
   "speed": 0.8,
   "attack": 40,
   "lifespan": 150,
   "hostile": true,
-  "courage": 1
+  "courage": 1,
+  "ability": "giant"
  },
  "golem": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 32,
   "hp": 400,
   "speed": 0.6,
   "attack": 30,
   "lifespan": 1000,
   "hostile": true,
-  "courage": 1
+  "courage": 1,
+  "ability": "golem",
+  "armor": 0.5
  },
  "troll": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 32,
   "hp": 260,
   "speed": 0.9,
   "attack": 28,
   "lifespan": 90,
   "hostile": true,
-  "courage": 1
+  "courage": 1,
+  "ability": "troll"
  },
  "treant": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 32,
   "hp": 320,
   "speed": 0.5,
   "attack": 24,
   "lifespan": 800,
   "hostile": true,
-  "courage": 1
+  "courage": 1,
+  "ability": "treant"
  },
  "spirit": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 24,
   "hp": 40,
   "speed": 1.2,
   "attack": 10,
   "lifespan": 60,
   "hostile": true,
-  "courage": 1
+  "courage": 1,
+  "ability": "spirit"
  },
  "voidling": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 24,
   "hp": 90,
   "speed": 1.3,
   "attack": 16,
   "lifespan": 80,
   "hostile": true,
-  "courage": 1
+  "courage": 1,
+  "ability": "voidling"
  },
  "lich": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 24,
   "hp": 180,
   "speed": 0.9,
   "attack": 22,
   "lifespan": 600,
   "hostile": true,
-  "courage": 1
+  "courage": 1,
+  "ability": "lich"
  },
  "imp": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 16,
   "hp": 25,
   "speed": 1.5,
@@ -215,17 +217,19 @@
   "lifespan": 30,
   "hostile": true,
   "courage": 1,
-  "fire": true
+  "fire": true,
+  "ability": "imp"
  },
  "colossus": {
   "atlas": "creatures2",
-  "provisional": true,
   "size": 64,
   "hp": 3000,
   "speed": 0.55,
   "attack": 90,
   "lifespan": 5000,
   "hostile": true,
-  "courage": 1
+  "courage": 1,
+  "ability": "colossus",
+  "armor": 0.4
  }
 }

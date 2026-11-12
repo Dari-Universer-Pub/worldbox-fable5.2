@@ -25,7 +25,7 @@ function runOne(scn, seed, years) {
   // a start on a small island (under 4000 tiles) caps a people at ~140 whatever the rules are, and there is no sea colonisation yet: not a fair test
   const regSize = new Map(); for (let i = 0; i < n * n; i++) { const r = W.region[i]; if (r) regSize.set(r, (regSize.get(r) || 0) + 1); }
   const site = (dist, minQ) => { let best = null, bq = -1; for (let k = 0; k < 9000; k++) { const x = 30 + ((AL.hash2(k, 1, seed) * (n - 70 - dist)) | 0), y = 40 + ((AL.hash2(k, 2, seed) * (n - 80)) | 0), x2 = x + dist; if (W.region[y * n + x] === 0 || W.region[y * n + x] !== W.region[y * n + x2] || (regSize.get(W.region[y * n + x]) || 0) < 4000) continue; const q = Math.min(AL.Units.siteQuality(sim, x, y), dist ? AL.Units.siteQuality(sim, x2, y) : 9); if (q > bq) { bq = q; best = [x, y, x2]; } if (q >= minQ && k > 400) break; } return { best, bq }; };
-  const dist = { 'solo-human': 0, 'solo-orc': 0, 'solo-elf': 0, 'solo-dwarf': 0, 'solo-myrrin': 0, 'solo-okari': 0, duel44: 44, duel80: 80, chaos: 60, small: 6, wild: 0 }[scn];
+  const dist = { 'solo-human': 0, 'solo-orc': 0, 'solo-elf': 0, 'solo-dwarf': 0, 'solo-myrrin': 0, 'solo-okari': 0, bestiary: 0, duel44: 44, duel80: 80, chaos: 60, small: 6, wild: 0 }[scn];
   if (scn !== 'wild') { const { best, bq } = site(dist, 0.62); if (!best) return { scn, seed, error: 'no site' };
     if (scn.startsWith('solo-') && scn !== 'solo-human') sim.command({ t: 'spawn', kind: scn.slice(5), x: best[0] + .5, y: best[1] + .5, count: 16 });
     else { const cnt = scn === 'small' ? 3 : 16; sim.command({ t: 'spawn', kind: 'human', x: best[0] + .5, y: best[1] + .5, count: cnt }); if (dist) sim.command({ t: 'spawn', kind: 'orc', x: best[2] + .5, y: best[1] + .5, count: cnt }); } }
@@ -57,7 +57,10 @@ function runOne(scn, seed, years) {
   const total = years * YEAR; let kingdomPeak = 0;
   for (let k = 1; k <= total; k++) { tick = k; const tt = process.hrtime.bigint();
     if (scn === 'chaos' && k % 1500 === 0) { const id = rng.pick(POW), towns = sim.towns.filter(t => t.alive), tw = towns.length && rng.chance(0.6) ? rng.pick(towns) : null, x = tw ? tw.cx + rng.range(-8, 8) : rng.range(20, n - 20), y = tw ? tw.cy + rng.range(-8, 8) : rng.range(20, n - 20); sim.command({ t: 'power', id, x, y, x0: tw ? tw.cx : x, y0: tw ? tw.cy : y, r: 0 }); }
-    try { sim.step(); } catch (e) { out.error = 'tick ' + k + ': ' + e.message; break; } sim.events.length = 0;
+    // bestiary: every monster with an ability is set down around the biggest town at year 8 and again every 20 years (proof that each behaviour fires)
+    if (scn === 'bestiary' && k >= YEAR * 12 && k % (YEAR * 3) === 0) { const ORDER = ['treant', 'spirit', 'harpy', 'dragon', 'golem', 'imp', 'lich', 'basilisk', 'voidling', 'troll', 'roc', 'giant', 'hellhound', 'direwolf', 'leviathan', 'behemoth', 'colossus'], K = AL.KINDS[AL.K[ORDER[((k / (YEAR * 3)) - 4) % ORDER.length]]], tw = sim.towns.filter(t => t.alive).sort((a, b) => b.pop - a.pop)[0];
+      if (tw && K) for (let q = 0; q < 40; q++) { const a = rng.f() * 6.283, d = K.swim ? 10 + q * 2 : K.name === 'treant' ? 7 + rng.f() * 4 : 14 + rng.f() * 10, x = tw.cx + Math.cos(a) * d, y = tw.cy + Math.sin(a) * d; if (!W.inb(x | 0, y | 0)) continue; const before = E.count; sim.command({ t: 'spawn', kind: K.name, x, y, count: K.name === 'hellhound' || K.name === 'direwolf' ? 3 : 1 }); if (E.count > before) break; } }
+    try { sim.step(); } catch (e) { out.error = 'tick ' + k + ': ' + e.message + ' ' + String(e.stack).split('\n')[1]; break; } sim.events.length = 0;
     const d = Number(process.hrtime.bigint() - tt) / 1e6; if (d > out.maxTick) out.maxTick = d; if (d > 50) slow++;
     if (k % YEAR === 0) { const yr = k / YEAR; yearly(yr); if (yr % 5 === 0) sample(yr, yr % 20 === 0 || yr === years); kingdomPeak = Math.max(kingdomPeak, sim.kingdoms.filter(q => q.alive).length); } }
   // ---- wars from the chronicle

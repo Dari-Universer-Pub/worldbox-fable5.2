@@ -93,3 +93,6 @@ Dans les atlas, `left` et `right` sont nommés d'après le signe du yaw du baker
 
 ## tools/creature-sheet.js
 `node tools/creature-sheet.js <out.png> <noms|all|second> [échelle] [par ligne]` : rend des espèces directement depuis `tools/art/creatures.js` sans cuire l'atlas (profil, trois-quarts, image en mouvement, et la même chose en silhouette) ; signale les sprites qui touchent le bord de leur case. `tools/bake-creatures.js` cuit maintenant sur 4 fils (environ 2 min 30).
+
+## Scénario `bestiary` du robot (preuve des comportements de monstres)
+`node tools/balance-bot.js run bestiary <graine> <années>` : un village humain, puis un monstre différent posé près de la ville tous les 3 ans à partir de l'an 12 ; les compteurs `m_*` sont dans `stats` du JSON de sortie.

@@ -608,7 +608,12 @@
   "menu.play": "Enter this world",
   "menu.continue": "Continue",
   "menu.load": "Load a world",
-  "menu.made": "Every image and sound is made by code"
+  "menu.made": "Every image and sound is made by code",
+  "log.dragonlair": "A dragon makes its lair in the heights",
+  "log.dragonegg": "A dragon lays an egg on its hoard",
+  "log.dragonhatch": "A young dragon hatches",
+  "log.dragonhoard": "A dragon sleeps on a great hoard",
+  "log.dragonslain": "The dragon is dead: {0} pieces of treasure return to the living"
  },
  "fr": {
   "cat.world": "Monde",
@@ -1219,6 +1224,11 @@
   "menu.play": "Entrer dans ce monde",
   "menu.continue": "Continuer",
   "menu.load": "Charger un monde",
-  "menu.made": "Chaque image et chaque son est fait par du code"
+  "menu.made": "Chaque image et chaque son est fait par du code",
+  "log.dragonlair": "Un dragon fait son antre sur les hauteurs",
+  "log.dragonegg": "Un dragon pond un œuf sur son trésor",
+  "log.dragonhatch": "Un jeune dragon éclot",
+  "log.dragonhoard": "Un dragon dort sur un grand trésor",
+  "log.dragonslain": "Le dragon est mort : {0} pièces du trésor reviennent aux vivants"
  }
 }

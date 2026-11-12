@@ -7,7 +7,7 @@
   ACT.HUNT = 19;
   // ------------------------------------------------------------ fight
   // a hits t. cause: 'fight' | 'zombie' | 'hunt' | 'beast'
-  Fi.hit = function (sim, a, t, dmg, cause) { const E = sim.E; if (!E.alive[t] || (E.flags[t] & F.DEAD)) return false; const np = AL.NPEOPLE;
+  Fi.hit = function (sim, a, t, dmg, cause) { const E = sim.E; if (!E.alive[t] || (E.flags[t] & F.DEAD)) return false; const np = AL.NPEOPLE; { const ar = AL.KINDS[E.kind[t]].armor; if (ar) dmg *= 1 - ar; } // stone and thick hides (monsters.json "armor")
     if (E.kind[t] < np) { const town = sim.towns[E.town[t]]; if (town && town.stock[AL.RES.armor] > 0 && AL.JOBS[E.job[t]].military) dmg *= 0.7; }
     // home advantage: a person hurt by another person on the land of their own kingdom takes a quarter less damage (conquest is slower than defence, the weaker side can hold)
     if (E.kind[t] < np && a >= 0 && E.kind[a] < np) { const W = sim.world, o = W.owner[(E.y[t] | 0) * W.n + (E.x[t] | 0)]; if (o && sim.towns[o - 1] && sim.towns[o - 1].kingdom === E.kingdom[t] && E.kingdom[t] >= 0) dmg *= 0.75; }
@@ -66,7 +66,9 @@
     let cx = E.x[i], cy = E.y[i]; if (K.herd > 1 && rng.chance(0.5)) { const c = E.query(cx, cy, 9); for (let k = 0; k < c; k++) { const j = E.near[(k + (rng.int(c))) % c]; if (j !== i && E.kind[j] === E.kind[i]) { cx = (cx + E.x[j]) / 2; cy = (cy + E.y[j]) / 2; break; } } }
     const t = U.randomNear(sim, cx, cy, r); return t >= 0 && go(sim, i, K, t % n, (t / n) | 0, CA.WANDER); }
   // ------------------------------------------------------------ thinking
+  C.go = go; C.wander = wander;
   C.think = function (sim, i, K) { const E = sim.E, W = sim.world, n = W.n, rng = sim.rng, np = AL.NPEOPLE, x = E.x[i], y = E.y[i]; if (E.cool[i] > 0) { E.cool[i] = E.cool[i] > 16 ? E.cool[i] - 16 : 0; return; }
+    if (K.ability && AL.Monsters && AL.Monsters.think(sim, i, K)) return; // the monster's own behaviour (src/sim/monsters.js)
     const hostile = K.cls === 2, pred = K.diet === 'pred';
     if (hostile || (pred && E.hunger[i] > 45)) { // look for a victim
       const c = E.query(x, y, hostile ? 13 : 11); let best = -1, bd = 1e9; for (let k = 0; k < c; k++) { const j = E.near[k]; if (j === i || (E.flags[j] & F.DEAD)) continue; const Kj = AL.KINDS[E.kind[j]]; let ok;

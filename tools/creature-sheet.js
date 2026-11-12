@@ -11,7 +11,7 @@ function one(name, anim, dir, i) { const sp = CR.SPECIES[name], cell = sp.cell, 
   const im = finish(render(scene, { w: cell, h: cell, ox: cell / 2, oy: sp.oy + 0.2, yaw: (sp.rig === 'quad' ? YAWQ : YAW)[dir], mats: sp.mats, decals: dd, ss: 4, raw: true })), b = im.bounds();
   if (b && (b.x <= 0 || b.y <= 0 || b.x + b.w >= cell || b.y + b.h >= cell)) console.log('touches the border: ' + name + ' ' + anim + ' ' + dir + ' ' + i + '  x' + b.x + ' y' + b.y + ' ' + b.w + 'x' + b.h + ' of ' + cell); return im; }
 const per = +process.argv[5] || 6, C = Math.max(...names.map(n => CR.SPECIES[n].cell)) + 2, rows = Math.ceil(names.length / per), sh = new Img(per * C * 3, rows * 2 * C, ix('grass', 3));
-names.forEach((n, q) => { const sp = CR.SPECIES[n], rest = sp.rig === 'fish' || sp.rig === 'serpent' ? 'swim' : 'idle', mv = sp.rig === 'quad' || sp.rig === 'human' ? 'walk' : sp.rig === 'bird' ? 'fly' : 'swim', c = q % per, r = (q / per) | 0;
+names.forEach((n, q) => { const sp = CR.SPECIES[n], rest = sp.rig === 'fish' || sp.rig === 'serpent' ? 'swim' : 'idle', mv = sp.rig === 'prop' ? 'idle' : sp.rig === 'quad' || sp.rig === 'human' ? 'walk' : sp.rig === 'bird' ? 'fly' : 'swim', c = q % per, r = (q / per) | 0;
   sh.rect(c * C * 3, r * 2 * C + C, C * 3, C, ix('ice', 5));
   [one(n, rest, 'left', 0), one(n, mv, 'down', 1), one(n, mv, 'left', 2)].forEach((im, j) => { sh.blit(im, c * C * 3 + j * C + 1, r * 2 * C + C - 1 - im.h); const s = im.clone(); for (let t = 0; t < s.d.length; t++) if (s.d[t] !== T) s.d[t] = ix('stone', 0); sh.blit(s, c * C * 3 + j * C + 1, r * 2 * C + 2 * C - 1 - im.h); }); });
 sh.savePNG(process.argv[2], { scale: +process.argv[4] || 4 }); console.log('sheet ' + process.argv[2] + '  ' + names.join(' '));

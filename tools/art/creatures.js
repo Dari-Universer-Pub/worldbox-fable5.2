@@ -177,6 +177,7 @@ const PROV = {
     mats: { skin: M3('sand', 3, 'stone'), cloth: mat('magic', [0, 1, 2]), pants: mat('magic', [0, 1, 2]), boot: mat('stone', [0, 1]), gold: M3('fire', 2), wood: mat('stone', [0, 1, 2]), gem: glow([3, 4, 5]), cape: mat('stone', [0, 0, 1], { ink: 'magic' }) } },
   imp: { cell: 16, oy: 12, rig: 'human', eye: ix('fire', 5), tusk: 0, prov: true, spec: { scale: 0.85, legLen: 2.0, legR: 0.7, torsoH: 2.2, torsoR: [1.9, 1.5, 1.6], shoulderW: 2.3, armLen: 2.8, armR: 0.6, headR: [2.8, 2.5, 2.4], headUp: 2.4, hair: 'none', ears: 2.2, earUp: 1.8, sleeves: 'long', acc: [{ kind: 'helmet', mat: 'skin', horns: 1 }, { kind: 'cape', mat: 'wing', r: 0.9, end: 2.4 }] },
     mats: { skin: M3('red', 2), cloth: M3('red', 2), pants: M3('red', 1), boot: mat('red', [0, 1]), wing: mat('red', [0, 1, 2]), bone: M3('sand', 3, 'earth') } },
+  dragonnest: { cell: 32, oy: 21, rig: 'prop', eye: ix('red', 2), prov: true, spec: { scale: 1.0 }, mats: { rock: M3('stone', 1), rockD: mat('stone', [0, 1, 2]), ash: mat('stone', [0, 0, 1]), bone: M3('sand', 3, 'earth'), gold: M3('fire', 2), coin: mat('fire', [4, 5]), gem: glow([3, 4, 5]), egg: M3('sand', 3, 'red') } },
   // ---------- the colossus (64x64): a walking hill of moss and stone
   colossus: q(64, 52, { scale: 3.25, bodyLen: 6.0, bodyR: [3.1, 2.6], legLen: 2.3, legR: 1.3, legSpread: 2.2, neckLen: 1.0, neckAng: -0.1, neckR: 1.9, headR: [1.7, 1.7, 1.5], headAng: -0.2, snout: 0.6, ears: 0, tail: { len: 0 }, mats: { leg: 'rock', head: 'rock', neck: 'rock', snout: 'rock' },
     extra: c => { const k = c.k; c.sc.ell(c.W([0, -0.05 * c.bl, 1.1 * k]), [3.5 * k, c.bl * 1.35, 3.6 * k], 'moss', { rot: c.rootR, pri: 1 }); c.sc.ell(c.W([0, -0.5 * c.bl, 3.2 * k]), [2.4 * k, c.bl * 0.6, 2.2 * k], 'moss', { rot: c.rootR, pri: 1, k: 0.6 });
@@ -185,6 +186,12 @@ const PROV = {
       for (const s of [-1, 1]) c.sc.ell(c.HL([s * c.hr[0] * 0.6, c.hr[1] * 0.7, c.hr[2] * 0.25]), [0.36 * k, 0.36 * k, 0.3 * k], 'eye', { pri: 3 }); }, eyeOn: ['none'] },
     { fur: M3('stone', 1), rock: M3('stone', 2), moss: M3('forest', 1), pine: mat('forest', [0, 1, 2]), trunk: mat('earth', [0, 1]), eye: glow([4, 5]) }),
 };
+// ---- props baked with the creatures: the dragon's nest (frame 0 empty, 1 with gold, 2 with gold and an egg)
+function prop(sp, anim, i) { const sc = new Scene(), k = sp.scale; for (let j = 0; j < 11; j++) { const a = j / 11 * 2 * PI + 0.3, r = 9.5 + 1.2 * S(j * 2.1), x = C(a) * r, y = S(a) * r * 0.9, h = 2.2 + 1.6 * Math.abs(S(j * 1.7)); sc.ell([x * k, y * k, h * 0.5 * k], [(2.3 + 0.7 * S(j * 3)) * k, 2.2 * k, h * k], j % 3 ? 'rock' : 'rockD', { pri: j }); }
+  sc.ell([0, 0, 0.2 * k], [8.5 * k, 7.6 * k, 0.8 * k], 'ash', { pri: -1 }); for (const [x, y, a] of [[-5, 3, 0.4], [4.5, -3.5, 2.2], [1, 5.5, 1.2]]) sc.cap([x * k, y * k, 1.0 * k], [(x + C(a) * 3.4) * k, (y + S(a) * 3.4) * k, 1.2 * k], 0.5 * k, 0.5 * k, 'bone', { pri: 20 });
+  if (i >= 1) { sc.ell([0.5 * k, 0.5 * k, 1.4 * k], [5.2 * k, 4.4 * k, 2.6 * k], 'gold', { pri: 21 }); for (const [x, y, z] of [[-2.5, 2, 2.6], [2.8, 1.5, 2.9], [0.5, -1.5, 3.9], [-0.5, 3.5, 1.9], [3.6, -1, 2.1]]) sc.ell([x * k, y * k, z * k], [0.8 * k, 0.8 * k, 0.5 * k], 'coin', { pri: 22 }); sc.ell([-3 * k, -0.5 * k, 2.6 * k], [0.7 * k, 0.7 * k, 0.7 * k], 'gem', { pri: 23 }); }
+  if (i >= 2) sc.ell([1.5 * k, 2.6 * k, 4.6 * k], [2.0 * k, 2.0 * k, 2.7 * k], 'egg', { pri: 24 });
+  return { scene: sc, decals: i >= 2 ? [{ p: [0.6 * k, 4.4 * k, 5.2 * k], idx: 'eye', tag: 'spot' }, { p: [2.6 * k, 4.3 * k, 3.9 * k], idx: 'eye', tag: 'spot' }] : [] }; }
 // ---- serpent rig (leviathan): a chain of rings that undulates along y, crested head, forked tail fin. Faces +y.
 function serpent(sp, anim, i) { const sc = new Scene(), k = sp.scale, t = i / 4 * 2 * PI, dead = anim === 'death' ? 1 : 0, N = 11, pts = [], lunge = anim === 'run' ? [0.4, 1, 0.7, 0.2][i] : 0;
   for (let j = 0; j < N; j++) { const u = j / (N - 1), y = (13 - u * 29) * k, ph = t + u * 7.2; pts.push([S(ph * 0.5) * 1.2 * k * (dead ? 0 : 1), y + lunge * 3 * k * (1 - u), dead ? 4.6 * k : (6.5 + 5.6 * S(ph) * (0.3 + 0.7 * S(u * PI)) + lunge * 7 * Math.max(0, 1 - u * 4)) * k]); }
@@ -200,8 +207,9 @@ function serpent(sp, anim, i) { const sc = new Scene(), k = sp.scale, t = i / 4 
 const HAP = [['idle', 4], ['walk', 4], ['attack', 4], ['hit', 4], ['death', 2], ['sleep', 2]];
 const MONSTERS = ['hellhound', 'direwolf', 'basilisk', 'behemoth', 'dragon', 'roc', 'harpy', 'leviathan', 'giant', 'golem', 'troll', 'treant', 'spirit', 'voidling', 'lich', 'imp', 'colossus'];
 Object.assign(SPECIES, PROV);
-function frame(name, anim, i) { const sp = SPECIES[name]; if (sp.rig === 'quad') return Q.build(sp.spec, Q.ANIMS[anim].f(i)); if (sp.rig === 'human') return H.build(sp.spec, H.ANIMS[anim].f(i)); return sp.rig === 'bird' ? bird(sp.spec, anim, i) : sp.rig === 'serpent' ? serpent(sp.spec, anim, i) : fish(sp.spec, anim, i); }
+function frame(name, anim, i) { const sp = SPECIES[name]; if (sp.rig === 'prop') return prop(sp.spec, anim, i); if (sp.rig === 'quad') return Q.build(sp.spec, Q.ANIMS[anim].f(i)); if (sp.rig === 'human') return H.build(sp.spec, H.ANIMS[anim].f(i)); return sp.rig === 'bird' ? bird(sp.spec, anim, i) : sp.rig === 'serpent' ? serpent(sp.spec, anim, i) : fish(sp.spec, anim, i); }
 function anims(name) { const sp = SPECIES[name];
+  if (sp.rig === 'prop') return [['idle', 3, 2]];
   if (sp.rig === 'human') return HAP.map(([a, nd]) => [a, H.ANIMS[a].n, nd]);
   return sp.rig === 'quad' ? QA.map(([a, nd]) => [a, Q.ANIMS[a].n, nd]) : (sp.rig === 'bird' ? BA : FA).map(([a, nd]) => [a, a === 'idle' || a === 'death' ? 2 : a === 'attack' ? 6 : 4, nd]); }
 module.exports = { SPECIES, frame, anims, MONSTERS };
