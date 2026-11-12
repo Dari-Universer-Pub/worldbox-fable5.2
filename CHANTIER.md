@@ -9,12 +9,12 @@ Règles qui restent valables (voir `CLAUDE.md`) : aucun asset validé sans planc
 État : `[ ]` à faire · `[~]` en cours · `[x]` fait et vérifié.
 
 ## 0. Préalable technique
-- [ ] **0.1 Rogner les images à la construction** (`tools/build.js`) : la page de sprites 4096×8192 est presque pleine et bloque sur les appareils limités à 4096 px. Chaque image est réduite à son contenu, le pivot est corrigé. But : page ≤ 4096×4096 avec le contenu actuel, et de la place pour A.2 et A.3. Vérifier : une capture avant/après identique (les robots seront lancés par Sonnet).
+- [x] **0.1 Rogner les images à la construction** (`tools/build.js`) : la page de sprites 4096×8192 est presque pleine et bloque sur les appareils limités à 4096 px. Chaque image est réduite à son contenu, le pivot est corrigé. But : page ≤ 4096×4096 avec le contenu actuel, et de la place pour A.2 et A.3. Vérifier : une capture avant/après identique (les robots seront lancés par Sonnet).
 - [ ] **0.2 Relancer la suite complète** : **à la charge de Sonnet** (elle n'a pas été relancée après les deux corrections de fin d'étape 13).
 
 ## A. Contenu provisoire → niveau visé
-- [ ] **A.1 Icônes de ressources** : cuivre, fer, or, aéthérite, outils, armes, armures (7), dessinées une à une ; planche regardée ; `validate-data` sans note.
-- [ ] **A.2 Créatures : animations complètes.** Les 49 espèces provisoires ont repos, marche/vol/nage, mort (+ attaque pour les monstres). Ajouter : course, repas, attaque avec geste d'avertissement, coup reçu, sommeil (comme les 8 espèces soignées). Planches d'animation regardées par famille.
+- [x] **A.1 Icônes de ressources** : cuivre, fer, or, aéthérite, outils, armes, armures (7), dessinées une à une ; planche regardée ; `validate-data` sans note.
+- [x] **A.2 Créatures : animations complètes.** Les 49 espèces provisoires ont repos, marche/vol/nage, mort (+ attaque pour les monstres). Ajouter : course, repas, attaque avec geste d'avertissement, coup reçu, sommeil (comme les 8 espèces soignées). Planches d'animation regardées par famille.
 - [ ] **A.3 Créatures faibles à refaire** : lynx, castor, hérisson, grenouille, hyène, chèvre (silhouette reconnaissable), léviathan (trop mince), puis revue des 49 une par une ; retirer `provisional` espèce par espèce quand elle est validée.
 - [ ] **A.4 Animaux dans le monde** : densités et biomes des 32 animaux pour qu'ils vivent seuls (aujourd'hui densité 0) ; l'écosystème doit rester stable (vérifié ensuite par Sonnet avec les cibles « wild » et la batterie).
 - [ ] **A.5 Monstres : comportements propres.** Dragon (nid, trésor, souffle de feu), colosse (contrôlable, piétinement, lancer de rocher), léviathan (attaque les côtes et les bateaux quand ils existeront), géant, golem, tréant, esprit (nuit), liche (relève les morts), harpie, basilic, néantin, diablotin, chien des enfers : au moins un trait de comportement mesurable chacun (le test headless sera écrit par Sonnet).
@@ -53,3 +53,4 @@ Le son et la musique à l'oreille ; le rythme à ×1, ×5, ×10 ; la beauté des
 ## Journal
 - (date du commit) création de ce fichier après l'étape 13.
 - Répartition des rôles ajoutée : l'agent de contenu crée, regarde ses planches et fait une preuve de fonctionnement légère (une courte partie sous Node) par tâche de simulation ; les tests lourds, l'équilibrage et la correction des bugs qu'ils trouvent sont faits par Sonnet à la fin.
+- 0.1 fait : images rognées et dédoublonnées à la construction (preuve pixel par pixel dans `tools/build.js`), page de sprites 3 097 px de haut. A.1 fait : 7 icônes de ressources, stocks des villes affichés avec les icônes. A.2 fait : jeux d'animations complets pour les 49 espèces (5 684 images), cuisson en parallèle.

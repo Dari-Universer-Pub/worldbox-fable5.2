@@ -6,7 +6,21 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — task in progress: **0.1 trim the sprite frames at build time**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — task in progress: **A.3 weak creatures redone and review of the 49**.
+
+### Chantier — journal des tâches (le plus récent en haut)
+
+**À TESTER PAR SONNET (liste cumulée)**
+1. `node tests/run-all.js` complet (0.2). Dernier passage complet connu, fait pendant 0.1 avant le changement de rôles : 19/21 — `check-provenance` en échec parce que les icônes venaient d'être recuites sans reconstruction (repassé OK depuis), `tests/step8.js` en échec sur « ctl » (contrôle direct) mais OK relancé seul : sans doute sensible à la charge de la machine, à confirmer.
+2. Rognage (0.1) : tous les robots avec les images rognées ; une frame vide devient 1×1 ; les pixels de la page sont partagés entre images identiques (un robot qui lirait la taille d'une image dans `AL.Assets.frames` verrait la taille rognée).
+3. A.1 : la fiche de ville affiche les stocks en icônes + nombres (ligne `stock` dans `ui.js`) ; `tests/step10.js` lit peut-être l'ancien texte.
+4. A.2 : les créatures provisoires ont maintenant toutes leurs animations ; `tools/measure-sprite.js creatures2` (scintillement, pixels isolés) jamais lancé ; `tools/validate-data.js` OK.
+
+**A.2 — animations complètes des 49 créatures (fait).** Vu : `shots/creatures2-anims-a.png` (lion, cheval, crocodile, éléphant : course, repas, attaque en 6 temps avec recul d'avertissement, coup reçu, sommeil), cuisson 5 684 images en 2 min 25 (`tools/bake-creatures.js` sur 4 fils), les 8 espèces soignées identiques à l'octet. Non vérifié : `shots/creatures2-anims-b.png` (hibou, requin, léviathan, troll, renard, tortue) écrite mais pas regardée ; les animations en jeu ; le geste d'avertissement est celui du squelette commun, pas un geste propre à chaque monstre (prévu en A.5).
+
+**A.1 — icônes de ressources (fait).** Vu : `shots/icons-resources.png` et `-sil` (pépites de cuivre, barre de fer, lingots d'or empilés, cristaux d'aéthérite, marteau et pioche, épée et hache, cuirasse), et en jeu `shots/a1-stock-icons.png` (fiche de ville : bois, pierre, nourriture avec leurs icônes). `validate-data` sans note. Non vérifié : les 7 nouvelles icônes en jeu (la ville de la capture n'a que 3 ressources).
+
+**0.1 — rognage des images (fait).** `tools/build.js` réduit chaque image des atlas de peuples, créatures, bâtiments et flore à son contenu, corrige le pivot, partage les images identiques et vérifie pixel par pixel que rien n'a changé (erreur de construction sinon). Vu : page de sprites 3 097 px de haut avec tout le contenu actuel (9 040 avant), jeu 9,5 Mo ; capture `shots/a1-stock-icons.png` (village rendu normalement). Non vérifié : sur un appareil réellement limité à 4096 px.
 
 ### Step 13 (done, verified as written below)
 - **Name**: Dustcrown everywhere a player or a reader sees it (title, logo, page title, manifest, README, documents, export file `dustcrown-year<N>.dust`); the delivered script is `game/dustcrown.js`.
@@ -96,4 +110,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-See the first unticked line of `CHANTIER.md`. Right now: **0.1** — trim every sprite frame to its content in `tools/build.js` (pivot corrected) so that the sprite page fits 4096×4096 again, check with all robots; then **0.2** full `node tests/run-all.js`; then A.1 (resource icons), A.2 (full animation sets of the 49 provisional creatures), and so on in order.
+First unticked line of `CHANTIER.md`: **A.3** — redo lynx, beaver, hedgehog, frog, hyena, goat and the leviathan in `tools/art/creatures.js`, look at each of the 49 species enlarged, remove `provisional` species by species; then A.4 (densities and biomes), A.5 (monster behaviours), and so on. Heavy tests are for Sonnet (see the list above).

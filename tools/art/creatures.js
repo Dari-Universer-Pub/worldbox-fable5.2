@@ -178,19 +178,22 @@ const PROV = {
     { fur: M3('stone', 1), rock: M3('stone', 2), moss: M3('forest', 1), pine: mat('forest', [0, 1, 2]), trunk: mat('earth', [0, 1]), eye: glow([4, 5]) }),
 };
 // ---- serpent rig (leviathan): a chain of rings that undulates along y, crested head, forked tail fin. Faces +y.
-function serpent(sp, anim, i) { const sc = new Scene(), k = sp.scale, t = i / 4 * 2 * PI, dead = anim === 'death' ? 1 : 0, N = 11, pts = [];
-  for (let j = 0; j < N; j++) { const u = j / (N - 1), y = (13 - u * 29) * k, ph = t + u * 7.2; pts.push([S(ph * 0.5) * 1.2 * k * (dead ? 0 : 1), y, dead ? 3.6 * k : (5.2 + 5.2 * S(ph) * (0.3 + 0.7 * S(u * PI))) * k]); }
+function serpent(sp, anim, i) { const sc = new Scene(), k = sp.scale, t = i / 4 * 2 * PI, dead = anim === 'death' ? 1 : 0, N = 11, pts = [], lunge = anim === 'run' ? [0.4, 1, 0.7, 0.2][i] : 0;
+  for (let j = 0; j < N; j++) { const u = j / (N - 1), y = (13 - u * 29) * k, ph = t + u * 7.2; pts.push([S(ph * 0.5) * 1.2 * k * (dead ? 0 : 1), y + lunge * 3 * k * (1 - u), dead ? 3.6 * k : (5.2 + 5.2 * S(ph) * (0.3 + 0.7 * S(u * PI)) + lunge * 7 * Math.max(0, 1 - u * 4)) * k]); }
   for (let j = 0; j < N - 1; j++) { const r0 = (j === 0 ? 3.4 : 4.2 - j * 0.3) * k, r1 = (4.2 - (j + 1) * 0.3) * k; sc.cap(pts[j], pts[j + 1], r0, r1, 'body', { g: 1 }); sc.cap(add(pts[j], [0, 0, -0.9 * k]), add(pts[j + 1], [0, 0, -0.9 * k]), r0 * 0.8, r1 * 0.8, 'belly', { pri: -1 });
     if (j > 0 && j < N - 2) sc.cap(add(pts[j], [0, 0, r0 * 0.8]), add(pts[j], [0, -1.6 * k, r0 + 2.3 * k]), 0.9 * k, 0.2 * k, 'fin', { pri: 2 }); }
   const h = pts[0]; sc.ell(add(h, [0, 1.6 * k, 0.4 * k]), [3.6 * k, 4.0 * k, 3.3 * k], 'body', { pri: 1 }); sc.cap(add(h, [0, 3.6 * k, -0.2 * k]), add(h, [0, 6.6 * k, -0.6 * k]), 1.9 * k, 1.1 * k, 'body', { pri: 1 }); sc.cap(add(h, [0, 3.2 * k, -1.6 * k]), add(h, [0, 6.0 * k, -1.9 * k]), 1.4 * k, 0.8 * k, 'belly', { pri: 1 });
   for (const s of [-1, 1]) { sc.cap(add(h, [s * 1.4 * k, 0.4 * k, 1.9 * k]), add(h, [s * 2.2 * k, -2.6 * k, 4.6 * k]), 0.7 * k, 0.15 * k, 'horn', { pri: 3 }); sc.ell(add(h, [s * 2.7 * k, -0.4 * k, 0.4 * k]), [0.4 * k, 2.0 * k, 2.2 * k], 'fin', { rot: rotZ(s * 0.6), pri: 2 }); }
   const e = pts[N - 1]; for (const s of [-1, 1]) sc.cap(e, add(e, [0, -3.4 * k, s * 2.6 * k + 0.6 * k]), 1.0 * k, 0.25 * k, 'fin', { pri: 2 });
   return { scene: sc, decals: [{ p: add(h, [-2.4 * k, 3.0 * k, 1.1 * k]), idx: 'eye', tag: 'eyeL' }, { p: add(h, [2.4 * k, 3.0 * k, 1.1 * k]), idx: 'eye', tag: 'eyeR' }] }; }
-const QAP = [['idle', 4], ['walk', 4], ['death', 2]], QAM = [['idle', 4], ['walk', 4], ['attack', 4], ['death', 2]], BAP = [['idle', 2], ['fly', 4], ['death', 2]], FAP = [['swim', 4], ['death', 2]], HAP = [['idle', 4], ['walk', 4], ['attack', 4], ['death', 2]];
+// Animation sets. Every quadruped has the full set (idle, walk, run, eat, attack with its warning frames, hit, death, sleep);
+// birds: idle, fly, attack, death; fish: swim, run (dart), death; humanoid monsters: idle, walk, attack, hit, death, sleep;
+// the serpent: swim, run (lunge), death.
+const HAP = [['idle', 4], ['walk', 4], ['attack', 4], ['hit', 4], ['death', 2], ['sleep', 2]];
 const MONSTERS = ['hellhound', 'direwolf', 'basilisk', 'behemoth', 'dragon', 'roc', 'harpy', 'leviathan', 'giant', 'golem', 'troll', 'treant', 'spirit', 'voidling', 'lich', 'imp', 'colossus'];
 Object.assign(SPECIES, PROV);
 function frame(name, anim, i) { const sp = SPECIES[name]; if (sp.rig === 'quad') return Q.build(sp.spec, Q.ANIMS[anim].f(i)); if (sp.rig === 'human') return H.build(sp.spec, H.ANIMS[anim].f(i)); return sp.rig === 'bird' ? bird(sp.spec, anim, i) : sp.rig === 'serpent' ? serpent(sp.spec, anim, i) : fish(sp.spec, anim, i); }
 function anims(name) { const sp = SPECIES[name];
-  if (sp.prov) { if (sp.rig === 'human') return HAP.map(([a, nd]) => [a, H.ANIMS[a].n, nd]); return (sp.rig === 'quad' ? (MONSTERS.includes(name) ? QAM : QAP) : sp.rig === 'bird' ? BAP : FAP).map(([a, nd]) => [a, sp.rig === 'quad' ? Q.ANIMS[a].n : (a === 'idle' || a === 'death' ? 2 : 4), nd]); }
+  if (sp.rig === 'human') return HAP.map(([a, nd]) => [a, H.ANIMS[a].n, nd]);
   return sp.rig === 'quad' ? QA.map(([a, nd]) => [a, Q.ANIMS[a].n, nd]) : (sp.rig === 'bird' ? BA : FA).map(([a, nd]) => [a, a === 'idle' || a === 'death' ? 2 : a === 'attack' ? 6 : 4, nd]); }
 module.exports = { SPECIES, frame, anims, MONSTERS };
