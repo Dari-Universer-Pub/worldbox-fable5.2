@@ -20,7 +20,7 @@
     let q = len - 1; k = t; while (k !== s) { out[off + q--] = k; k = par[k]; } return len;
   };
   // flow field toward tile t: Uint16 distance (x8 fixed point), 65535 unreachable. Cached.
-  P.field = function (t) { const w = this.w, n = w.n, N = n * n; let f = this.fields.get(t); if (f && f.ver === w.regionVersion) { f.use = ++this.cur; return f; }
+  P.field = function (t) { const w = this.w, n = w.n, N = n * n; let f = this.fields.get(t); if (f && w.regionVersion - f.ver <= 10) { f.use = ++this.cur; return f; } // a field a few building changes old is still good enough: big towns build all the time and rebuilding a whole-map field is the dearest thing in the simulation
     if (!f) { if (this.fields.size >= this.maxFields) { let ok = -1, ou = Infinity; for (const [k, v] of this.fields) if (v.use < ou) { ou = v.use; ok = k; } f = this.fields.get(ok); this.fields.delete(ok); } else f = { d: new Uint16Array(N) }; this.fields.set(t, f); }
     f.ver = w.regionVersion; f.use = ++this.cur; const d = f.d; d.fill(65535); this.hn = 0; d[t] = 0; this.push(t, 0); this.stats.fields++;
     // Dijkstra with the heap; heap may hold up to 8192 entries: frontier of a grid stays far below that

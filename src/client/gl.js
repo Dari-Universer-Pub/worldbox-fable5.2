@@ -42,7 +42,7 @@ void main(){
     if((fl&1)!=0){ if(outer>0) idx=toneShift(idx,1); } else if(outer>0){ float ph=fract(uTime*.35+h21(tcf)*.9+float(sub.x+sub.y)*.045); if(ph<.55) idx = (ph<.3)? 47 : 46; else idx=toneShift(idx,1); }
     // depth shading: deep water darker far from shores is in the texture; glints
   }
-  if((fl&4)!=0 && !water && !lava){ float cs=uZoom<.74?2.:1.; float sn=h21(floor(vec2(ip)/(4.*cs))+.7)*.6+h21(floor(vec2(ip)/(2.*cs))+3.1)*.4; if(sn<.64) idx = sn<.34? 30 : 31; } // scorched ground: clean dark masses (4 px and 2 px cells), the ground shows through in clumps
+  if((fl&4)!=0 && !water && !lava){ float cs=uZoom<.74?2.:1.; float sn=h21(floor(vec2(ip)/(8.*cs))+.7)*.65+h21(floor(vec2(ip)/(4.*cs))+3.1)*.35; if(sn<.5) idx = sn<.25? 30 : 31; } // scorched ground: clean dark masses (4 px and 2 px cells), the ground shows through in clumps
   // far-view canopy marks for trees
   if(lod>0 && uZoom<0.74){ vec2 c=vec2(sub)-vec2(3.5,3.0); if(dot(c,c)<9.5){ idx=lod-1; if(c.x+c.y<-1.5) idx=toneShift(idx,1); else if(c.x+c.y>2.5) idx=toneShift(idx,-1);} }
   vec3 col=texelFetch(uPal,ivec2(idx,0),0).rgb; float em = lava ? 1. : 0.;

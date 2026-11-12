@@ -25,7 +25,7 @@
     return nrun;
   };
   Sim.now = (typeof performance !== 'undefined' && performance.now) ? () => performance.now() : () => 0;
-  P.emit = function (type, a, b, c, d) { this.events.push([type, a, b, c, d]); };
+  P.emit = function (type, a, b, c, d, e, f) { this.events.push(e === undefined ? [type, a, b, c, d] : [type, a, b, c, d, e, f]); };
   P.command = function (m) {
     if (m.t === 'speed') this.speed = m.v;
     else if (m.t === 'brush') { this.world.brush(m.op, this); }

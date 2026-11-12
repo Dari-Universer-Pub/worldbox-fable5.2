@@ -12,14 +12,14 @@
     if (sx === tx && sy === ty) return 1; if (!W.inb(tx, ty)) return 0; const t = ty * n + tx, s = sy * n + sx;
     if (W.region[s] && W.region[t] && W.region[s] !== W.region[t]) return 0; if (!W.region[t] && !(W.flags[t] & 2)) return 0;
     const dist = Math.abs(tx - sx) + Math.abs(ty - sy);
-    if (dist > 46) { E.flow[i] = t; return 2; }
+    if (dist > 90) { E.flow[i] = t; return 2; }
     if (sim.pathBudget <= 0) return -1; sim.pathBudget--;
-    const len = sim.path.find(sx, sy, tx, ty, E.path, i * E.PATH, E.PATH, 1500); if (len > 0) { E.pathLen[i] = len; return 2; } if (len === -1) { E.flow[i] = t; return 2; } return 0; };
+    const len = sim.path.find(sx, sy, tx, ty, E.path, i * E.PATH, E.PATH, 3600); if (len > 0) { E.pathLen[i] = len; return 2; } if (len === -1) { E.flow[i] = t; return 2; } return 0; };
   // advance along the path / flow field. returns true when the destination tile is reached
   U.move = function (sim, i) { const E = sim.E, W = sim.world, n = W.n; let nt = -1;
     if (E.pathPos[i] < E.pathLen[i]) nt = E.path[i * E.PATH + E.pathPos[i]];
     else if (E.flow[i] >= 0) { const x = E.x[i] | 0, y = E.y[i] | 0, t = E.flow[i]; if (x === t % n && y === ((t / n) | 0)) { E.flow[i] = -1; return true; } // (a field is followed to its end: retrying A* near the goal failed every tick on long detours)
-      if (sim.fieldBudget <= 0 && !(sim.path.fields.get(t) && sim.path.fields.get(t).ver === W.regionVersion)) return false; const had = sim.path.stats.fields, f = sim.path.field(t); if (sim.path.stats.fields !== had) sim.fieldBudget--; nt = sim.path.follow(f, x, y); if (nt < 0) { E.flow[i] = -1; return f.d[y * n + x] === 0; } }
+      if (sim.fieldBudget <= 0 && !(sim.path.fields.get(t) && W.regionVersion - sim.path.fields.get(t).ver <= 10)) return false; const had = sim.path.stats.fields, f = sim.path.field(t); if (sim.path.stats.fields !== had) sim.fieldBudget--; nt = sim.path.follow(f, x, y); if (nt < 0) { E.flow[i] = -1; return f.d[y * n + x] === 0; } }
     else return (E.x[i] | 0) === E.tx[i] && (E.y[i] | 0) === E.ty[i];
     const tx = nt % n + 0.5, ty = ((nt / n) | 0) + 0.5, dx = tx - E.x[i], dy = ty - E.y[i], d = Math.sqrt(dx * dx + dy * dy);
     if ((W.flags[nt] & 2) && nt !== E.ty[i] * n + E.tx[i]) { E.pathLen[i] = 0; E.pathPos[i] = 0; return false; }
@@ -131,12 +131,14 @@
       E.social[j] = Math.min(100, E.social[j] + 10); break; } };
   // ------------------------------------------------------------ nomads: bands without a town; they look for a place to settle
   U.thinkNomad = function (sim, i) { const E = sim.E, W = sim.world, n = W.n, x = E.x[i] | 0, y = E.y[i] | 0, t = y * n + x;
-    if (E.hunger[i] > 60) { if (U.startForage(sim, i, null)) return; if (E.hunger[i] > 60 && sim.rng.chance(0.15)) E.hunger[i] -= 25; }
+    if (E.hunger[i] > 60) { if (U.startForage(sim, i, null)) return; if (E.hunger[i] > 60 && sim.rng.chance(0.35)) E.hunger[i] -= 25; }
     // join a nearby town of the same people
     const c = E.query(x, y, 10); let band = 0; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] !== E.kind[i] || (E.flags[j] & F.DEAD)) continue; if (E.town[j] >= 0 && sim.towns[E.town[j]].alive && !(E.flags[i] & F.SETTLER)) { U.joinTown(sim, i, sim.towns[E.town[j]]); return; } if (E.town[j] < 0) band++; }
     const age = sim.tick - (E.nomadSince ? 0 : 0);
-    if (band >= 2 && !(W.owner[t]) && U.siteQuality(sim, x, y) > 0.55 && sim.rng.chance(E.flags[i] & F.SETTLER ? 0.5 : 0.12)) { let far = true; for (const tw of sim.towns) if (tw.alive && Math.abs(tw.cx - x) + Math.abs(tw.cy - y) < 30) far = false;
+    if (band >= 2 && !(W.owner[t]) && U.siteQuality(sim, x, y) > 0.55 && sim.rng.chance(E.flags[i] & F.SETTLER ? 0.5 : 0.12)) { let far = true; for (const tw of sim.towns) if (tw.alive && Math.abs(tw.cx - x) + Math.abs(tw.cy - y) < (tw.people === E.kind[i] ? 30 : 12)) far = false;
       if (far) { const town = T.found(sim, E.kind[i], x, y, (E.flags[i] & F.SETTLER) ? E.kingdom[i] : null, i); if (town) { const c2 = E.query(x, y, 14); for (let k = 0; k < c2; k++) { const j = E.near[k]; if (E.kind[j] === E.kind[i] && E.town[j] < 0 && !(E.flags[j] & F.DEAD)) { U.joinTown(sim, j, town); town.stock[AL.RES.food] += 5; town.stock[AL.RES.wood] += 1; } } return; } } }
+    // a nomad on its own looks for another of its kind (placed bands must not drift apart for ever: a town needs two nearby)
+    if (band < 2 && !(E.flags[i] & F.SETTLER) && sim.rng.chance(0.25)) { let bj = -1, bd2 = 60; for (let j = 0; j < E.hi; j++) { if (j === i || !E.alive[j] || E.kind[j] !== E.kind[i] || E.town[j] >= 0 || (E.flags[j] & F.DEAD)) continue; const d = Math.abs(E.x[j] - E.x[i]) + Math.abs(E.y[j] - E.y[i]); if (d > 6 && d < bd2) { bd2 = d; bj = j; } } if (bj >= 0 && begin(sim, i, ACT.WANDER, E.x[bj] | 0, E.y[bj] | 0)) return; }
     // wander, biased toward land the people likes; settlers keep their heading
     let r = -1; if ((E.flags[i] & F.SETTLER) && E.tx[i] >= 0 && Math.abs(E.tx[i] - x) + Math.abs(E.ty[i] - y) > 6 && E.stuck[i] < 3) { if (begin(sim, i, ACT.WANDER, E.tx[i], E.ty[i])) return; }
     r = U.randomNear(sim, E.x[i], E.y[i], 12); if (r >= 0) begin(sim, i, ACT.WANDER, r % n, (r / n) | 0); };
@@ -150,7 +152,9 @@
     // births
     if (E.preg[i] >= 0 && sim.tick >= E.preg[i]) { E.preg[i] = -1; E.flags[i] &= ~F.PREGNANT; const town = sim.towns[E.town[i]]; if (town && town.alive) U.birth(sim, i, E.spouse[i], town); }
     else if (E.sex[i] === 1 && E.spouse[i] >= 0 && E.preg[i] < 0 && !(fl & (F.CHILD | F.ELDER)) && E.town[i] >= 0) { const town = sim.towns[E.town[i]], sp = E.spouse[i];
-      if (!E.alive[sp] || (E.flags[sp] & F.DEAD)) { E.spouse[i] = -1; } else if (town.alive && town.pop < town.popCap && town.pop - town.adults < town.adults * 1.15 + 2 && town.stock[AL.RES.food] > town.pop * 1.5 && E.count < E.cap - 200) { const p = 0.06 * (K.fertility || 1) * E.mod(i, 'fertility') * (sim.fertMul || 1) * (AL.Faith ? AL.Faith.m(sim, E.religion[i], 'fertility') : 1) * (town.pop < 12 ? 1.8 : 1); if (sim.rng.chance(p)) { E.preg[i] = sim.tick + 300; E.flags[i] |= F.PREGNANT; } } } };
+      if (!E.alive[sp] || (E.flags[sp] & F.DEAD)) { E.spouse[i] = -1; } else if (town.alive && town.pop < town.popCap && town.pop - town.adults < town.adults * (1.5 + 1.5 * Math.max(0, Math.min(1, (town.stock[AL.RES.food] / town.pop - 5) / 8))) + 4 && town.stock[AL.RES.food] > town.pop * 3.5 && E.count < E.cap - 200) { const p = 0.11 * Math.min(1, town.stock[AL.RES.food] / (town.pop * 9)) * (K.fertility || 1) * E.mod(i, 'fertility') * (sim.fertMul || 1) * (AL.Faith ? AL.Faith.m(sim, E.religion[i], 'fertility') : 1) * (town.pop < 16 ? 2.2 : 1); if (sim.rng.chance(p)) { E.preg[i] = sim.tick + 300; E.flags[i] |= F.PREGNANT; } } } };
+  // a being placed by the god takes the sex that is rarer among its own kind nearby (three placed orcs must not all be male and never have a child)
+  U.balanceSex = function (sim, i) { const E = sim.E; let m = 0, f = 0; for (let j = 0; j < E.hi; j++) { if (j === i || !E.alive[j] || Math.abs(E.x[j] - E.x[i]) > 8 || Math.abs(E.y[j] - E.y[i]) > 8 || (E.flags[j] & 1) || E.kind[j] !== E.kind[i] || (E.flags[j] & 3)) continue; if (E.sex[j] === 0) m++; else f++; } if (m > f) E.sex[i] = 1; else if (f > m) E.sex[i] = 0; };
   U.birth = function (sim, mother, father, town) { const E = sim.E, rng = sim.rng; const c = E.spawn(sim, E.kind[mother], E.x[mother], E.y[mother], { age: 0, town: town.id, kingdom: town.kingdom, mother, father, culture: E.culture[mother], religion: E.religion[mother], traits: [0, 0], clan: father >= 0 && E.alive[father] && E.clan[father] >= 0 ? E.clan[father] : E.clan[mother] }); if (c < 0) return -1;
     // inheritance: each parental inborn trait passes with 45%; 3% mutation adds a random inborn trait
     for (let t = 0; t < 48; t++) { const m = E.hasTrait(mother, t), f = father >= 0 && E.alive[father] ? E.hasTrait(father, t) : 0; if ((m && rng.chance(0.45)) || (f && rng.chance(0.45))) E.addTrait(c, t, true); } if (rng.chance(0.03 * (sim.mutMul || 1))) E.addTrait(c, rng.int(48), true); if (rng.chance(0.004 * (sim.mutMul || 1))) E.addTrait(c, AL.TRAIT.mutant, true);
@@ -167,7 +171,7 @@
         const asleep = E.flags[i] & F.ASLEEP; E.hunger[i] += (asleep ? 0.1 : 0.2) * (HT ? HT[E.religion[i] + 1] : 1); if (!asleep) E.energy[i] -= 0.13; E.social[i] -= 0.04; E.faith[i] -= 0.015;
         // travellers (merchants, armies, settlers far from any store) eat the rations they carry from their town's stock
         if (E.hunger[i] > 70 && ((i + tk) & 15) === 0 && E.town[i] >= 0) { const a = E.act[i], tw = sim.towns[E.town[i]]; if (tw && tw.alive && tw.stock[AL.RES.food] >= 1 && (a === ACT.TRADE || a === ACT.MARCH || a === ACT.SIEGE || a === ACT.FIGHT || (E.flags[i] & F.MOBILIZED) || Math.abs(E.x[i] - tw.cx) + Math.abs(E.y[i] - tw.cy) > 28)) { tw.stock[AL.RES.food] -= 1; E.hunger[i] -= 60; } }
-        if (E.hunger[i] >= 100) { E.hunger[i] = 100; E.hp[i] -= 0.15; if (E.hp[i] <= 0) { sim.stats.starved++; E.kill(sim, i, 'hunger'); continue; } } else if (E.hp[i] < E.hpMax[i] && E.hunger[i] < 60) E.hp[i] += 0.02;
+        if (E.hunger[i] >= 100) { E.hunger[i] = 100; E.hp[i] -= 0.07; if (E.hp[i] <= 0) { sim.stats.starved++; E.kill(sim, i, 'hunger'); continue; } } else if (E.hp[i] < E.hpMax[i] && E.hunger[i] < 60) E.hp[i] += 0.02;
         if (E.energy[i] < 0) E.energy[i] = 0; if (E.social[i] < 0) E.social[i] = 0; if (E.faith[i] < 0) E.faith[i] = 0;
         if (((i + tk) & 63) === 0) { U.lifeTick(sim, i); if (E.flags[i] & F.DEAD) continue; }
         if (E.flags[i] & F.CONTROLLED) { if (U.moving(E, i)) U.move(sim, i); else if (E.act[i] === ACT.NONE) E.anim[i] = AL.ANIM.idle; else U.act(sim, i); continue; }
@@ -181,7 +185,7 @@
         else if (((i + tk) & 31) === 0 && E.hunger[i] > 80 && (E.act[i] === ACT.WANDER || E.act[i] === ACT.SOCIAL || E.act[i] === ACT.GUARD || E.act[i] === ACT.WORK && E.phase[i] === 0)) { U.stop(E, i); E.act[i] = ACT.NONE; }
       } },
     onDeath(sim, i, cause) { const E = sim.E; if (E.kind[i] >= AL.NPEOPLE) return; sim.stats.deaths++; const town = sim.towns[E.town[i]]; if (town) town.pop = Math.max(0, town.pop - 1); const h = E.home[i]; if (h >= 0 && sim.B.occ[h] > 0) sim.B.occ[h]--; const w = E.work[i]; if (w >= 0 && sim.B.workers[w] > 0) sim.B.workers[w]--; const sp = E.spouse[i]; if (sp >= 0 && E.spouse[sp] === i) E.spouse[sp] = -1; sim.emit('death', E.x[i], E.y[i], E.kind[i], cause === 'age' ? 0 : cause === 'hunger' ? 1 : 2); },
-    command(sim, m) { if (m.t === 'spawn') { const W = sim.world, n = W.n, k = AL.K[m.kind]; if (k == null) return true; for (let c = 0; c < (m.count || 1); c++) { const x = m.x + (c ? sim.rng.range(-1.5, 1.5) : 0), y = m.y + (c ? sim.rng.range(-1.5, 1.5) : 0); if (!W.inb(x | 0, y | 0)) continue; const t = (y | 0) * n + (x | 0); const K = AL.KINDS[k]; if (K.cls === 0 && (AL.gCost[W.ground[t]] <= 0 || (W.flags[t] & 2))) continue; if (AL.Creatures && K.cls !== 0) { AL.Creatures.spawn(sim, k, x, y); continue; } const i = sim.E.spawn(sim, k, x, y, {}); if (i >= 0) { const tid = W.owner[t] - 1, town = sim.towns[tid]; if (town && town.alive && town.people === k) U.joinTown(sim, i, town); sim.emit('spawn', x, y, k); } } return true; } },
+    command(sim, m) { if (m.t === 'spawn') { const W = sim.world, n = W.n, k = AL.K[m.kind]; if (k == null) return true; for (let c = 0; c < (m.count || 1); c++) { const x = m.x + (c ? sim.rng.range(-1.5, 1.5) : 0), y = m.y + (c ? sim.rng.range(-1.5, 1.5) : 0); if (!W.inb(x | 0, y | 0)) continue; const t = (y | 0) * n + (x | 0); const K = AL.KINDS[k]; if (K.cls === 0 && (AL.gCost[W.ground[t]] <= 0 || (W.flags[t] & 2))) continue; if (AL.Creatures && K.cls !== 0) { const ai = AL.Creatures.spawn(sim, k, x, y); if (ai >= 0) U.balanceSex(sim, ai); continue; } const i = sim.E.spawn(sim, k, x, y, {}); if (i >= 0) { U.balanceSex(sim, i); const tid = W.owner[t] - 1, town = sim.towns[tid]; if (town && town.alive && town.people === k) U.joinTown(sim, i, town); sim.emit('spawn', x, y, k); } } return true; } },
     snapshot(sim) { const E = sim.E, n = E.hi; if (!n) return { t: 'ents', n: 0 }; const fr = new Uint8Array(n);
       const m = { t: 'ents', n, tick: sim.tick, x: E.x.slice(0, n), y: E.y.slice(0, n), alive: E.alive.slice(0, n), kind: E.kind.slice(0, n), look: E.look.slice(0, n), anim: E.anim.slice(0, n), dir: E.dir.slice(0, n), flags: E.flags.slice(0, n), gen: E.gen.slice(0, n), kd: E.kingdom.slice(0, n), tw: E.town.slice(0, n), hp: fr, carry: E.carryN.slice(0, n), bf: new Uint16Array(n) };
       for (let i = 0; i < n; i++) m.bf[i] = E.traits1[i] >>> 16;

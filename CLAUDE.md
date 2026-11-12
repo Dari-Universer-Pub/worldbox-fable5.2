@@ -1,6 +1,6 @@
 # CLAUDE.md — AEONLOOM
 
-Read `RESUME.md` first at the start of every session. It says the current step (out of 14), what is verified, and the precise next action.
+Read `RESUME.md` first at the start of every session. `INVENTAIRE.md` lists exactly what content exists and what is missing; `BALANCE.md` explains the balance robot and its targets; `BUGS.md` lists the bugs found while playing and how they were repaired. It says the current step (out of 14), what is verified, and the precise next action.
 
 - Game name: **Aeonloom** (original; a pixel-art god simulation, top-down, web).
 - Part A below: code conventions. Part B: the rules of the founding prompt, copied in full.
@@ -309,7 +309,7 @@ Do not move to the next step until the previous one is verified (screenshot, mea
 11. Sound and music, adaptive mixing.
 12. Data skeleton for the rest of the final vision, with readable placeholder assets.
 13. Title and loading screens, icons, delivery of the static folder.
-14. Final verification: test robots at 100% in the browser, screenshots at several zooms, in several biomes, by day and by night; successive frames of the animations; measurements of all priority 1, 2 and 3 requirements; two long games played; independent review; report.
+14. Final verification. **PARTLY DONE (state of the repository, see RESUME.md, BUGS.md, BALANCE.md, INVENTAIRE.md).** ALREADY DONE and kept done: every test robot at 100 % (`node tests/run-all.js` = 18/18 OK, real mouse and keyboard in the browser); a balance robot that plays 54 simulated games of 40 to 200 years and judges them against 91 written targets (`node tools/balance-bot.js battery`, 91/91 met); the bugs found by playing and by the robots repaired (`BUGS.md`); browser playtests at ×50 (2 h of game time, no error, no external request); language switch checked on screenshots; successive frames and silhouettes of the people sheets looked at. STILL TO DO, at the very end, AFTER the content steps 12 and 13 are finished: (a) screenshots at several zooms, in several biomes, by day and by night, of the final content; (b) the measurements of all priority 1, 2 and 3 requirements re-run on the final content (palette, flicker, contrast, isolated pixels, sound levels, weight, loading time) and real-hardware performance (the numbers so far come from software rendering, no GPU); (c) two real long games in a real browser, at least 30 minutes of game time each, journal in PLAYTEST.md; (d) the independent review by a sub-agent that did not do the work, then every defect it finds fixed; (e) the honest final REPORT.md (done / not verified / limits / remaining gaps) and the list of what Julien must judge himself (game feel, beauty, the music by ear).
 
 ## PART 11 — DELIVERABLES
 

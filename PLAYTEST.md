@@ -42,3 +42,21 @@
 - Measured only: the engine stays silent until the first click; a tornado switches the music to the war track within 2.5 s and night brings the night track; over one short session 13 different sounds were triggered (clicks, thunder, bomb, healing, earth, tornado, animal calls, hits).
 - Fixed from measurements: impacts (hit, hammer, chop, shield) were dull thuds (centroid 140–290 Hz) → more noise, less sine body; wave, fire and acid were hiss (centroid 6.5–11 kHz) → band-limited; 43 levels were out of their category range → calibrated.
 - To be judged by ear by Julien: everything.
+
+## Test complet puis réparations (dépôt Sonnet)
+- Test : 3 parties simulées de 166 ans avec pouvoirs au hasard, 3 parties de 100 ans sans pouvoir, 124,6 min de jeu à ×50 dans le navigateur (vrais clics). Aucune erreur, mémoire stable, aucune requête externe. Défauts trouvés et réparés : voir `BUGS.md`.
+- Après réparation (même protocole) : 120 min de jeu à ×50, 2 royaumes vivants, 10 villes aux stades 0 à 3, 4 religions, 689 tuiles brûlées ; les captures de l'an 53 montrent une cité humaine en pierre et une forêt intacte.
+
+## Balance pass (robot d'équilibrage, dépôt Sonnet)
+- 46 parties simulées (6 scénarios, 8 graines) jugées contre des cibles écrites (`BALANCE.md`). Première passe : 55 cibles sur 79 ; après réglages : 83 sur 83.
+- Médianes : ville de stade 3 à l'an 10, stade 4 à l'an 24, stade 5 à l'an 52 ; 797 habitants et 9 villes à l'an 100 ; première religion à l'an 5 ; 1,09 entrée de chronique par an ; duels : les deux peuples vivants dans 15 parties sur 16, première guerre vers l'an 26 ; monde sauvage de 200 ans sans extinction.
+- **Non jugé par le robot** : sensation du rythme, intérêt des entrées de chronique, lisibilité d'une grande ville, son. Pas de nouvelle partie jouée dans le navigateur après ces réglages : à faire.
+
+## Population plus nombreuse (robot, deuxième passe)
+- Batterie de 46 parties : 85/85 cibles ; suite de tests 17/17. Habitants médians : 85 (an 10), 234 (an 30), 763 (an 60), 1 373 (an 100). Stades 3/4/5 aux années 16/22/34. Plus grande armée 210. Humains/orques 2,74.
+- Pas de nouvelle partie jouée dans le navigateur depuis ces réglages : à faire (rendu d'une ville de 500 personnes, fluidité à ×10 et ×50).
+- Navigateur (7 min à ×50, sans GPU) : chargement 0,6 s, aucune erreur ni requête externe, rendu 2–3 ms/image ; vitesse réelle ×50 → ×20–26 au-delà d'environ 800 habitants (la simulation ne suit plus à ×50, l'affichage reste fluide). Capture de l'an 50 regardée : ville humaine dense face aux huttes orques, lisible.
+
+## Petits départs (signalé par Julien)
+- 3 humains + 3 orques posés côte à côte : 6 habitants à l'an 20 dans sa partie. Rejoué dans le navigateur (graphique : orques bien comptés ; humains en déclin sans naissance) puis en simulation sur 8 graines. Après correction : 24–43 habitants à l'an 20. Batterie 91/91, suite 17/17.
+- Pas de nouvelle partie longue dans le navigateur depuis le changement du pathfinding : à faire.

@@ -19,6 +19,14 @@
   AL.lang = 'en';
   AL.t = function (key, fallback) { const T = AL.DATA && AL.DATA.i18n; if (!T) return fallback == null ? key : fallback; const v = (T[AL.lang] && T[AL.lang][key]); return v != null ? v : (T.en[key] != null ? T.en[key] : (fallback == null ? key : fallback)); };
   AL.tn = function (o) { return o ? (o[AL.lang] || o.en || o.name || '') : ''; };
+  // {0}, {1}… in a template. An argument can name something to translate: '~key' (a text), '%e:id' (an age), '%d:1,2,3' (dogmas).
+  AL.fmt = function (tpl, args, lang) {
+    const T = AL.DATA && AL.DATA.i18n, nm = o => o ? (o[lang] || o.en || o.name || '') : '';
+    const val = a => { a = String(a); if (a[0] === '~') { const k = a.slice(1); return (T && ((T[lang] && T[lang][k]) || (T.en && T.en[k]))) || k; } if (a.startsWith('%e:')) return nm(AL.ERAS ? AL.ERAS[+a.slice(3)] : (AL.DATA && AL.DATA.eras ? Object.values(AL.DATA.eras).find(q => q.id === +a.slice(3)) : null)); if (a.startsWith('%d:')) return a.slice(3).split(',').map(d => nm(AL.DOGMAS ? AL.DOGMAS[+d] : (AL.DATA && AL.DATA.dogmas ? Object.values(AL.DATA.dogmas).find(q => q.id === +d) : null))).join(', '); return a; };
+    return String(tpl).replace(/\{(\d+)\}/g, (m, n) => args[+n] != null ? val(args[+n]) : '');
+  };
+  // text of a chronicle entry in the language now selected (older saves only have the English sentence)
+  AL.logText = function (e) { if (!e.i) return e.s; const T = AL.DATA && AL.DATA.i18n, tpl = T && ((T[AL.lang] && T[AL.lang][e.i]) || (T.en && T.en[e.i])); return tpl ? AL.fmt(tpl, e.g ? String(e.g).split('\u0001') : [], AL.lang) : e.s; };
   AL.hash2 = function (x, y, s) { let h = (Math.imul(x | 0, 374761393) + Math.imul(y | 0, 668265263) + Math.imul(s | 0, 1274126177)) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
   AL.strHash = function (str) { let h = 2166136261; for (let i = 0; i < str.length; i++) h = Math.imul(h ^ str.charCodeAt(i), 16777619); return h >>> 0; };
   // value noise + fbm (deterministic, seedable)

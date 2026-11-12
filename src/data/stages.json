@@ -5,14 +5,14 @@
  },
  {
   "name": "hamlet",
-  "pop": 6,
+  "pop": 7,
   "need": [
    "house"
   ]
  },
  {
   "name": "village",
-  "pop": 16,
+  "pop": 26,
   "need": [
    "farm",
    "warehouse"
@@ -20,7 +20,7 @@
  },
  {
   "name": "town",
-  "pop": 36,
+  "pop": 90,
   "need": [
    "market",
    "temple"
@@ -28,7 +28,7 @@
  },
  {
   "name": "city",
-  "pop": 80,
+  "pop": 150,
   "need": [
    "forge",
    "library",
@@ -37,7 +37,7 @@
  },
  {
   "name": "realm",
-  "pop": 150,
+  "pop": 260,
   "need": [
    "tavern"
   ]

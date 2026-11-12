@@ -9,6 +9,8 @@
   // a hits t. cause: 'fight' | 'zombie' | 'hunt' | 'beast'
   Fi.hit = function (sim, a, t, dmg, cause) { const E = sim.E; if (!E.alive[t] || (E.flags[t] & F.DEAD)) return false; const np = AL.NPEOPLE;
     if (E.kind[t] < np) { const town = sim.towns[E.town[t]]; if (town && town.stock[AL.RES.armor] > 0 && AL.JOBS[E.job[t]].military) dmg *= 0.7; }
+    // home advantage: a person hurt by another person on the land of their own kingdom takes a quarter less damage (conquest is slower than defence, the weaker side can hold)
+    if (E.kind[t] < np && a >= 0 && E.kind[a] < np) { const W = sim.world, o = W.owner[(E.y[t] | 0) * W.n + (E.x[t] | 0)]; if (o && sim.towns[o - 1] && sim.towns[o - 1].kingdom === E.kingdom[t] && E.kingdom[t] >= 0) dmg *= 0.75; }
     E.hp[t] -= dmg; sim.emit('hit', E.x[t], E.y[t], t, dmg | 0); if (E.act[t] !== 255 && E.kind[t] >= np && E.act[t] !== CA.ATTACK) { E.tE[t] = a; if (AL.KINDS[E.kind[t]].courage > 0.4) { E.act[t] = CA.CHASE; U.stop(E, t); } else E.act[t] = CA.IDLE; }
     if (E.hp[t] > 0) return false;
     E.kill(sim, t, cause); sim.stats.killed++; if (a >= 0 && E.alive[a]) { E.kills[a]++; const Ka = AL.KINDS[E.kind[a]], Kt = AL.KINDS[E.kind[t]];
@@ -29,7 +31,7 @@
   C.threat = function (sim, i) { const E = sim.E, n = sim.world.n, c = E.query(E.x[i], E.y[i], 6), np = AL.NPEOPLE; let h = -1, bd = 1e9; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.flags[j] & F.DEAD) continue; if (E.kind[j] < np) { if (!(AL.War && AL.War.hostile(sim, i, j))) continue; const d = dist2(E, i, j); if (d < bd) { bd = d; h = j; } continue; } const K = AL.KINDS[E.kind[j]];
       if (!(K.cls === 2 || ((E.act[j] === CA.CHASE || E.act[j] === CA.ATTACK) && E.tE[j] >= 0 && E.kind[E.tE[j]] < np))) continue; const d = dist2(E, i, j); if (d < bd) { bd = d; h = j; } }
     if (h < 0) return false; const mil = AL.JOBS[E.job[i]].military || AL.JOBS[E.job[i]].name === 'hunter';
-    if (!(E.flags[i] & (F.CHILD | F.ELDER)) && (mil || E.courage[i] > 0.72 || (bd < 2.5 && E.courage[i] > 0.45))) { U.stop(E, i); E.act[i] = ACT.FIGHT; E.tE[i] = h; E.phase[i] = 1; E.timer[i] = 0; return true; }
+    if (!(E.flags[i] & (F.CHILD | F.ELDER | F.RULER)) && (mil || E.courage[i] > 0.72 || (bd < 2.5 && E.courage[i] > 0.45))) { U.stop(E, i); E.act[i] = ACT.FIGHT; E.tE[i] = h; E.phase[i] = 1; E.timer[i] = 0; return true; }
     const town = sim.towns[E.town[i]]; let tx, ty; const dx = E.x[i] - E.x[h], dy = E.y[i] - E.y[h], l = Math.sqrt(dx * dx + dy * dy) || 1;
     if (town && town.alive && Math.abs(town.cx - E.x[h]) + Math.abs(town.cy - E.y[h]) > 6) { tx = town.cx; ty = town.cy; } else { const t = U.randomNear(sim, E.x[i] + dx / l * 8, E.y[i] + dy / l * 8, 3); if (t < 0) return false; tx = t % n; ty = (t / n) | 0; }
     if (U.begin(sim, i, ACT.FLEE, tx, ty)) { E.flags[i] |= F.FLEEING; E.mood[i] = Math.max(0, E.mood[i] - 3); return true; } return false; };
@@ -67,7 +69,7 @@
     const hostile = K.cls === 2, pred = K.diet === 'pred';
     if (hostile || (pred && E.hunger[i] > 45)) { // look for a victim
       const c = E.query(x, y, hostile ? 13 : 11); let best = -1, bd = 1e9; for (let k = 0; k < c; k++) { const j = E.near[k]; if (j === i || (E.flags[j] & F.DEAD)) continue; const Kj = AL.KINDS[E.kind[j]]; let ok;
-        if (hostile) ok = Kj.cls === 0 || (Kj.cls === 1 && K.fire); else ok = (Kj.cls === 1 && Kj.diet !== 'pred' && (K.fly ? Kj.size <= 16 : !Kj.fly && !Kj.swim || (K.fly && Kj.swim))) || (Kj.cls === 0 && E.hunger[i] > 82 && !K.fly);
+        if (hostile) ok = Kj.cls === 0 || (Kj.cls === 1 && K.fire); else ok = (Kj.cls === 1 && Kj.diet !== 'pred' && (K.fly ? Kj.size <= 16 : !Kj.fly && !Kj.swim || (K.fly && Kj.swim))) || (Kj.cls === 0 && E.hunger[i] > 92 && !K.fly);
         if (!ok) continue; const d = dist2(E, i, j) * (Kj.cls === 0 && !hostile ? 3 : 1); if (d < bd) { bd = d; best = j; } }
       if (best >= 0) { E.tE[i] = best; E.act[i] = CA.CHASE; E.timer[i] = 0; U.stop(E, i); return; } }
     if (K.cls === 1 && !pred) { // prey: run from hunters and predators
@@ -91,18 +93,23 @@
       U.face(E, i, E.x[t], E.y[t]); E.anim[i] = A.attack; if (tm === 7 && d2 <= 2.4 * 2.4) Fi.hit(sim, i, t, E.atk[i] * (0.8 + sim.rng.f() * 0.4), K.contagion ? 'zombie' : K.cls === 2 ? 'fight' : 'beast'); if (tm >= 14) { if (E.act[i] === CA.ATTACK) { E.act[i] = CA.CHASE; E.timer[i] = 0; } } return; }
     E.act[i] = CA.IDLE; };
   C.life = function (sim, i, K) { const E = sim.E, age = sim.tick - E.born[i], rng = sim.rng; if (age >= E.life[i]) { E.kill(sim, i, 'age'); return; } if (K.cls !== 1) return;
-    if (E.sex[i] === 1 && E.hunger[i] < 55 && age > E.life[i] * 0.15 && sim.nAnimals < sim.animalCap && rng.chance(0.05 * K.fertility)) { const c = E.query(E.x[i], E.y[i], K.herd <= 1 ? 30 : 12); let same = 0, male = false; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] === E.kind[i] && !(E.flags[j] & F.DEAD)) { same++; if (E.sex[j] === 0) male = true; } }
+    // rare species find each other (wider mate search) and recover faster: without this, wolves, eagles and rabbits sat at the migration floor for centuries
+    const kn = sim.kindLast[E.kind[i]], kcap = sim.kindCap[E.kind[i]], rare = kn < Math.max(14, kcap * 0.15), boost = rare ? 2 : 1;
+    if (E.sex[i] === 1 && E.hunger[i] < (K.diet === 'pred' ? 85 : 55) && age > E.life[i] * 0.15 && sim.nAnimals < sim.animalCap && rng.chance(0.05 * K.fertility * boost) && kn < kcap) { const c = E.query(E.x[i], E.y[i], rare ? 45 : K.herd <= 1 ? 30 : 12); let same = 0, male = false; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] === E.kind[i] && !(E.flags[j] & F.DEAD)) { same++; if (E.sex[j] === 0) male = true; } }
       if (male && same < K.herd * 2 + 3) { const b = C.spawn(sim, E.kind[i], E.x[i], E.y[i], { age: 0 }); if (b >= 0) sim.emit('cub', E.x[i], E.y[i]); } } };
   // ------------------------------------------------------------ module
   AL.Sim.modules.push({
     name: 'creatures',
-    init(sim) { C.byGround = AL.GROUND.map(g => AL.KINDS.filter(K => K.cls === 1 && K.biomes && K.biomes.includes(g.name)).map(K => K.kid)); sim.rise = C.rise = []; sim.nAnimals = 0; sim.kindCount = new Uint16Array(AL.KINDS.length); sim.animalCap = Math.round(sim.world.n * sim.world.n / 70); C.rise.length = 0; if (!sim.cfg.noFauna && !sim.cfg.empty) C.populate(sim, 1); },
+    // each species gets one share of the global animal cap: a fast breeder (salmon) can no longer fill it alone
+    init(sim) { C.byGround = AL.GROUND.map(g => AL.KINDS.filter(K => K.cls === 1 && K.biomes && K.biomes.includes(g.name)).map(K => K.kid)); sim.rise = C.rise = []; sim.nAnimals = 0; sim.kindCount = new Uint16Array(AL.KINDS.length); sim.kindLast = new Uint16Array(AL.KINDS.length); sim.animalCap = Math.round(sim.world.n * sim.world.n / 70); { sim.kindCap = new Uint16Array(AL.KINDS.length); const W = sim.world, N = W.n * W.n, area = new Float64Array(AL.GROUND.length); for (let t = 0; t < N; t++) area[W.ground[t]]++; const wt = new Float64Array(AL.KINDS.length); let sw = 0; AL.GROUND.forEach((g, gi) => { for (const kd of C.byGround[gi]) wt[kd] += area[gi] * (AL.KINDS[kd].density || 0.3); }); for (const K of AL.KINDS) if (K && K.cls === 1) sw += wt[K.kid]; for (const K of AL.KINDS) if (K && K.cls === 1) sim.kindCap[K.kid] = Math.max(8, Math.round(sim.animalCap * wt[K.kid] / Math.max(1, sw) * 1.25)); } C.rise.length = 0; if (!sim.cfg.noFauna && !sim.cfg.empty) { C.populate(sim, 1); const E = sim.E, c0 = new Uint16Array(AL.KINDS.length); for (let i = 0; i < E.hi; i++) if (E.alive[i]) c0[E.kind[i]]++; for (const K of AL.KINDS) if (K && K.cls === 1) sim.kindCap[K.kid] = Math.max(sim.kindCap[K.kid], Math.round(c0[K.kid] * 1.25)); } }, // the cap never starts below what the world was populated with
     tick(sim) { const E = sim.E, tk = sim.tick, np = AL.NPEOPLE, kc = sim.kindCount; let na = 0; kc.fill(0);
       for (let i = 0; i < E.hi; i++) { if (!E.alive[i] || E.kind[i] < np) continue; if (E.flags[i] & F.DEAD) { if (--E.timer[i] <= 0) E.remove(i); continue; } const K = AL.KINDS[E.kind[i]]; if (K.cls === 1) { na++; kc[E.kind[i]]++; }
-        E.hunger[i] += K.cls === 2 ? 0 : K.diet === 'pred' ? 0.022 : 0.06; if (K.diet === 'pred' && E.hunger[i] > 92 && ((i + tk) & 255) === 0 && sim.rng.chance(0.5)) E.hunger[i] -= 35; // mice, carrion
+        E.hunger[i] += K.cls === 2 ? 0 : K.diet === 'pred' ? 0.016 : 0.06; if (K.diet === 'pred' && E.hunger[i] > 92 && ((i + tk) & 255) === 0 && sim.rng.chance(0.5)) E.hunger[i] -= 35; // mice, carrion
         if (E.hunger[i] >= 100) { E.hunger[i] = 100; E.hp[i] -= 0.1; if (E.hp[i] <= 0) { E.kill(sim, i, 'hunger'); continue; } } else if (E.hp[i] < E.hpMax[i]) E.hp[i] += 0.01;
         if (((i + tk) & 127) === 0) { C.life(sim, i, K); if (E.flags[i] & F.DEAD) continue; }
-        if (E.flags[i] & F.CONTROLLED) { if (U.moving(E, i)) U.move(sim, i); else if (E.act[i] === CA.ATTACK) C.act(sim, i, K); else E.anim[i] = AL.ANIM.idle; continue; }
+        if (E.flags[i] & F.CONTROLLED) { if (U.moving(E, i)) U.move(sim, i); else if (E.act[i] === CA.ATTACK) C.act(sim, i, K);
+          // flyers and swimmers have no path: they glide straight to the ordered point
+          else if ((K.fly || K.swim) && E.act[i] === CA.WANDER && E.phase[i] === 0) { E.anim[i] = K.fly ? AL.ANIM.fly : AL.ANIM.swim; E.spd[i] = 0.3 * K.speed; if (glide(sim, i, K)) { E.phase[i] = 1; E.act[i] = CA.IDLE; } } else E.anim[i] = AL.ANIM.idle; continue; }
         const a = E.act[i];
         if (a === CA.CHASE || a === CA.ATTACK) C.act(sim, i, K);
         else if ((K.fly || K.swim) && (a === CA.WANDER || a === CA.FLEE) && E.phase[i] === 0) { E.anim[i] = K.fly ? AL.ANIM.fly : AL.ANIM.swim; if (glide(sim, i, K)) E.phase[i] = 1; }
@@ -110,18 +117,19 @@
         else if (a !== CA.IDLE) C.act(sim, i, K); else E.anim[i] = K.fly ? AL.ANIM.fly : K.swim ? AL.ANIM.swim : AL.ANIM.idle;
         if (((i + tk) & 15) === 0 && (E.act[i] === CA.IDLE || (E.act[i] === CA.WANDER && K.cls !== 1) || E.act[i] === CA.GRAZE && K.cls === 1 && K.diet !== 'pred' && false)) C.think(sim, i, K);
         else if (((i + tk) & 31) === 0 && K.cls === 1 && K.diet !== 'pred' && (E.act[i] === CA.WANDER || E.act[i] === CA.GRAZE || E.act[i] === CA.SLEEP)) { const c = E.query(E.x[i], E.y[i], 4); for (let k = 0; k < c; k++) { const j = E.near[k], Kj = AL.KINDS[E.kind[j]]; if (j !== i && (Kj.cls === 2 || (Kj.diet === 'pred' && !Kj.fly) || (Kj.cls === 0 && E.act[j] === ACT.FIGHT && E.tE[j] === i))) { U.stop(E, i); E.act[i] = CA.IDLE; E.cool[i] = 0; C.think(sim, i, K); break; } } } }
-      sim.nAnimals = na;
+      sim.nAnimals = na; sim.kindLast.set(kc); // kindCount is only complete at the end of the loop: breeding looks at this full count
       // the dead bitten by zombies rise again
-      if (C.rise.length) { const zk = AL.K.zombie; for (let k = 0; k < C.rise.length; k += 2) if (zk != null) { const z = C.spawn(sim, zk, C.rise[k], C.rise[k + 1], { age: 0.2 }); if (z >= 0) sim.emit('rise', C.rise[k], C.rise[k + 1]); } C.rise.length = 0; }
+      if (C.rise.length) { const zk = AL.K.zombie; for (let k = 0; k < C.rise.length; k += 2) if (zk != null && sim.kindLast[zk] < 48 && sim.rng.chance(0.45)) { const z = C.spawn(sim, zk, C.rise[k], C.rise[k + 1], { age: 0.2 }); if (z >= 0) sim.emit('rise', C.rise[k], C.rise[k + 1]); } C.rise.length = 0; }
       // migration: a species that has almost vanished comes back as a small band from the edge of the map
       if (tk % 1500 === 750 && !sim.cfg.noFauna && !sim.cfg.empty) { const W = sim.world, n = W.n, rng = sim.rng; for (let kd = np; kd < AL.KINDS.length; kd++) { const K = AL.KINDS[kd]; if (K.cls !== 1 || kc[kd] >= 4) continue; for (let t = 0; t < 60; t++) { const e = rng.int(4), q = 3 + rng.int(n - 6), d = 3 + rng.int(Math.max(4, n >> 3)), x = e === 0 ? d : e === 1 ? n - 1 - d : q, y = e === 2 ? d : e === 3 ? n - 1 - d : q, list = C.byGround[W.ground[y * n + x]]; if (!list || !list.includes(kd)) continue; let a0 = -1; for (let j = 0; j < 2 + rng.int(K.herd + 1); j++) { const b = C.spawn(sim, kd, x + rng.range(-1.5, 1.5), y + rng.range(-1.5, 1.5), null); if (b >= 0) { if (a0 < 0) a0 = b; else E.sex[b] = 1 - E.sex[a0]; } } if (a0 >= 0) sim.emit('migration', x, y, kd); break; } } }
       // wildlife wanders in from the wild when the world gets empty
       if (tk % 900 === 0 && na < sim.animalCap * 0.25 && !sim.cfg.noFauna && !sim.cfg.empty) C.populate(sim, 0.12); },
     // flora: saplings grow, forests spread and come back from stumps, meadows regrow
+    // seedlings only take root where the canopy is not already dense (about 45% of a 5x5 window in a forest): woods stay open
     tile(sim, i, x, y, g) { const W = sim.world, f = W.feature[i], rng = sim.rng; if (W.fire[i]) return;
       if (!f) { if (AL.gFert[g] > 0.3 && !(W.flags[i] & 10) && rng.chance(0.00025)) { const fb = AL.floraByBiome[g]; if (fb.small.length) { W.feature[i] = fb.small[rng.int(fb.small.length)]; W.fgrow[i] = 255; W.mark(x, y); } } return; }
       const k = AL.fKind[f]; if (k === 1) { const v = W.fgrow[i]; if (v < 255) { const nv = Math.min(255, v + 2 + ((AL.FLORA[f].grow * 4 * (sim.growMul || 1)) | 0)); W.fgrow[i] = nv; if ((v < 70 && nv >= 70) || (v < 110 && nv >= 110)) W.mark(x, y); }
-        else if (rng.chance(0.003)) { const n = W.n, X = x + rng.int(5) - 2, Y = y + rng.int(5) - 2; if (W.inb(X, Y)) { const j = Y * n + X, gj = W.ground[j]; if (!W.feature[j] && !(W.flags[j] & 10) && AL.gFert[gj] > 0.3 && AL.floraByBiome[gj].trees.includes(f) && W.road[j] < 60) { let near = 0; for (let d = 0; d < 4; d++) { const q = j + (d === 0 ? 1 : d === 1 ? -1 : d === 2 ? n : -n); if (q >= 0 && q < n * n && AL.fKind[W.feature[q]] === 1) near++; } if (near < 3) { W.feature[j] = f; W.fgrow[j] = 8; W.mark(X, Y); } } } } }
+        else if (rng.chance(0.003)) { const n = W.n, X = x + rng.int(5) - 2, Y = y + rng.int(5) - 2; if (W.inb(X, Y)) { const j = Y * n + X, gj = W.ground[j]; if (!W.feature[j] && !(W.flags[j] & 10) && AL.gFert[gj] > 0.3 && AL.floraByBiome[gj].trees.includes(f) && W.road[j] < 60) { let near = 0; for (let d = 0; d < 4; d++) { const q = j + (d === 0 ? 1 : d === 1 ? -1 : d === 2 ? n : -n); if (q >= 0 && q < n * n && AL.fKind[W.feature[q]] === 1) near++; } if (near < 3) { let d25 = 0; for (let yy = -2; yy <= 2; yy++) for (let xx = -2; xx <= 2; xx++) { const qx = X + xx, qy = Y + yy; if (qx >= 0 && qy >= 0 && qx < n && qy < n && AL.fKind[W.feature[qy * n + qx]] === 1) d25++; } if (d25 <= (gj === AL.G.jungle ? 11 : gj === AL.G.forest ? 9 : 5)) { W.feature[j] = f; W.fgrow[j] = 8; W.mark(X, Y); } } } } } }
       else if (f === AL.F.stump && rng.chance(0.03)) { const fb = AL.floraByBiome[g]; if (fb.trees.length && rng.chance(0.55) && !(W.flags[i] & 10) && W.road[i] < 60) { W.feature[i] = fb.trees[rng.int(fb.trees.length)]; W.fgrow[i] = 8; } else W.feature[i] = 0; W.mark(x, y); } },
     query(sim, m) { if (m.q === 'census') { const E = sim.E, c = {}; for (let i = 0; i < E.hi; i++) if (E.alive[i] && !(E.flags[i] & F.DEAD)) { const k = AL.KINDS[E.kind[i]].name; c[k] = (c[k] || 0) + 1; } return c; } },
     afterLoad(sim) { C.rise = sim.rise || (sim.rise = []); },

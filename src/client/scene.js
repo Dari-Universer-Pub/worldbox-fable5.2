@@ -3,14 +3,17 @@
 (function (AL) {
   'use strict';
   const Game = AL.Game, S = AL.Scene = { cur: null, prev: null, t0: 0, dur: 0.1, lastAt: 0, blds: null, nUnits: 0, nBlds: 0, night: 0, layer: 0 };
-  const DIRN = ['down', 'left', 'up', 'right'], CAP = 8192;
+  // dir 0 down, 1 left, 2 up, 3 right (what the simulation writes). The baker's 'left' and 'right' frames are named by the sign of the
+  // yaw it renders with and show the opposite side on screen ('left' frames look right), so the labels are crossed here: a being walking
+  // right (dir 3) takes the frames labelled 'left'. Checked on sheets for people, quadrupeds and birds.
+  const DIRN = ['down', 'right', 'up', 'left'], CAP = 8192;
   const animStart = new Float32Array(CAP), lastAnim = new Uint8Array(CAP).fill(255), lastGen = new Uint16Array(CAP), px = new Float32Array(CAP), py = new Float32Array(CAP);
   // frames[kind][look][anim][dir] -> array of atlas frames (lazy)
   const cache = [];
   const ANIM_SRC = { run: 'walk', eat: 'idle', fly: 'idle', swim: 'walk', special: 'joy' }, FPS = { idle: 4, walk: 9, work: 8, attack: 10, hit: 10, pray: 5, joy: 8, death: 9, sleep: 2 };
   function framesOf(kind, look, anim, dir) {
     const k0 = cache[kind] || (cache[kind] = []), k1 = k0[look] || (k0[look] = []), k2 = k1[anim] || (k1[anim] = []); let f = k2[dir]; if (f) return f;
-    const K = AL.KINDS[kind], A = AL.Assets; let an = AL.ANIMN[anim] || 'idle'; an = ANIM_SRC[an] || an; const two = an === 'death' || an === 'sleep', d = two ? (dir === 1 || dir === 0 ? 'left' : 'right') : DIRN[dir];
+    const K = AL.KINDS[kind], A = AL.Assets; let an = AL.ANIMN[anim] || 'idle'; an = ANIM_SRC[an] || an; const two = an === 'death' || an === 'sleep', d = two ? (dir === 1 || dir === 0 ? 'right' : 'left') : DIRN[dir];
     f = A.anim(K.name + '/' + AL.LOOKS[look] + '/' + an + '/' + d); if (!f.length) f = A.anim(K.name + '/villager/' + an + '/' + d); if (!f.length) f = A.anim(K.name + '/villager/idle/down'); if (!f.length) f = A.anim('human/villager/idle/down');
     f.fps = FPS[an] || 6; f.once = an === 'death'; return (k2[dir] = f);
   }
@@ -60,13 +63,13 @@
         if (st === 1 && f.ex && f.ex.smoke && AL.Fx && AL.Fx.smoke) AL.Fx.smoke(b, wx + f.ex.smoke[0], wy + f.ex.smoke[1], T.name === 'forge'); } }
     S.nBlds = nb;
     // units
-    const m = S.cur; let nu = 0; if (!m) { S.nUnits = 0; return; }
+    const m = S.cur; let nu = 0; S.selPos = null; if (!m) { S.nUnits = 0; return; }
     const pv = S.prev, now = performance.now() / 1000, al = Math.min(1, (now - S.t0) / S.dur), t = Game.time, np = AL.NPEOPLE, mk = far ? markUnit() : null;
     for (let i = 0; i < m.n; i++) { if (!m.alive[i]) { lastAnim[i] = 255; continue; } let x = m.x[i], y = m.y[i];
       if (pv && i < pv.n && pv.alive[i] && pv.gen[i] === m.gen[i]) { const ox = pv.x[i], oy = pv.y[i], dx = x - ox, dy = y - oy; if (dx * dx + dy * dy < 9) { x = ox + dx * al; y = oy + dy * al; } }
       px[i] = x; py[i] = y; const an = m.anim[i]; if (an !== lastAnim[i] || m.gen[i] !== lastGen[i]) { lastAnim[i] = an; lastGen[i] = m.gen[i]; animStart[i] = t; }
       if (an === 14) continue; // inside a building
-      const wx = x * 8, wy = y * 8 + 2; if (wx < vx0 || wx > vx1 || wy < vy0 || wy > vy1) continue; const kind = m.kind[i]; if (kind >= np && S.drawCreature(m, i, kind, an, wx, wy, t, far)) { nu++; continue; }
+      const wx = x * 8, wy = y * 8 + 2; if (wx < vx0 || wx > vx1 || wy < vy0 || wy > vy1) continue; if (S.sel === i) S.selPos = [wx, wy]; const kind = m.kind[i]; if (kind >= np && S.drawCreature(m, i, kind, an, wx, wy, t, far)) { nu++; continue; }
       const team = S.teamOf(kind, m.kd[i]), fl = m.flags[i];
       if (far) { if (mk) G.spr(mk, wx, wy, team, 0, 0, 1, 0.8 / z, 0); nu++; continue; }
       const fs = framesOf(kind, m.look[i], an, m.dir[i]); let fi; const el = t - animStart[i];
@@ -78,12 +81,12 @@
   // animals: frames '<species>/<anim>/<dir>/<i>'; humanoid monsters go through the people path
   const ccache = [], CMAP = { quad: { fly: 'idle', swim: 'walk', work: 'eat', pray: 'idle', joy: 'idle', special: 'attack', inside: 'idle' }, bird: { walk: 'fly', run: 'fly', eat: 'idle', sleep: 'idle', hit: 'fly', swim: 'fly' }, fish: { idle: 'swim', walk: 'swim', eat: 'swim', fly: 'swim', attack: 'run', hit: 'run', sleep: 'swim' } }, CFPS = { idle: 3, walk: 8, run: 12, eat: 4, attack: 10, hit: 8, death: 8, sleep: 1.5, fly: 9, swim: 6 };
   S.drawCreature = function (m, i, kind, an, wx, wy, t, far) { const K = AL.KINDS[kind]; if (K.humanoid) return false; if (far) return true; const G = AL.Gfx, c0 = ccache[kind] || (ccache[kind] = []), c1 = c0[an] || (c0[an] = []), dir = m.dir[i]; let fs = c1[dir];
-    if (!fs) { const A = AL.Assets, rig = K.fly ? 'bird' : K.swim ? 'fish' : 'quad'; let a = AL.ANIMN[an] || 'idle'; a = CMAP[rig][a] || a; const two = a === 'death' || a === 'sleep'; fs = A.anim(K.name + '/' + a + '/' + (two ? (dir === 1 || dir === 0 ? 'left' : 'right') : DIRN[dir])); if (!fs.length) fs = A.anim(K.name + '/' + (rig === 'quad' ? 'idle' : rig === 'bird' ? 'fly' : 'swim') + '/down'); fs.fps = CFPS[a] || 6; fs.once = a === 'death'; fs.air = a === 'fly'; c1[dir] = fs; }
+    if (!fs) { const A = AL.Assets, rig = K.fly ? 'bird' : K.swim ? 'fish' : 'quad'; let a = AL.ANIMN[an] || 'idle'; a = CMAP[rig][a] || a; const two = a === 'death' || a === 'sleep'; fs = A.anim(K.name + '/' + a + '/' + (two ? (dir === 1 || dir === 0 ? 'right' : 'left') : DIRN[dir])); if (!fs.length) fs = A.anim(K.name + '/' + (rig === 'quad' ? 'idle' : rig === 'bird' ? 'fly' : 'swim') + '/down'); fs.fps = CFPS[a] || 6; fs.once = a === 'death'; fs.air = a === 'fly'; c1[dir] = fs; }
     if (!fs.length) return true; const el = t - animStart[i], fi = fs.once ? Math.min(fs.length - 1, (el * fs.fps) | 0) : ((t * fs.fps + i * 0.61) | 0) % fs.length, fl = m.flags[i], alpha = (fl & 1) && el > 6 ? Math.max(0, 1 - (el - 6) / 2.5) : 1;
     G.spr(fs[fi], wx, wy - (fs.air ? 10 : 0), 0, (K.swim ? 16 : 0) | (S.flash && S.flash[i] > t ? 2 : 0), 0, alpha, 1, fs.air ? 10 : 0); return true; };
   // world position of a unit as drawn (for following and picking)
   S.unitPos = function (i) { const m = S.cur; return m && i < m.n && m.alive[i] ? [px[i] * 8, py[i] * 8] : null; };
-  S.pick = function (wx, wy) { const m = S.cur; if (!m) return -1; let best = -1, bd = 14 * 14; for (let i = 0; i < m.n; i++) { if (!m.alive[i] || m.anim[i] === 14) continue; const dx = px[i] * 8 - wx, dy = py[i] * 8 - 8 - wy, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } } return best; };
+  S.pick = function (wx, wy) { const m = S.cur; if (!m) return -1; let best = -1, bd = 18 * 18; for (let i = 0; i < m.n; i++) { if (!m.alive[i] || m.anim[i] === 14) continue; const dx = px[i] * 8 - wx, dy = py[i] * 8 - 8 - wy, d = dx * dx + dy * dy; if (d < bd) { bd = d; best = i; } } return best; };
   S.pickBld = function (tx, ty) { const B = S.blds; if (!B) return -1; for (let b = 0; b < B.n; b++) { if (!B.alive[b]) continue; const T = AL.BTYPES[B.type[b]]; if (tx >= B.x[b] && tx < B.x[b] + T.fp[0] && ty >= B.y[b] - 1 && ty < B.y[b] + T.fp[1]) return b; } return -1; };
   // ---- default actions (the interface module extends this)
   const SPEEDS = [0.5, 1, 2, 5, 10, 50];

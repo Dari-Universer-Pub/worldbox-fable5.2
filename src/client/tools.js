@@ -15,7 +15,7 @@
   // 'move' powers (teleport) take the press as the source and the release as the destination, 'control' takes over a unit
   T.power = function (M, first) { const t = Game.tool, d = AL.DATA.powers[t.id]; if (!d || d.kind === 'brush' || d.kind === 'spawn') return; const x = M.wx / 8, y = M.wy / 8;
     if (d.kind === 'move') { if (first) T.moveFrom = [x, y]; return; }
-    if (d.kind === 'control') { if (!first) return; const ctl = Game.hud ? Game.hud.ctl : -1, i = AL.Scene.pick(M.wx, M.wy + 8); if (ctl >= 0) AL.Link.send({ t: 'order', x, y, target: i >= 0 && i !== ctl ? i : -1, special: !!Game.keys.ShiftLeft }); else if (i >= 0) { AL.Link.send({ t: 'control', i }); Game.follow = i; } return; }
+    if (d.kind === 'control') { if (!first) return; const ctl = Game.hud ? Game.hud.ctl : -1, i = AL.Scene.pick(M.wx, M.wy + 8); if (ctl >= 0) { AL.Link.send({ t: 'order', x, y, target: i >= 0 && i !== ctl ? i : -1, special: !!Game.keys.ShiftLeft }); AL.UI.orderMark = { x: M.wx, y: M.wy, t: performance.now() }; } else if (i >= 0) { AL.Link.send({ t: 'control', i }); Game.follow = i; } return; }
     if (!first && !d.drag) return; AL.Link.send({ t: 'power', id: t.id, x, y, r: t.r || d.r || 0 }); T.lastPX = M.tileX; T.lastPY = M.tileY; };
   T.onDrag = function (M) { const d = AL.DATA.powers[Game.tool.id]; if (d && d.drag && (M.tileX !== T.lastPX || M.tileY !== T.lastPY)) T.power(M, false); };
   T.onRelease = function (M) { const t = Game.tool, d = AL.DATA.powers[t.id]; if (d && d.kind === 'move' && T.moveFrom) { AL.Link.send({ t: 'power', id: t.id, x: M.wx / 8, y: M.wy / 8, x0: T.moveFrom[0], y0: T.moveFrom[1], r: t.r || d.r }); T.moveFrom = null; } };

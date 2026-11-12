@@ -195,11 +195,11 @@ function despeckle(img, matAt, protect, passes = 2) {
 function stabilize(raws, loop = true) {
   const n = raws.length; if (n < 2) return 0; let fixed = 0;
   const M = require('./measure');
-  for (let pass = 0; pass < 2; pass++) for (let f = (loop ? 0 : 1); f < n; f++) {
+  for (let pass = 0; pass < 3; pass++) for (let f = (loop ? 0 : 1); f < n; f++) {
     const cur = raws[f], prev = raws[(f - 1 + n) % n]; if (cur === prev) continue; const sh = M.flicker(prev.img, cur.img), w = cur.img.w, h = cur.img.h;
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const X = x - sh.sx, Y = y - sh.sy; if (X < 0 || Y < 0 || X >= w || Y >= h) continue; const i = y * w + x, j = Y * w + X, a = cur.img.d[i], b = prev.img.d[j];
       if (a === T || b === T || a === b || cur.protect[i] || prev.protect[j]) continue; const m = cur.matAt[i]; if (!m || m !== prev.matAt[j]) continue;
-      const ta = m.tones.indexOf(a), tb = m.tones.indexOf(b); if (ta < 0 || tb < 0 || Math.abs(ta - tb) !== 1) continue; cur.img.d[i] = b; fixed++; }
+      const ta = m.tones.indexOf(a), tb = m.tones.indexOf(b); if (ta < 0 || tb < 0 || Math.abs(ta - tb) > 2) continue; cur.img.d[i] = b; fixed++; }
   }
   return fixed;
 }

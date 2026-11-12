@@ -58,3 +58,18 @@ Effects baker. `node tools/bake-fx.js` renders every procedural effect of `tools
 
 ## tests/step11.js
 Browser robot for sound: first-gesture start, sounds triggered by real actions (counted in `AL.Mixer.counts`), adaptive track changes, ambience, volume option.
+
+## tools/measure-sprite.js (métrique corrigée)
+Le scintillement compté est le scintillement d'ombrage (même matériau, autre ton) ; limites strictes pour idle/sleep/walk (3 %), larges pour les animations d'action (10 %). Les pixels isolés se comptent au voisinage à 8 (un pas diagonal de contour n'est pas isolé). `tools/lib/sdf.js` `stabilize` : 3 passes, écart de ton ≤ 2.
+
+## tests/repair-run.js
+Tests de non-régression des réparations de `BUGS.md`.
+
+## tools/balance-bot.js (robot d'équilibrage)
+Joue le jeu sans navigateur (simulation seule, déterministe) et le juge contre des cibles écrites. `battery [--quick] [--only a,b] [--seeds 1,2] [--out f.json]` : 46 parties en processus parallèles (solo-human, solo-orc, duel44, duel80, wild, chaos). `run <scénario> <graine> <années>` : une partie, JSON. `judge <f.json>` : juge une batterie sauvegardée. Il vérifie aussi la cohérence des livres (population des villes, stocks, NaN, souverains morts). Cibles et raisonnement : `BALANCE.md`. Il ne juge ni le rendu, ni le son, ni la sensation.
+
+## tests/i18n-run.js
+Partie simulée de 45 ans (deux peuples) : chaque entrée du journal porte une clé, son anglais est identique à l'ancien texte, son français est différent et complet (pas de `{n}` ni de parenthèses vides), toutes les clés existent en EN et FR.
+
+## Étiquettes gauche / droite des sprites
+Dans les atlas, `left` et `right` sont nommés d'après le signe du yaw du baker : l'image `left` regarde vers la droite de l'écran. `src/client/scene.js` croise donc les étiquettes (`DIRN = ['down','right','up','left']`). Pour le vérifier : `node tools/sheet.js people_human --match 'human/villager/walk/(left|right)/0$' --scale 8 --labels`.

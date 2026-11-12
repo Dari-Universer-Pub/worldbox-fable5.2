@@ -7,7 +7,9 @@
   // count what is played (tests and the debug overlay)
   const play0 = A.play; A.play = function (name, o) { const r = play0(name, o); if (r) Mx.counts[name] = (Mx.counts[name] || 0) + 1; return r; };
   Mx.start = function () { if (Mx.on) return; try { A.init(); } catch (e) { return; } Mx.on = true; const v = (Game.options && Game.options.vol) || {}; for (const k in v) A.setVolume(k, v[k]); A.setVolume('amb', (v.sfx == null ? 0.8 : v.sfx) * 0.7); };
-  if (typeof window !== 'undefined') for (const ev of ['mousedown', 'keydown', 'touchstart']) window.addEventListener(ev, () => { Mx.start(); if (A.ready) A.resume(); }, { capture: true });
+  // phones (iOS Safari above all) only unlock audio on a finished touch: try on every kind of gesture, play one silent sample, keep trying until the context runs
+  const unlock = () => { Mx.start(); if (!A.ready) return; A.resume(); const c = A.ctx; if (c && !Mx.unlocked) { try { const b = c.createBuffer(1, 1, 22050), src = c.createBufferSource(); src.buffer = b; src.connect(c.destination); src.start(0); } catch (e) { } } if (c && c.state === 'running') Mx.unlocked = true; };
+  if (typeof window !== 'undefined') for (const ev of ['mousedown', 'keydown', 'touchstart', 'touchend', 'pointerup', 'click']) window.addEventListener(ev, unlock, { capture: true });
   const AMBG = { deep: 'waves', shallow: 'waves', sand: 'waves', desert: 'desert', savanna: 'desert', forest: 'forest', jungle: 'forest', swamp: 'forest', snow: 'ice', ice: 'ice', tundra: 'wind', mountain: 'wind', hills: 'wind', volcanic: 'wind', grass: 'forest' };
   const CALLS = { wolf: 'wolf_howl', bear: 'bear_growl', deer: 'deer_call', sheep: 'sheep_bleat', boar: 'boar_grunt', eagle: 'eagle_cry', rabbit: 'rabbit_thump', salmon: 'fish_plop', zombie: 'zombie_moan', skeleton: 'skeleton_rattle', demon: 'demon_roar' };
   Mx.frame = function (dt) { if (!Mx.on || !A.ready) return; Mx.t -= dt; Mx.life -= dt; const G = AL.Gfx, c = Game.cam, hud = Game.hud, M = Game.map;

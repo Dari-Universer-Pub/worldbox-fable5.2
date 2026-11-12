@@ -31,3 +31,9 @@
 ## After step 11
 - Sound must be listened to and re-voiced by ear; the war track needs a real brass/choir timbre; per-climate tracks (ice, desert, jungle), a disaster track, a title theme, stingers for ages and victories.
 - Reverb sends per bus, ducking of music under large explosions, footsteps per ground, voices per people (pitch/formants from the language data).
+
+## Après les réparations (dépôt Sonnet)
+- Équilibrage humains/orques (les orques gagnent presque toujours), armées plus grandes, vraies batailles lisibles.
+- Retouches pixel à la main des poses clés (scintillement des animations d'action, pixels isolés des orques).
+- Feu : les incendies naturels sont maintenant rares (surtout la foudre sèche des ères chaudes) ; régler la fréquence si on veut plus de feux de forêt.
+- Forêts : elles dépassent maintenant 150 % de leur niveau de départ ; prévoir une densité maximale ou des maladies/abattage.
