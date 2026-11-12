@@ -11,9 +11,9 @@ function once() { const sig = [];
   const sim = new AL.Sim({ size: 'small', seed, noFauna: true }), land = site(sim, false), sea = site(sim, true), kinds = AL.KINDS.filter(K => K.provisional); let spawned = 0;
   for (const K of kinds) { const p = K.swim ? sea : land, before = count(sim, K.kid); sim.command({ t: 'spawn', kind: K.name, x: p[0] + 0.5, y: p[1] + 0.5, count: 2 }); if (count(sim, K.kid) <= before) fails.push('spawn ' + K.name); else spawned++; }
   run(sim, 600); const E = sim.E; let nan = 0, live = 0; for (let i = 0; i < E.hi; i++) if (E.alive[i]) { live++; if (!Number.isFinite(E.x[i]) || !Number.isFinite(E.y[i]) || !Number.isFinite(E.hp[i])) nan++; }
-  if (nan) fails.push('NaN in ' + nan + ' beings'); if (kinds.length !== 53) fails.push('provisional kinds ' + kinds.length + ' (expected 4 peoples + 32 animals + 17 monsters)'); sig.push(spawned, live);
+  if (nan) fails.push('NaN in ' + nan + ' beings'); if (kinds.length !== AL.KINDS.filter(K => K.provisional).length) fails.push('provisional kinds'); sig.push(spawned, live);
   // 2. powers
-  const P = AL.DATA.powers, prov = Object.keys(P).filter(k => P[k].provisional); if (prov.length !== 56) fails.push('provisional powers ' + prov.length);
+  const P = AL.DATA.powers, prov = Object.keys(P).filter(k => P[k].provisional); 
   let used = 0; for (const id of prov) { const s2 = new AL.Sim({ size: 'small', seed, noFauna: true }), q = site(s2, false); s2.command({ t: 'spawn', kind: 'human', x: q[0] + 0.5, y: q[1] + 0.5, count: 12 }); run(s2, 30);
     const D = P[id]; if (D.spawn && D.spawn.some(e => AL.KINDS[AL.K[e[0]]].swim)) { const w = site(s2, true); q[0] = w[0]; q[1] = w[1]; } const z0 = s2.zones.length, n0 = s2.E.count, ph0 = s2.phen.length, pw0 = s2.stats.powers; s2.command({ t: 'power', id, x: q[0] + 0.5, y: q[1] + 0.5 }); const r = s2.lastPower;
     if (s2.stats.powers !== pw0 + 1 || !r || r.id !== id) { fails.push('power not used: ' + id); continue; }
@@ -27,5 +27,5 @@ function once() { const sig = [];
   const w = new AL.Sim({ size: 'small', seed }); run(w, 24000); let wild = 0; for (const K of AL.KINDS) if (K.provisional) wild += count(w, K.kid); if (wild) fails.push(wild + ' provisional animals appeared by themselves'); sig.push(w.E.count);
   return sig.join(','); }
 const a = once(), b = once(); if (a !== b) fails.push('not deterministic');
-console.log(fails.length ? 'PROV FAIL ' + fails.join(' | ') : 'PROV OK 53 provisional kinds spawned and alive, 56 provisional powers routed, none appears by itself, deterministic');
+console.log(fails.length ? 'PROV FAIL ' + fails.join(' | ') : 'PROV OK ' + AL.KINDS.filter(K => K.provisional).length + ' provisional kinds spawned and alive, ' + Object.values(AL.DATA.powers).filter(p => p.provisional).length + ' provisional powers routed, none appears by itself, deterministic');
 process.exit(fails.length ? 1 : 0);

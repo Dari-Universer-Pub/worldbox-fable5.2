@@ -6,7 +6,7 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — task in progress: **A.4 animals living in the world**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — task in progress: **A.5 monster behaviours**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
 
@@ -15,6 +15,9 @@
 2. Rognage (0.1) : tous les robots avec les images rognées ; une frame vide devient 1×1 ; les pixels de la page sont partagés entre images identiques (un robot qui lirait la taille d'une image dans `AL.Assets.frames` verrait la taille rognée).
 3. A.1 : la fiche de ville affiche les stocks en icônes + nombres (ligne `stock` dans `ui.js`) ; `tests/step10.js` lit peut-être l'ancien texte.
 4. A.2 : les créatures provisoires ont maintenant toutes leurs animations ; `tools/measure-sprite.js creatures2` (scintillement, pixels isolés) jamais lancé ; `tools/validate-data.js` OK.
+
+**A.4 — les 32 animaux vivent dans le monde (fait).** Changements : densités 0,08 à 0,5 dans `animals.json`, drapeau `provisional` retiré des 32 animaux ; `C.populate` tire l'espèce selon sa densité (une espèce rare ne chasse plus une commune) ; plafond total d'animaux n²/56 au lieu de n²/70. Vu : `node tools/balance-bot.js run wild 7 100` → 40 espèces vivantes à l'an 5 (649 animaux) et à l'an 50 (712), 39 à l'an 100 (735 ; la grenouille manquait à ce relevé), 0,28 ms par tick ; en jeu `shots/a4-wildlife.png` (vaches dans une clairière). Non vérifié : stabilité sur 200 ans et sur d'autres graines ; effet sur les peuples (plus de prédateurs : lion, tigre, hyène, panthère, crocodile ; plus de gibier) ; les anciennes espèces ont changé d'effectifs (cerf 142, lapin 12 à l'an 100).
+À tester par Sonnet : cibles « wild » du robot et batterie complète (les règles de peuplement ont changé pour toutes les parties) ; `tests/eco-run.js` (ses seuils datent de 8 espèces) ; `tests/prov-run.js` (adapté : il ne compte plus que les peuples et monstres provisoires, non relancé).
 
 **A.3 — créatures faibles refaites, revue des 49 (fait).** Vu, en couleur et en silhouette, depuis les sources (`node tools/creature-sheet.js`, nouvel outil) : `shots/review-16.png`, `review-24.png`, `review-32.png`, `review-48.png`. Refaits : lynx (maintenant en 24×24 : oreilles à pinceaux, favoris blancs, taches, queue courte), hérisson (boule sombre hérissée, museau clair), castor (queue plate grise quadrillée), grenouille (yeux jaunes sur la tête, cuisses), hyène (dos en pente par le nouveau paramètre `rearLeg` du squelette, crinière, taches), chèvre (cornes courbes sombres, barbiche, toison), écureuil (queue rousse en panache), requin (queue en croissant), léviathan (corps épais, crête) ; les oiseaux au repos sont debout sur leurs pattes (`perch`) ; tous les débordements de case corrigés. Les 8 espèces soignées restent identiques à l'octet. Les plus faibles qui restent : troll et géant vus de profil (bras peu lisibles), oiseaux au repos (petits). Non vérifié : en jeu. Le drapeau `provisional` reste dans les données jusqu'à A.4 (animaux) et A.5 (monstres).
 
@@ -112,4 +115,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **A.4** — give the 32 animals of the second set their densities and biomes so that they live by themselves (remove `provisional` and the `!K.provisional` filter for animals), keep the old 8 species alive, prove it with ONE `node tools/balance-bot.js run wild <seed> 100`; then A.5 (monster behaviours), and so on.
+First unticked line of `CHANTIER.md`: **A.5** — own behaviour for each monster of the second set in `src/sim/creatures.js` (dragon: nest, hoard, fire breath; colossus: trample, rock throw, controllable; lich raises the dead; spirit by night; treant, golem, giant, harpy, basilisk, voidling, imp, hellhound, leviathan), remove `provisional` from monsters, prove with one short Node game where each trait fires at least once.

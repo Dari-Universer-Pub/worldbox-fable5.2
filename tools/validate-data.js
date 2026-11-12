@@ -51,7 +51,7 @@ for (const [k, a] of Object.entries(D.animals).concat(Object.entries(D.monsters)
   if (a.humanoid) { for (const an of ['idle', 'walk', 'attack']) if (!frames.has(`${k}/villager/${an}/down/0`)) E('monster ' + k + ': no frame ' + an); continue; }
   const mv = a.fly ? 'fly' : a.swim ? 'swim' : 'walk', first = a.fly ? 'idle' : a.swim ? 'swim' : 'idle'; for (const d of ['down', 'left', 'up', 'right']) { if (!frames.has(`${k}/${mv}/${d}/0`)) E('kind ' + k + ': no frame ' + mv + '/' + d); if (!a.fly && !frames.has(`${k}/${first}/${d}/0`)) E('kind ' + k + ': no frame ' + first + '/' + d); }
   if (!frames.has(`${k}/death/left/0`)) E('kind ' + k + ': no death frame'); const f = atlas[a.atlas].frames[`${k}/${first}/left/0`]; if (f && f[2] !== a.size) E('kind ' + k + ': size ' + a.size + ' but its cell is ' + f[2]);
-  if (!!a.provisional !== (a.atlas === 'creatures2')) E('kind ' + k + ': provisional flag and atlas disagree'); }
+ }
 const HANDLED = ['heal', 'strength', 'fertility', 'curse', 'poison', 'plague', 'rage', 'madness', 'inspire', 'death', 'resurrect', 'lightning', 'fire', 'acid', 'bomb', 'bigbomb', 'nuke', 'tornado', 'earthquake', 'meteor', 'eruption', 'flood', 'teleport', 'prophet', 'relic', 'war', 'peace', 'summon'];
 for (const [k, p] of Object.entries(D.powers)) { if (k !== 'spawn') { need('pw.' + k); need('pwd.' + k); if (!frames.has('ic/' + (p.icon || k))) E('powers.' + k + ': no icon ic/' + (p.icon || k)); }
   if (p.fx && !['dust', 'splash'].includes(p.fx) && ![...frames].some(f => f.startsWith('fx/' + p.fx + '/'))) E('powers.' + k + ': no effect fx/' + p.fx);
