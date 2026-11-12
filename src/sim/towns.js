@@ -55,7 +55,7 @@
     if (!best) return false; for (const i of ppl) { const h = E.home[i]; if (h >= 0 && sim.B.occ[h] > 0) sim.B.occ[h]--; const w = E.work[i]; if (w >= 0 && sim.B.workers[w] > 0) sim.B.workers[w]--; town.pop = Math.max(0, town.pop - 1); AL.Units.joinTown(sim, i, best); AL.Units.stop(E, i); E.act[i] = AL.Units.ACT.NONE; }
     if (AL.Realm && sim.chron) AL.Realm.log(sim, 'merge', ['log.merge', town.name, best.name], town.cx, town.cy, town.kingdom); T.remove(sim, town, 'merged'); return true; };
   // look of a town's buildings: hides and thatch up to the hamlet, timber and shingles for a village, stone and tiles from the town stage
-  T.style = st => st <= 1 ? 0 : st === 2 ? 1 : 2;
+  T.style = st => AL.DATA.stages[st] ? AL.DATA.stages[st].sprite : 0; // building look (0..4) of a town stage, from stages.json
   T.remove = function (sim, town, cause) { if (!town.alive) return; town.alive = false; for (const b of town.blds.slice()) T.destroy(sim, b, true); T.unclaim(sim, town); const E = sim.E; for (let i = 0; i < E.hi; i++) if (E.alive[i] && E.town[i] === town.id) { E.town[i] = -1; E.home[i] = -1; E.work[i] = -1; E.job[i] = 0; }
     for (const m of AL.Sim.modules) if (m.onTownRemoved) m.onTownRemoved(sim, town, cause); sim.emit('townlost', town.cx, town.cy, town.id); };
   // nearest finished storage building door for a town (hall, warehouse, sawmill, mine, port)

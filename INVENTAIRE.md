@@ -11,7 +11,7 @@
 | Monstres | 20 (3 soignés + 17 provisoires) | 20 | dont dragon, géant, golem, esprit, néantin, léviathan, colosse 64×64 ; comportement générique |
 | Pouvoirs | 100 (44 soignés + 56 provisoires) | 100 | les provisoires sont des variantes (rayon, durée, dispersion, invocations) |
 | Métiers | 21 | 20 | **3 ne servent à rien** : marin, ingénieur, guérisseur |
-| Bâtiments | 17 types × 3 stades dessinés × 6 peuples | 15 types × 5 stades | stades 4 et 5 déclarés dans `stages.json` mais dessinés avec les sprites du stade 3 |
+| Bâtiments | 17 types × 5 stades dessinés × 6 peuples | 15 types × 5 stades | fait (chantier A.6) |
 | Ères | 10 | 10 | complet |
 | Dogmes | 12 | 12 | complet |
 | Traits | 60 | 60 | complet |

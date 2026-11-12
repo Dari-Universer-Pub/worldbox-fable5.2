@@ -43,8 +43,7 @@
    "barracks"
   ],
   "look": 3,
-  "sprite": 2,
-  "provisional": true
+  "sprite": 3
  },
  {
   "name": "realm",
@@ -53,7 +52,6 @@
    "tavern"
   ],
   "look": 4,
-  "sprite": 2,
-  "provisional": true
+  "sprite": 4
  }
 ]

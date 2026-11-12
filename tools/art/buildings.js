@@ -36,6 +36,7 @@ function matsHuman() {
     wood: mat('sand', [1, 2, 3], { ink: 'earth' }), log: mat('earth', [2, 3, 4]), logEnd: mat('sand', [2, 3, 4], { ink: 'earth' }), hay: mat('sand', [3, 4, 5], { ink: 'earth' }), straw: mat('sand', [3, 4, 5], { ink: 'earth' }),
     banner: team([2, 3, 4]), bannerD: team([1, 2, 3]), cloth: mat('ice', [3, 4, 5]), gold: mat('fire', [2, 3, 4]), iron: mat('stone', [3, 4, 5]), ironD: mat('stone', [1, 2, 3]),
     barrel: P(mat('earth', [2, 3, 4]), PAT.planksV), crate: mat('sand', [2, 3, 4], { ink: 'earth' }), sack: mat('sand', [3, 4, 5], { ink: 'earth' }), soil: mat('earth', [2, 3, 4]),
+    marble: P(mat('ice', [3, 4, 5], { ink: 'stone' }), PAT.stone), goldroof: P(mat('fire', [2, 3, 4, 5], { extra: { th: [-0.15, 0.3, 0.88] } }), PAT.tiles(2.4, 4.2)),
     fish: mat('water', [3, 4, 5]), green: mat('grass', [2, 3, 4]), redc: mat('red', [2, 3, 4]), tealc: mat('teal', [2, 3, 4]), ore: mat('fire', [1, 2, 3]), rune: Object.assign(glow([2, 3, 4]), { th: [-2, 2] }),
   };
 }
@@ -44,7 +45,8 @@ const SETS = { human: matsHuman };
 // so that walls stay readable under the 35° camera (a roof must not swallow its facade).
 const ZS = 1.25, YS = 0.85, RH = 0.8;
 function kit(s) {
-  const sc = new Scene(), k = { sc, s, top: 0, smoke: null, light: null };
+  // stages 3 and 4 (looks 4 and 5): designs written for three stages see s = 2 and read k.lvl (1 = city, 2 = realm of wonders)
+  const sc = new Scene(), k = { sc, s: Math.min(2, s), lvl: Math.max(0, s - 2), top: 0, smoke: null, light: null };
   const up = z => { if (z > k.top) k.top = z; };
   k.box = (x, y, z, w, d, h, m, o) => { sc.box([x, y * YS, (z + h / 2) * ZS], [w, d * (o && o.rot ? 1 : YS), h / 2 * ZS], m, o); up((z + h) * ZS); return k; };
   k.cyl = (x, y, z, r, h, m, o) => { sc.cyl([x, y * YS, (z + h / 2) * ZS], r, h / 2 * ZS, m, o); up((z + h) * ZS); return k; };
@@ -210,7 +212,7 @@ function site(fw, fh) { const k = kit(0), W = fw * 4 - 1.5, Dp = fh * 4 - 1; for
 // Every type = the orc shell for its footprint + the props that tell its trade (meat racks, ore, anvils, skull totems...).
 function matsOrc() { const m = matsHuman(), P = (a, p) => Object.assign(a, { pattern: p });
   m.hideO = P(mat('red', [1, 2, 3]), PAT.hide); m.bone = mat('sand', [3, 4, 5], { ink: 'earth' }); m.mud = P(mat('earth', [2, 3, 4]), PAT.wattle); m.moss = P(mat('jungle', [0, 1, 2], { ink: 'earth' }), PAT.thatch); m.thatchD = P(mat('earth', [1, 2, 3]), PAT.thatch); m.hideR = P(mat('red', [1, 2, 3]), PAT.tiles(2.6, 5));
-  m.black = P(mat('stone', [0, 1, 2]), PAT.rock); m.blackS = P(mat('stone', [1, 2, 3]), PAT.stone); m.spike = mat('stone', [2, 3, 4]); m.meat = mat('red', [2, 3, 4]); m.war = team([1, 2, 3]); m.warL = team([2, 3, 4]); return m; }
+  m.obsid = P(mat('royal', [0, 1, 2], { ink: 'stone' }), PAT.stone); m.obsidL = mat('magic', [0, 1, 2]); m.black = P(mat('stone', [0, 1, 2]), PAT.rock); m.blackS = P(mat('stone', [1, 2, 3]), PAT.stone); m.spike = mat('stone', [2, 3, 4]); m.meat = mat('red', [2, 3, 4]); m.war = team([1, 2, 3]); m.warL = team([2, 3, 4]); return m; }
 SETS.orc = matsOrc;
 const O = {
   tusk(k, x, y, z, h, dir, r) { r = r || 1; k.cap([x, y, z], [x + dir * 1.7 * r, y, z + h * 0.55], 0.95 * r, 0.7 * r, 'bone', { pri: 7 }).cap([x + dir * 1.7 * r, y, z + h * 0.55], [x + dir * 0.3 * r, y, z + h], 0.7 * r, 0.22, 'bone', { pri: 7 }); return k; },
@@ -221,7 +223,14 @@ const O = {
   rack(k, x, y, w, h, what) { k.post(x - w, y, 0, h).post(x + w, y, 0, h).beamX(x, y, h - 0.6, w + 0.6, 'timber', 0.45); for (let i = -1; i <= 1; i++) { if (what === 'meat') k.ell(x + i * w * 0.55, y + 0.3, h - 2.6, [0.9, 0.6, 1.6], 'meat', { pri: 7 }); else if (what === 'fish') k.ell(x + i * w * 0.55, y + 0.3, h - 2.4, [0.6, 0.5, 1.5], 'fish', { pri: 7 }); else k.box(x + i * w * 0.55, y + 0.3, 1, 0.35, 0.35, h - 1.4, i ? 'iron' : 'spike', { pri: 7 }); } return k; },
   brazier(k, x, y, z) { k.cyl(x, y, z, 1.5, 1.6, 'ironD', { pri: 6 }); k.fire(x, y, z + 1.4, 1.3); return k; },
   // the shell: W half-width, Dp half-depth, H height scale
-  shell(k, s, W, Dp, H, x0, roof) { x0 = x0 || 0;
+  // stage 4: iron-bound war keeps (three black tiers, iron plates, great spikes, war banners); stage 5: obsidian citadels with a horned crown and fire in their slits
+  shellHi(k, lv, W, Dp, H, x0) { x0 = x0 || 0; H = Math.min(H * (1.12 + lv * 0.14), lv === 2 ? 17.5 : 19.5); const h1 = H * 0.5, h2 = H * 0.3, h3 = H * 0.24, wall = lv === 2 ? 'obsid' : 'blackS', trim = lv === 2 ? 'obsidL' : 'ironD';
+    k.box(x0, 0, 0, W + 0.7, Dp + 0.6, 2.6, 'black').box(x0, 0, 0, W, Dp, h1, wall).box(x0, 0, h1, W + 0.6, Dp + 0.6, 1.2, trim, { pri: 3 }).box(x0, -0.6, h1 + 1.2, W * 0.7, Dp * 0.7, h2, wall).box(x0, -0.6, h1 + 1.2 + h2, W * 0.7 + 0.5, Dp * 0.7 + 0.5, 1, trim, { pri: 3 }).box(x0, -1, h1 + 2.2 + h2, W * 0.42, Dp * 0.45, h3, wall, { pri: 4 });
+    for (const a of [-1, 1]) { k.box(x0 + a * (W - 0.4), Dp - 0.2, 0, 1.5, 1.3, h1 + 2.6, lv === 2 ? 'obsidL' : 'black', { pri: 5 }); O.spike(k, x0 + a * (W - 0.4), Dp - 0.2, h1 + 2.6, 4.6 + lv); O.spike(k, x0 + a * (W * 0.7 - 0.3), Dp * 0.7 - 1, h1 + 2.2 + h2, 3.8); k.box(x0 + a * W * 0.55, Dp + 0.3, h1 * 0.2, 1.6, 0.4, h1 * 0.6, 'ironD', { pri: 6 }); }
+    if (lv === 2) { O.tusk(k, x0 - W * 0.42, -1, h1 + 2.2 + h2 + h3, 7.5, -1, 1.25); O.tusk(k, x0 + W * 0.42, -1, h1 + 2.2 + h2 + h3, 7.5, 1, 1.25); k.fire(x0, -1, h1 + 2.4 + h2 + h3, 1.6); for (const a of [-1, 1]) k.box(x0 + a * W * 0.3, Dp + 0.35, h1 * 0.55, 0.45, 0.4, 2.4, 'ember', { pri: 8 }); }
+    else { O.spike(k, x0, -1, h1 + 2.2 + h2 + h3, 5.2); k.banner(x0 - W * 0.42 - 2, -1, h1 + 2.2 + h2, h3 + 6, 'war'); }
+    k.arch(x0, Dp, 0.2, 2.1, h1 * 0.7, 'dark'); O.skull(k, x0, Dp + 0.5, h1 * 0.7 + 2.5, 1.4 + lv * 0.2); k.win(x0 - W * 0.3, Dp * 0.7 - 0.6, h1 + 1.2 + h2 * 0.5, 0.6, 1.1).win(x0 + W * 0.3, Dp * 0.7 - 0.6, h1 + 1.2 + h2 * 0.5, 0.6, 1.1); return k; },
+  shell(k, s, W, Dp, H, x0, roof) { x0 = x0 || 0; if (k.lvl) return O.shellHi(k, k.lvl, W, Dp, H, x0);
     if (s === 0) { k.ell(x0, 0, 0, [W, Dp, H], 'hideO'); for (const a of [-1, 1]) k.cap([x0 + a * W * 0.98, Dp * 0.45, 0], [x0 + a * W * 0.3, 0, H + 1.2], 0.75, 0.4, 'bone', { pri: 5 }); k.cap([x0, Dp * 0.98, 0], [x0, 0, H + 0.4], 0.5, 0.4, 'bone', { pri: 5 });
       k.prism(x0, Dp * 0.9, 0, 1, 1.4, 2.1, H * 0.6, 'dark', { pri: 6 }); k.cap([x0 - 1, 0, H], [x0 - 2.4, -0.5, H + 3.4], 0.5, 0.25, 'bone', { pri: 6 }).cap([x0 + 1, 0, H], [x0 + 2.4, -0.5, H + 3.4], 0.5, 0.25, 'bone', { pri: 6 }); }
     else if (s === 1) { const wh = H * 0.6, rh = H * 0.52; H = (wh + rh) / 1.28; k.box(x0, 0, 0, W, Dp, wh, 'logwall').box(x0, 0, 0, W + 0.2, Dp + 0.2, 1.3, 'black').roofX(x0, 0, wh, W, Dp, rh, roof || 'moss', 1.3).cap([x0 - W - 1, 0, wh + rh * 0.82], [x0 + W + 1, 0, wh + rh * 0.82], 0.55, 0.55, 'timber', { pri: 6 });
@@ -265,7 +274,29 @@ odef('library', (k, s, W, Dp) => { O.shell(k, s, W - 2.4, Dp - 1.4, [9.5, 13, 15
 odef('hospital', (k, s, W, Dp) => { O.shell(k, s, W - 1.4, Dp - 1.2, [9.5, 13, 15][s]); k.post(W - 0.6, Dp + 1.4, 0, 9).ell(W - 0.6, Dp + 1.7, 7.6, [1.8, 0.4, 1.8], 'cloth', { pri: 7 }).box(W - 0.6, Dp + 2, 6.6, 0.45, 0.3, 2, 'tealc', { pri: 8 }).box(W - 0.6, Dp + 2, 7.25, 1.2, 0.3, 0.7, 'tealc', { pri: 8 }); k.sack(-W + 1.6, Dp + 1.6); });
 odef('wall', (k, s) => { if (s < 2) { for (const x of [-2.2, -0.75, 0.75, 2.2]) { const h = (s ? 10.5 : 9) + (x * x > 2 ? 0 : 1.5); k.stake(x, 0, h, 0.95); } k.box(0, 0.9, 5, 3, 0.4, 0.8, 'bone', { pri: 3 }); } else { k.box(0, 0, 0, 3.1, 3, 9.5, 'blackS').box(0, 0, 9.5, 3.2, 3.2, 1, 'black', { pri: 3 }); O.spike(k, -1.9, 1.5, 10.5, 3.2); O.spike(k, 1.9, 1.5, 10.5, 3.2); } });
 odef('gate', (k, s) => { if (s < 2) { k.stake(-2.4, 0, 12, 1.05).stake(2.4, 0, 12, 1.05).box(0, 0, 8.4, 3, 0.8, 1.4, 'timber', { pri: 4 }).door(0, 0, 0, 1.7, 7.8, 'door'); O.skull(k, 0, 1, 10.6, 1.1); } else { k.box(0, 0, 0, 3.1, 3, 11.5, 'blackS').box(0, 0, 11.5, 3.2, 3.2, 1, 'black', { pri: 3 }); O.spike(k, -2, 1.5, 12.5, 3.4); O.spike(k, 2, 1.5, 12.5, 3.4); k.arch(0, 3, 0, 1.9, 7.5, 'door'); O.skull(k, 0, 3.3, 9.6, 1); } });
+// ================= HUMAN STAGES 4 AND 5 =================
+// City (lvl 1): dressed stone, slate roofs, corner turrets, banners. Realm of wonders (lvl 2): white marble, gilded roofs,
+// copper-capped towers with gold finials and a tall spire. The hall becomes a castle then a palace, the temple a cathedral.
+const HREMAP = [null, { thatch: 'tile', tile: 'slate', shingle: 'slate', stoneW: 'stoneL', plank: 'stoneW', wattle: 'plaster', logwall: 'stoneW', hide: 'plaster', hide2: 'plaster' },
+  { thatch: 'goldroof', tile: 'goldroof', shingle: 'copper', slate: 'copper', plaster: 'marble', stoneW: 'marble', stoneL: 'marble', stoneD: 'stoneL', plank: 'stoneL', wattle: 'marble', logwall: 'marble', timber: 'stoneD', hide: 'marble', hide2: 'marble' }];
+function turret(k, x, y, h, lv, r) { r = r || 1.9; k.cyl(x, y, 0, r + 0.3, 1.6, 'stoneD', { pri: 5 }).cyl(x, y, 0, r, h, lv === 2 ? 'marble' : 'stoneL', { pri: 5 }).cyl(x, y, h - 1.2, r + 0.5, 1.2, lv === 2 ? 'stoneL' : 'stoneD', { pri: 6 }).cone(x, y, h, r + 0.9, 5 + lv, lv === 2 ? 'copper' : 'slate', { pri: 7 }); k.win(x, y + r * 0.95, h * 0.7, 0.45, 1.0); if (lv === 2) k.ell(x, y, h + 6.6 + lv, [0.7, 0.7, 0.8], 'gold', { pri: 9 }); return k; }
+function humanHi(type, k, fp) { const lv = k.lvl, W = fp[0] * 3.25, Dp = fp[1] * 2.9; let top = k.top / ZS; for (const q of k.sc.p) { const m = HREMAP[lv][q.mat]; if (m) q.mat = m; }
+  if (type === 'wall' || type === 'gate') { k.box(0, 0, top, 3.3, 3.3, 1.1, lv === 2 ? 'marble' : 'stoneL', { pri: 6 }); for (const x of [-2, 2]) k.box(x, 1.4, top + 1.1, 0.9, 0.9, 1.6, lv === 2 ? 'marble' : 'stoneL', { pri: 7 }); if (lv === 2) k.ell(0, 0, top + 2.4, [0.8, 0.8, 0.9], 'gold', { pri: 9 }); return; }
+  if (type === 'farm' || type === 'mine' || type === 'sawmill' || type === 'market' || type === 'port') { k.flag(W - 0.5, -Dp + 1, 0, 9 + lv * 2); if (lv === 2) turret(k, -W + 1.2, -Dp + 1.5, Math.min(top * 0.8 + 3, 13), lv, 1.6); return; }
+  if (type === 'watchtower') { const top0 = top; top = Math.min(top, 17 - lv * 2); if (top0 > top) { /* the stage-3 roof is hidden inside the new drum */ } k.cyl(0, 0, top - 0.5, 4.6, 6 + lv * 3, lv === 2 ? 'marble' : 'stoneL', { pri: 6 }).cyl(0, 0, top + 5 + lv * 3, 5.2, 1.3, 'stoneD', { pri: 7 }).cone(0, 0, top + 6.3 + lv * 3, 5.6, 7 + lv * 2, lv === 2 ? 'copper' : 'slate', { pri: 8 }); k.win(0, 4.5, top + 3, 0.6, 1.3); if (lv === 2) k.ell(0, 0, top + 15.5 + lv * 5 - 5, [0.9, 0.9, 1], 'gold', { pri: 9 }); return; }
+  const ZMAX = 30 - (fp[1] - 2) * 2.5, th = Math.min(Math.max(9, top * 0.82) + lv * 2, ZMAX - 10 - lv); turret(k, -W + 0.6, Dp - 0.4, th, lv); turret(k, W - 0.6, Dp - 0.4, th, lv);
+  if (fp[0] >= 4 || type === 'hall' || type === 'temple') { turret(k, -W + 0.8, -Dp + 1, th - 3, lv, 2.1); turret(k, W - 0.8, -Dp + 1, th - 3, lv, 2.1); k.banner(-W - 1.8, Dp + 0.8, 0, 10 + lv).banner(W - 1.2, Dp + 0.8, 0, 10 + lv); }
+  if (lv === 2 || type === 'hall' || type === 'temple') { const sh = Math.min(top + 3 + lv * 5, ZMAX - 11 - lv * 3); if (sh > top + 1) k.cyl(0, -Dp * 0.3, top - 2, 2.4, sh - top + 2, lv === 2 ? 'marble' : 'stoneL', { pri: 6 }).cone(0, -Dp * 0.3, sh, 3.2, 8 + lv * 3, lv === 2 ? 'goldroof' : 'slate', { pri: 8 }); if (sh > top + 1) { k.win(0, -Dp * 0.3 + 2.3, sh - 2.5, 0.5, 1.4); k.ell(0, -Dp * 0.3, sh + 8.6 + lv * 3, [0.8, 0.8, 0.9], 'gold', { pri: 9 }); } else if (top < ZMAX - 4) k.ell(0, -Dp * 0.3, top + 0.8, [1.1, 1.1, 1.2], 'gold', { pri: 9 }); }
+  if (type === 'hall' && lv === 2) { k.ell(0, 1, Math.min(top - 4, ZMAX - 9), [W * 0.4, Dp * 0.5, 4], 'goldroof', { pri: 7 }); }
+  if (type === 'temple' && lv) k.rwin(0, Dp + 0.1, Math.min(top * 0.6, 12), 1.5 + lv * 0.3); }
 const DSETS = { human: D, orc: DO };
-module.exports = { D, DSETS, SETS, PAT, kit, site, hash, ZS, YS };
+// called by the baker after make(): the human set is raised to its high stages here (the other sets do it in their shells)
+const OREMAP = [null, { rock: 'black', hideO: 'hideR', moss: 'thatchD' }, { rock: 'obsid', black: 'obsid', blackS: 'obsid', hideO: 'hideR', moss: 'thatchD', plankH: 'obsidL', plank: 'obsidL' }];
+function orcHi(type, k, fp) { const lv = k.lvl, W = fp[0] * 3.25, Dp = fp[1] * 2.9, top = Math.min(k.top / ZS, 22); if (!['mine', 'market', 'temple', 'watchtower', 'wall', 'gate'].includes(type)) return; for (const q of k.sc.p) { const m = OREMAP[lv][q.mat]; if (m) q.mat = m; }
+  if (type === 'wall' || type === 'gate') { k.box(0, 0, top, 3.3, 3.3, 1.2, lv === 2 ? 'obsidL' : 'ironD', { pri: 6 }); O.spike(k, 0, 1.2, top + 1.2, 3.6 + lv); if (lv === 2) k.fire(0, -0.5, top + 1.2, 0.9); return; }
+  if (type === 'watchtower') { k.cyl(0, 0, top - 1, 5.9, 1.4, lv === 2 ? 'obsidL' : 'ironD', { pri: 6 }); O.tusk(k, -5.6, 0, top, 5 + lv, -1, 1); O.tusk(k, 5.6, 0, top, 5 + lv, 1, 1); if (lv === 2) k.banner(4.4, 3, 0, top + 2, 'war'); return; }
+  O.shellHi(k, lv, W * 0.3, Dp * 0.42, 9, type === 'temple' ? 0 : -W * 0.62); if (type !== 'temple') { O.brazier(k, W - 1.5, Dp + 2.4, 0); k.banner(W - 2, -Dp + 1.5, 0, 12 + lv * 2, 'war'); } }
+function finishHi(set, type, k, fp) { if (k.lvl && set === 'human') humanHi(type, k, fp); else if (k.lvl && set === 'orc') orcHi(type, k, fp); return k; }
+module.exports = { D, DSETS, SETS, PAT, kit, site, hash, ZS, YS, finishHi };
 // the four provisional peoples register their own sets (elf, dwarf, myrrin, okari)
 require('./buildings2')(module.exports, { mat, team, glow, glass, ix, rotX, rotY, rotZ });

@@ -11,7 +11,7 @@ const S = 1.3; // model scale: a 3-tile house is ~30 px wide (STYLE.md)
 function bakeOne(job, cellForce) {
   const [set, type, stage, variant] = job, isSite = set === 'site'; let k, fp, cell;
   if (isSite) { fp = type.split('x').map(Number); k = BL.site(fp[0], fp[1]); cell = 48; }
-  else { const d = BL.DSETS[set][type]; fp = d.fp; k = d.make(BL.kit(stage)); cell = d.great ? 64 : 48; }
+  else { const d = BL.DSETS[set][type]; fp = d.fp; k = BL.finishHi(set, type, d.make(BL.kit(stage)), fp); cell = d.great ? 64 : 48; }
   if (cellForce) cell = cellForce;
   const mats = BL.SETS[isSite ? 'human' : set](), ox = cell / 2, oy = cell - 4 - fp[1] * 4, top = k.top / BL.ZS, X = fp[0] * 4 / S + 1.5;
   let clip = null;
@@ -40,7 +40,7 @@ else (async () => {
   const srcHash = crypto.createHash('sha1').update(['lib/sdf.js', 'lib/mats.js', 'art/buildings.js', 'art/buildings2.js', 'art/palette.json', 'bake-buildings.js'].map(f => fs.readFileSync(path.join(__dirname, f))).join('')).digest('hex').slice(0, 12);
   const cf = path.join(cacheDir, `buildings-${srcHash}.json`); let res;
   if (!noCache && fs.existsSync(cf)) res = JSON.parse(fs.readFileSync(cf, 'utf8'));
-  else { const jobs = [], fps = {}; for (const set of Object.keys(BL.SETS)) for (const type of Object.keys(BL.D)) { fps[BL.D[type].fp.join('x')] = 1; for (let s = 0; s < 3; s++) for (let v = 0; v < 4; v++) jobs.push([set, type, s, v]); }
+  else { const jobs = [], fps = {}; for (const set of Object.keys(BL.SETS)) for (const type of Object.keys(BL.D)) { fps[BL.D[type].fp.join('x')] = 1; for (let s = 0; s < 5; s++) for (let v = 0; v < 4; v++) jobs.push([set, type, s, v]); }
     for (const f in fps) jobs.push(['site', f, 0, 0]);
     const NW = 4, parts = Array.from({ length: NW }, () => []); jobs.forEach((j, i) => parts[i % NW].push(j)); const t0 = Date.now();
     res = (await Promise.all(parts.map(js => new Promise((ok, ko) => { const w = new Worker(__filename, { workerData: { jobs: js } }); w.on('message', ok); w.on('error', ko); })))).flat();
