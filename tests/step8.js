@@ -3,7 +3,7 @@
 const { chromium } = require('playwright');
 (async () => { const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 1280, height: 720 } }); const errs = [], out = {};
   p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); }); p.on('pageerror', e => errs.push('PAGEERR ' + e.message));
-  await p.goto('file://' + process.cwd() + '/game/index.html'); await p.waitForFunction(() => window.AL && AL.Game.ready && AL.Scene.cur, null, { timeout: 30000 });
+  await p.goto('file://' + process.cwd() + '/game/index.html?play'); await p.waitForFunction(() => window.AL && AL.Game.ready && AL.Scene.cur, null, { timeout: 30000 });
   const tool = (id, extra) => p.evaluate(([id, extra]) => { AL.Game.tool = Object.assign({ id, size: 4, shape: 'round' }, extra || {}); }, [id, extra]);
   const cnt = k => p.evaluate(k => AL.Fx.counts[k] || 0, k), wait = ms => p.waitForTimeout(ms);
   const goto = async (x, y) => { await p.evaluate(([x, y]) => { const c = AL.Game.cam; c.x = x * 8 - AL.Gfx.W / 2 / c.z; c.y = y * 8 - AL.Gfx.H / 2 / c.z; }, [x, y]); await p.mouse.move(640, 360); await wait(200); };

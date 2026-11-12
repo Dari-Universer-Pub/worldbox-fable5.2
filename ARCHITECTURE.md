@@ -1,4 +1,4 @@
-# ARCHITECTURE — Aeonloom
+# ARCHITECTURE — Dustcrown
 
 ```
 main thread                                   worker (simulation)

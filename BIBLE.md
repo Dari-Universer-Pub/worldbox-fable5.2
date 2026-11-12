@@ -1,7 +1,9 @@
-# BIBLE — AEONLOOM
+# BIBLE — DUSTCROWN
+
+> **Name.** The game was called Aeonloom until step 12; Julien renamed it **Dustcrown**. The universe below (the Weaver, the Weft, the thread) was written for the old name and has not been rewritten.
 
 ## 1. Name, pitch, tone
-**Aeonloom** — *you are the Weaver; the world is your cloth.*
+**Dustcrown** — *you are the Weaver; the world is your cloth.*
 A top-down pixel-art god sandbox. The player has no mana, no score, no goal other than curiosity: shape the land, seed life, watch peoples build, pray, trade, betray and fight, and step in whenever the urge comes.
 Tone: a warm, slightly melancholy fable. The world is called **the Weft**; every age leaves a thread in it. Nothing is grimdark; violence is readable but discreet; humour comes from the little lives (a king dying of a rabbit bite belongs in the chronicle).
 

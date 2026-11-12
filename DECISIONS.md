@@ -16,7 +16,7 @@ A third option, a rendering library (PixiJS-like), was not benchmarked because r
 Runtime: **none**. Development: Node 22 (runs the tools), Playwright 1.63.0 with its Chromium (pre-installed test tool; drives real keyboard/mouse events). See PROVENANCE.md.
 
 ## D3. Language and delivery
-Plain JavaScript, classic scripts concatenated by `tools/build.js` into `game/aeonloom.js`; assets embedded as a script (`game/assets.js`) so that `game/index.html` opens from `file://` (no fetch, no module, no CORS problem). TypeScript rejected: it needs a compiler install and the project has no dependency otherwise.
+Plain JavaScript, classic scripts concatenated by `tools/build.js` into `game/dustcrown.js`; assets embedded as a script (`game/assets.js`) so that `game/index.html` opens from `file://` (no fetch, no module, no CORS problem). TypeScript rejected: it needs a compiler install and the project has no dependency otherwise.
 Simulation runs in a **Blob Worker** built from the simulation bundle's own source text (works on `file://` and static hosts, no special header; SharedArrayBuffer deliberately not used because it requires COOP/COEP headers). Snapshots are posted with transferable typed arrays.
 
 ## D4. Internal resolution, tile size, scaling

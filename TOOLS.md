@@ -1,4 +1,4 @@
-# TOOLS — internal tools of Aeonloom (all written in this project)
+# TOOLS — internal tools of Dustcrown (all written in this project)
 
 | tool | purpose | run | output |
 |---|---|---|---|
@@ -83,3 +83,10 @@ Dans les atlas, `left` et `right` sont nommés d'après le signe du yaw du baker
 - `tests/prov-run.js` : fait apparaître les 53 espèces et peuples provisoires, utilise les 56 pouvoirs provisoires, vérifie qu'aucun animal provisoire n'apparaît tout seul en 20 ans, et le déterminisme. Dans `tests/run-all.js`.
 - `tools/balance-bot.js` : scénarios `solo-elf`, `solo-dwarf`, `solo-myrrin`, `solo-okari` (4 graines chacun dans la batterie) avec leurs cibles de rythme (`PACE`).
 - Page de sprites : 4096 × jusqu'à 8192 px (`src/client/assets.js`, atlas les plus hauts d'abord) ; le jeu refuse de démarrer avec un message clair si la carte graphique ne tient pas cette texture.
+
+## Étape 13 — titre, chargement, icônes, livraison (jeu renommé Dustcrown)
+- `tools/art/logo.js` : le mot DUSTCROWN (capitales 9×13 dessinées dans ce fichier, tons or, contour, ombre, couronne posée sur le O, traînée de poussière) et l'icône du jeu 32×32 (un monde rond coiffé de la couronne). `logo()`, `icon()`, `appIcon(taille)`.
+- `tools/bake-ui.js` écrit aussi l'atlas `logo` (`logo/word`, `logo/icon`). Planche regardée : `shots/logo.png`.
+- `tools/build.js` écrit dans `game/` : `dustcrown.js`, `assets.js`, `index.html`, `logo.png`, `icon-64.png`, `icon-192.png`, `icon-512.png`, `manifest.webmanifest`, et les messages de chargement dessinés avec la police du jeu (`load-en-0..2.png`, `load-fr-0..2.png`).
+- `src/client/index.html` : écran de chargement (logo, barre, message) ; les deux scripts sont chargés l'un après l'autre pour que la page s'affiche avant le code du jeu. `src/client/app.js` (`AL.App`) : écran-titre posé sur un monde vivant ; `?play` dans l'adresse saute le titre (utilisé par les robots).
+- `tests/step13.js` : robot (vraie souris, vrai clavier) du chargement, du titre, des fenêtres ouvertes depuis le titre, de l'entrée en jeu, de `?play`, des fichiers d'icônes et du manifeste, des requêtes hors du dossier. Captures : `shots/step13-*.png`.

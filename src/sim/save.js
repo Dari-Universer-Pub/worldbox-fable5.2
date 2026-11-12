@@ -32,7 +32,7 @@
       if (v && typeof v === 'object' && v.$t) { const a = view(v, raw, offs); if (cur && isView(cur) && cur.constructor === a.constructor && cur.length === a.length) cur.set(a); else target[k] = a; }
       else if (v && typeof v === 'object' && !Array.isArray(v) && !v.$n && cur && typeof cur === 'object' && !Array.isArray(cur) && !isView(cur) && cur.constructor !== Object) restore(cur, v, raw, offs);
       else target[k] = dec(v, raw, offs); } }
-  S.read = function (buf) { const u = new Uint8Array(buf), dv = new DataView(u.buffer, u.byteOffset, u.byteLength); if (u[0] !== 65 || u[1] !== 69 || u[2] !== 79 || u[3] !== 78) throw new Error('not an Aeonloom save');
+  S.read = function (buf) { const u = new Uint8Array(buf), dv = new DataView(u.buffer, u.byteOffset, u.byteLength); if (u[0] !== 65 || u[1] !== 69 || u[2] !== 79 || u[3] !== 78) throw new Error('not an Dustcrown save');
     const jl = dv.getUint32(8, true), meta = JSON.parse(utf8.dec(u.subarray(12, 12 + jl))), tot = dv.getUint32(12 + jl, true), raw = unpack(u.subarray(16 + jl), tot), d = meta.sim;
     const sim = new AL.Sim(dec(d.cfg, raw, meta.offs)); restore(sim, d, raw, meta.offs); sim.events = []; sim.acc = 0; sim.world.dirty = { x0: 0, y0: 0, x1: sim.world.n - 1, y1: sim.world.n - 1 };
     for (const m of AL.Sim.modules) if (m.afterLoad) m.afterLoad(sim); if (sim.B) sim.B.dirty = true; sim.ownerDirty = true; return sim; };

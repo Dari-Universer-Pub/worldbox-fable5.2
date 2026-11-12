@@ -1,6 +1,6 @@
-# BALANCE.md — what a good game looks like, and how Aeonloom is judged against it
+# BALANCE.md — what a good game looks like, and how Dustcrown is judged against it
 
-Aeonloom is only good if its world is **coherent** (the numbers add up and nothing contradicts itself), **relevant** (what you see matters and reacts to what you do) and **fun** (there is always something to watch, something that changes, and nothing that ends the game by itself without a reason you can read). A bug list cannot show that, so the game is played by a robot and judged against written targets.
+Dustcrown is only good if its world is **coherent** (the numbers add up and nothing contradicts itself), **relevant** (what you see matters and reacts to what you do) and **fun** (there is always something to watch, something that changes, and nothing that ends the game by itself without a reason you can read). A bug list cannot show that, so the game is played by a robot and judged against written targets.
 
 ## The robot
 

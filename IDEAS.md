@@ -47,3 +47,10 @@
 - 56 pouvoirs provisoires = variantes (rayon, durée, dispersion, invocations) des 44 pouvoirs soignés, avec l'icône du pouvoir d'origine ; à remplacer par de vrais pouvoirs avec icône, effet et son propres.
 - 44 sons et 5 pistes provisoires jamais écoutés ; les pistes de climat et de catastrophe ne jouent qu'avec l'option « Contenu provisoire ».
 - Icônes de ressources manquantes (cuivre, fer, or, aéthérite, outils, armes, armures) : signalé par `tools/validate-data.js`.
+
+## Après l'étape 13 (titre, chargement, renommage en Dustcrown)
+- Le jeu s'appelle maintenant Dustcrown, mais l'univers écrit dans `BIBLE.md` (le Tisserand, la Trame, le fil) date de l'ancien nom : à réécrire si Julien veut un univers accordé au nouveau nom (poussière, couronne). Les noms d'ères et la piste « Loom of Morning » viennent aussi de l'ancien thème.
+- Les sauvegardes du navigateur gardent leurs anciens identifiants internes (`aeonloom.options`, base `aeonloom`, en-tête de fichier `AEON`) pour ne pas perdre les mondes déjà enregistrés ; l'export s'appelle maintenant `.dust` et l'import accepte `.dust` et `.aeon`.
+- Écran-titre : pas d'animation propre du logo (léger flottement seulement), pas de crédits, pas de bouton plein écran ; le bouton « Continuer » n'apparaît que s'il existe une sauvegarde automatique (non vérifié par le robot).
+- Écran de chargement : la barre avance par étapes (images, code, monde), pas en continu ; non testé sur une connexion lente ni sur téléphone.
+- Icône d'application : une seule image carrée « any maskable » ; pas d'icône monochrome ni de captures pour l'installation.

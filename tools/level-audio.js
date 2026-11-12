@@ -4,7 +4,7 @@
 // (the measurement requires: none more than 6 dB above the median). Run after tools/art/sounds.py.   node tools/level-audio.js
 'use strict';
 const fs = require('fs'), path = require('path'), { spawnSync } = require('child_process');
-const ROOT = path.join(__dirname, '..'), file = path.join(ROOT, 'src/data/sounds.json'), tmp = path.join(require('os').tmpdir(), 'aeonloom-audio.json');
+const ROOT = path.join(__dirname, '..'), file = path.join(ROOT, 'src/data/sounds.json'), tmp = path.join(require('os').tmpdir(), 'dustcrown-audio.json');
 for (let pass = 0; pass < 3; pass++) {
   spawnSync(process.execPath, [path.join(__dirname, 'measure-audio.js'), '--quiet', '--json', tmp], { encoding: 'utf8' });
   const res = JSON.parse(fs.readFileSync(tmp, 'utf8')), S = JSON.parse(fs.readFileSync(file, 'utf8')), cats = {}; let changed = 0;

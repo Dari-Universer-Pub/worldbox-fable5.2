@@ -4,7 +4,7 @@
 const { chromium } = require('playwright'); const fs = require('fs'), os = require('os'), path = require('path');
 (async () => { const b = await chromium.launch(), ctx = await b.newContext({ viewport: { width: 1280, height: 720 }, acceptDownloads: true }), p = await ctx.newPage(); const errs = [], out = {};
   p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); }); p.on('pageerror', e => errs.push('PAGEERR ' + e.message));
-  await p.goto('file://' + process.cwd() + '/game/index.html'); await p.waitForFunction(() => window.AL && AL.Game.ready && AL.Scene.cur && AL.UI.btn.cat0, null, { timeout: 30000 });
+  await p.goto('file://' + process.cwd() + '/game/index.html?play'); await p.waitForFunction(() => window.AL && AL.Game.ready && AL.Scene.cur && AL.UI.btn.cat0, null, { timeout: 30000 });
   const wait = ms => p.waitForTimeout(ms), ev = (f, a) => p.evaluate(f, a);
   const btn = async id => { await p.waitForFunction(id => AL.UI.btn[id] && AL.UI.btn[id][4] >= AL.UI.frameNo - 2, id, { timeout: 8000 }); const r = await ev(id => { const q = AL.UI.btn[id], k = (AL.Game.options.uiSize || 1) * AL.Game.scale; return [(q[0] + q[2] / 2) * k, (q[1] + q[3] / 2) * k]; }, id); await p.mouse.click(r[0], r[1]); await wait(120); };
   const goto = async (x, y) => { await ev(([x, y]) => { const c = AL.Game.cam; c.x = x * 8 - AL.Gfx.W / 2 / c.z; c.y = y * 8 - AL.Gfx.H / 2 / c.z; }, [x, y]); await p.mouse.move(640, 300); await wait(200); };
@@ -33,7 +33,7 @@ const { chromium } = require('playwright'); const fs = require('fs'), os = requi
   const cam0 = await ev(() => AL.Game.cam.x); const mm = await ev(() => { const s = AL.Game.scale; return [(AL.Gfx.W - 60) * s, (AL.Gfx.H - 20) * s]; }); await p.mouse.click(mm[0], mm[1]); await wait(300); out.minimap = Math.abs(await ev(() => AL.Game.cam.x) - cam0) > 50;
   // save in a slot, play on, load: the world goes back to the saved year and population
   await p.keyboard.press('F5'); await wait(400); await btn('svs1'); await p.waitForFunction(() => AL.UI.saves && AL.UI.saves.s1, null, { timeout: 15000 }).catch(() => { }); const meta = await ev(() => AL.UI.saves && AL.UI.saves.s1); out.saved = !!meta; const tickSaved = await ev(() => AL.Game.tick); await p.screenshot({ path: 'shots/step10-saves.png' });
-  const dl = p.waitForEvent('download', { timeout: 15000 }).catch(() => null); await btn('exp'); const d = await dl; const file = path.join(os.tmpdir(), 'aeonloom-test.aeon'); if (d) await d.saveAs(file); out.exported = !!d && fs.statSync(file).size > 10000;
+  const dl = p.waitForEvent('download', { timeout: 15000 }).catch(() => null); await btn('exp'); const d = await dl; const file = path.join(os.tmpdir(), 'dustcrown-test.dust'); if (d) await d.saveAs(file); out.exported = !!d && fs.statSync(file).size > 10000;
   await p.keyboard.press('Escape'); await btn('sp50'); await wait(5000); await btn('sp1'); const tickLater = await ev(() => AL.Game.tick);
   await p.keyboard.press('F5'); await wait(300); await btn('lds1'); await p.waitForFunction(() => AL.Game.ready && AL.Scene.cur, null, { timeout: 30000 }); await wait(1200); const tickLoaded = await ev(() => AL.Game.tick); out.loaded = tickLater > tickSaved + 500 && tickLoaded < tickSaved + 200 ? tickSaved + ' -> ' + tickLater + ' -> ' + tickLoaded : false;
   // import the exported file through the real file chooser

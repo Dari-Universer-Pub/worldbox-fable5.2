@@ -1,4 +1,4 @@
-# INVENTAIRE — ce qui existe dans Aeonloom et ce qui manque
+# INVENTAIRE — ce qui existe dans Dustcrown et ce qui manque
 
 Établi à partir des fichiers de `src/data` et d'une recherche dans `src/sim`. « Défini » = présent dans les données ; « actif » = utilisé par le code de la simulation. Ce qui n'a pas été vérifié est marqué comme tel.
 

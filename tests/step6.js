@@ -2,7 +2,7 @@
 const { chromium } = require('playwright');
 (async () => { const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 1280, height: 720 } }); const errs = [], out = {};
   p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); }); p.on('pageerror', e => errs.push('PAGEERR ' + e.message));
-  await p.goto('file://' + process.cwd() + '/game/index.html'); await p.waitForFunction(() => window.AL && AL.Game.ready && AL.Scene.cur, null, { timeout: 30000 });
+  await p.goto('file://' + process.cwd() + '/game/index.html?play'); await p.waitForFunction(() => window.AL && AL.Game.ready && AL.Scene.cur, null, { timeout: 30000 });
   const c0 = await p.evaluate(() => AL.Link.ask('census')); out.census0 = c0; out.wild = Object.keys(c0).length >= 6;
   const spot = await p.evaluate(() => { const M = AL.Game.map, n = M.n; for (let k = 0; k < 9000; k++) { const x = 30 + ((AL.hash2(k, 1, 5) * (n - 60)) | 0), y = 30 + ((AL.hash2(k, 2, 5) * (n - 60)) | 0); let ok = true, trees = 0; for (let dy = -7; dy <= 7 && ok; dy++) for (let dx = -7; dx <= 7; dx++) { const t = (y + dy) * n + x + dx; if (M.ground[t] !== AL.G.grass) { ok = false; break; } if (AL.fKind[M.feature[t]] === 1) trees++; } if (ok && trees < 40) return [x, y]; } return null; });
   for (let k = 0; k < 40; k++) { const d = await p.evaluate(([x, y]) => { const c = AL.Game.cam, s = AL.Game.scale; return [(x * 8 - c.x) * c.z * s - 640, (y * 8 - c.y) * c.z * s - 360]; }, spot); if (Math.abs(d[0]) < 6 && Math.abs(d[1]) < 6) break;

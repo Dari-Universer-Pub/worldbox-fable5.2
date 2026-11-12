@@ -1,13 +1,23 @@
 # RESUME — handoff file
 
-> **NOM DU JEU : Julien a décidé pendant l'étape 12 que le jeu s'appelle « Dustcrown » (et non plus Aeonloom).** Le renommage (logo, titre, fichiers livrés, documents) se fait à l'étape 13.
-> **PÉRIMÈTRE (décision de Julien) : étapes 12 et 13 UNIQUEMENT, puis s'arrêter. NE PAS faire l'étape 14** (revue indépendante, REPORT.md final, longues parties, campagne finale de mesures et de captures) : un autre agent s'en charge.
+> **LES ÉTAPES DE CONTENU SONT FINIES (1 à 13). L'ÉTAPE SUIVANTE EST L'ÉTAPE 14 (vérification finale), réservée à un autre agent.** L'agent des étapes 12 et 13 s'est arrêté ici, comme demandé par Julien : pas de revue par sous-agent, pas de REPORT.md final, pas de longues parties, pas de campagne finale de mesures ni de captures.
+> **NOM DU JEU : Dustcrown** (décidé par Julien pendant l'étape 12 ; l'ancien nom était Aeonloom). L'univers de `BIBLE.md` (le Tisserand, la Trame) n'a pas été réécrit ; les identifiants internes de sauvegarde gardent l'ancien nom pour ne pas perdre les mondes enregistrés (voir `IDEAS.md`).
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current step: 12 / 14 DONE — data skeleton of the final vision with readable provisional assets. Next: step 13.
+## Current step: 13 / 14 DONE. Next: step 14 (final verification), for another agent.
 
-### Step 12 (done, verified as written below)
+### Step 13 (done, verified as written below)
+- **Name**: Dustcrown everywhere a player or a reader sees it (title, logo, page title, manifest, README, documents, export file `dustcrown-year<N>.dust`); the delivered script is `game/dustcrown.js`.
+- **Logo and icons** (`tools/art/logo.js`, drawn in data): the word DUSTCROWN in its own capitals with a crown on the O and a drift of dust; a 32×32 game icon (a round world wearing the crown); web-app icons 192 and 512 and a 64 px favicon written by the build; `manifest.webmanifest`. Looked at: `shots/logo.png`, `game/icon-192.png`.
+- **Loading screen** (`src/client/index.html`): logo, progress bar in three steps, message drawn with the game's font in English or French; shown before the game code is loaded (checked by the robot). Looked at: `shots/step13-loading.png`.
+- **Title screen** (`src/client/app.js`, `AL.App`; drawn in `ui.js` `titleScreen`): logo, tagline, menu (Enter this world / Continue if an autosave exists / New world / Load a world / Options), EN and FR buttons, over a living world (two villages seeded, drifting camera, time ×2) with the `menu` track selected. Looked at: `shots/step13-title.png`, `shots/step13-title-fr.png`. `game/index.html?play` skips the title (all older robots use it).
+- **Robot** `node tests/step13.js` = STEP13 OK (real mouse and keyboard: loading screen before the code, title, world inert under the menu, FR/EN, options / new world / saves windows from the title, enter the world, pause key afterwards, new world from the title, `?play`, icon and manifest files, no request outside `game/`). Measured there (headless Chromium, software rendering): first display of the title about 2.5 s; `game/` weighs 10.0 MB.
+- **README.md**: how to play, controls, rebuild.
+- **Tests**: `node tests/run-all.js` was run once for this step (21 tests): 20 OK and `tests/step8.js` FAILED. Cause found: the loading screen, while fading out, swallowed mouse clicks for half a second (a real bug for players too). Fixed (`pointer-events: none` during the fade); then `tests/step8.js`, `tests/step13.js` and `tests/step10.js` were re-run alone and are OK. A second defect was seen on a screenshot and fixed: the new "Provisional content" row pushed the "Remap keys" button out of the options window (rows tightened, `shots/step13-options.png` looked at after the fix). **The full suite was NOT re-run after these two fixes** (one full run per step, by instruction): the first thing to do in step 14 is `node tests/run-all.js`. `node tools/check-provenance.js` and `node tools/validate-data.js` re-run after the fixes: OK.
+- NOT verified in step 13: the "Continue" button with a real autosave; the title on a phone or a small window; installing as a web app (the manifest is only checked as a file); the `menu` track by ear; loading time on a real PC or a slow connection; `shots/step13-entered.png` was written by the robot but not looked at.
+
+### Step 12 (done, verified as written below; written before the renaming, the game was still called Aeonloom)
 - **Counts** (`node tools/validate-data.js` = VALIDATE OK): 6 peoples (4 provisional), 40 animals (32 provisional), 20 monsters (17 provisional), 100 powers (56 provisional), 120 sounds (44 provisional), 8 tracks (5 provisional), 5 building looks declared (looks 3 and 4 drawn with the stage-3 sprites), everything else already at or above the final vision.
 - **49 provisional creatures** (`tools/art/creatures.js`, atlas `creatures2`, 2 956 frames): the old untested sources were thrown away and rewritten species by species with their own parts (trunk, antlers, humps, shell, stripes, wings, crest…), a serpent rig (leviathan) and 8 monsters on the humanoid rig baked at their own size. Cells: small 16, large 24, great 32, large monsters 48, colossus 64. Sheets LOOKED AT in colour and in silhouette: `shots/creatures2-small|large|monsters(-sil).png`, `shots/creatures2-anims.png`. Weakest: lynx, beaver, hedgehog, frog at 16 px (readable mostly by colour), hyena and goat are generic. The 8 polished species are byte-identical to a fresh bake of the old sources.
 - **4 provisional peoples** with their 18 looks (`tools/art/peoples.js`, 3 160 frames each): elves (slim, pointed ears, long white hair), dwarves (wide, iron cap, ginger beard), myrrin (spotted mushroom cap), okari (stilt legs, long neck, bill, red crest, cloak in the kingdom colour). Sheets looked at: `shots/people-elf|dwarf|myrrin|okari(-sil).png`.
@@ -70,7 +80,7 @@
 - Tree stumps never regrow (step 6). Small flora: mushrooms are mushy. Audio: `chop` patch fails its centroid window (step 11).
 
 ### Remaining (in order)
-13 title and loading screens, logo, game and web-app icons, README, delivery of `game/`, renaming to Dustcrown → STOP. Step 14 is reserved for a later agent.
+14 final verification (the part listed as STILL TO DO in `CLAUDE.md` Part 10, step 14): final screenshots, final measurements and real-hardware performance, two real long games, independent review by a sub-agent, honest REPORT.md. For a later agent.
 
 ### Blocked
 - Nothing.
@@ -85,4 +95,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-Step 13: `tools/art/logo.js` (word mark and icon drawn in data) → atlas + web-app icons written by the build; loading screen in `src/client/index.html`; title screen (`src/client/app.js`, `AL.App`) over a living world, with the `menu` track; `?play` in the URL skips the title (used by the robots); robot `tests/step13.js`; README; rename the game to **Dustcrown** everywhere a player or a reader sees it. Then update this file to say the content steps are finished and step 14 is next, commit, push, STOP.
+**For the agent of step 14** (not started). Read `CLAUDE.md` Part 10 step 14 for the list (a) to (e). State you start from: `node tests/run-all.js` to re-run first (see step 13 above: 20/21 at the only full run, the failing robot fixed and green alone), `node tools/balance-bot.js battery` 136/136, `node tools/validate-data.js` OK, everything committed and pushed on `claude/ecstatic-lovelace-b5e456`. Things this agent knows are weak and did not check, to look at first: the provisional toolbar (Options → Provisional content) was never looked at with its 49 extra creatures and 56 extra powers; the 4 provisional peoples were only played alone by the balance robot (never at war, never in a browser game); provisional sounds and tracks were never heard; the sprite page is now 4096×8192 (check on real hardware); the universe text in `BIBLE.md` still tells the story of the old name. `REPORT.md` is still the empty stub: writing it is step 14.

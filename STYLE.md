@@ -1,4 +1,4 @@
-# STYLE — quantified art direction of Aeonloom
+# STYLE — quantified art direction of Dustcrown
 
 ## Palette (source: `tools/make-palette.js` → `tools/art/palette.json`, sheet `shots/palette.png`)
 - **96 colours = 16 ramps × 6 tones** (tone 0 darkest … 5 lightest). No pure black, no pure white (darkest luminance 30/255, lightest 246/255).

@@ -22,3 +22,6 @@ for (const big of [false, true]) { const at = new Atlas(big ? 'fontb' : 'font', 
     const o = im.clone(); for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) { if (im.get(x, y) !== 255) continue; let nb = -1; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + dx, Y = y + dy; if (X < 0 || Y < 0 || X > 15 || Y > 15) continue; const v = im.get(X, Y); if (v !== 255) { nb = v; break; } } if (nb >= 0) o.set(x, y, ix(INKR[names[(nb / 6) | 0]] || 'stone', 0)); }
     at.add('ic/' + name, o, 0, 0); }
   at.save(); console.log('icons ' + Object.keys(at.frames).length + ' atlas ' + at.img.w + 'x' + at.img.h); }
+
+// logo and game icon (pipeline B): tools/art/logo.js -> atlas 'logo', frames 'logo/word' and 'logo/icon'
+{ const L = require('./art/logo'); const at = new Atlas('logo', { maxW: 256, pad: 1 }); at.add('logo/word', L.logo(), 0, 0); at.add('logo/icon', L.icon(), 0, 0); at.save(); console.log('logo ' + Object.keys(at.frames).length + ' atlas ' + at.img.w + 'x' + at.img.h); }

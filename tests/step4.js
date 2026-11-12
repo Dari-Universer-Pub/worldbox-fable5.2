@@ -2,7 +2,7 @@
 const { chromium } = require('playwright'); const fs = require('fs');
 (async () => { const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 1280, height: 720 } }); const errs = [], out = {};
   p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); }); p.on('pageerror', e => errs.push('PAGEERR ' + e.message));
-  const t0 = Date.now(); await p.goto('file://' + process.cwd() + '/game/index.html'); await p.waitForFunction(() => window.AL && AL.Game.ready, null, { timeout: 30000 }); out.loadMs = Date.now() - t0;
+  const t0 = Date.now(); await p.goto('file://' + process.cwd() + '/game/index.html?play'); await p.waitForFunction(() => window.AL && AL.Game.ready, null, { timeout: 30000 }); out.loadMs = Date.now() - t0;
   const cam = () => p.evaluate(() => ({ x: AL.Game.cam.x, y: AL.Game.cam.y, z: AL.Game.cam.z }));
   const c0 = await cam(); await p.keyboard.down('KeyD'); await p.waitForTimeout(400); await p.keyboard.up('KeyD'); const c1 = await cam(); out.keyPan = c1.x > c0.x + 20;
   await p.mouse.move(640, 360); await p.mouse.wheel(0, -100); await p.waitForTimeout(500); const c2 = await cam(); out.wheelZoomIn = c2.z === 2;

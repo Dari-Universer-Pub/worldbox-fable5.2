@@ -1,4 +1,4 @@
-# PROVENANCE — Aeonloom
+# PROVENANCE — Dustcrown
 
 **Statement.** The game contains no external artistic content. Every image, animation, font glyph, sound and piece of music is produced by code and data written in this repository (sources in `tools/art/`, generators in `tools/`). No image, sprite, 3D model, tileset, texture, sound, sample, music, font or asset pack was downloaded or copied, and no image- or sound-generating AI was used. The code and the asset sources were written by an AI coding agent (Claude) under the direction of the project owner — this is the AI-usage fact to declare on distribution platforms.
 
@@ -18,3 +18,5 @@ See TOOLS.md (kept up to date). Palette: `tools/make-palette.js`. Bakers: `tools
 - `tools/art/sounds.py` (written for this project, Python 3 standard library only — `json`, `os`): source of the sound patches; `tools/level-audio.js`: level calibration. The Python interpreter present on the build machine is a code tool; it brings no content.
 
 - Étape 12 : les 49 créatures provisoires (`tools/art/creatures.js`), les 18 aspects des 4 peuples (`tools/art/peoples.js`), leur architecture (`tools/art/buildings2.js`), les 44 sons provisoires (`tools/art/sounds.py`) et les 5 pistes provisoires (`src/data/music.json`) sont écrits dans ce dépôt et régénérés par `node tools/bake-all.js` ; rien n'a été téléchargé. Nouveaux outils internes : `tools/validate-data.js`, `tests/prov-run.js`.
+
+- Étape 13 : le logo, l'icône du jeu et les icônes d'application web sont dessinés par `tools/art/logo.js` et écrits par `tools/build.js` ; les messages de l'écran de chargement sont des images faites avec la police du jeu. Aucune police ni image extérieure : l'écran de chargement n'affiche aucun texte en police du système (sauf un message d'erreur si un fichier manque).

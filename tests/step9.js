@@ -3,7 +3,7 @@
 const { chromium } = require('playwright');
 (async () => { const b = await chromium.launch(), p = await b.newPage({ viewport: { width: 1280, height: 720 } }); const errs = [], out = {};
   p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); }); p.on('pageerror', e => errs.push('PAGEERR ' + e.message));
-  await p.goto('file://' + process.cwd() + '/game/index.html'); await p.waitForFunction(() => window.AL && AL.Game.ready && AL.Scene.cur, null, { timeout: 30000 });
+  await p.goto('file://' + process.cwd() + '/game/index.html?play'); await p.waitForFunction(() => window.AL && AL.Game.ready && AL.Scene.cur, null, { timeout: 30000 });
   const spot = await p.evaluate(() => { const M = AL.Game.map, n = M.n; const ok = (x, y) => { for (let dy = -5; dy <= 5; dy++) for (let dx = -5; dx <= 5; dx++) if (M.ground[(y + dy) * n + x + dx] !== AL.G.grass) return false; return true; }; for (let k = 0; k < 20000; k++) { const x = 30 + ((AL.hash2(k, 1, 9) * (n - 100)) | 0), y = 30 + ((AL.hash2(k, 2, 9) * (n - 60)) | 0); if (ok(x, y) && ok(x + 34, y)) { let land = true; for (let i = 0; i < 34; i++) if (AL.GROUND[M.ground[y * n + x + i]].cost <= 0) land = false; if (land) return [x + 17, y]; } } return null; });
   if (!spot) { console.log('no spot'); process.exit(1); }
   const goto = async (x, y) => { await p.evaluate(([x, y]) => { const c = AL.Game.cam; c.x = x * 8 - AL.Gfx.W / 2 / c.z; c.y = y * 8 - AL.Gfx.H / 2 / c.z; }, [x, y]); await p.mouse.move(640, 360); await p.waitForTimeout(250); };

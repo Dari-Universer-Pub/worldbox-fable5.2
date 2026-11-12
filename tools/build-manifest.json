@@ -26,6 +26,7 @@
   "src/client/mixer.js",
   "src/client/store.js",
   "src/client/ui.js",
+  "src/client/app.js",
   "src/client/boot.js"
  ],
  "atlases": [
@@ -48,6 +49,7 @@
   "fx",
   "font",
   "fontb",
-  "icons"
+  "icons",
+  "logo"
  ]
 }

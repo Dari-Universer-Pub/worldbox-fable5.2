@@ -240,7 +240,7 @@
   "ui.loaded": "World loaded",
   "ui.autosaved": "Autosave done",
   "ui.nostorage": "Browser storage is not available: use Export.",
-  "ui.badfile": "This file is not an Aeonloom world.",
+  "ui.badfile": "This file is not a Dustcrown world.",
   "ui.presskey": "Press a key…",
   "ui.followers": "followers",
   "ui.members": "members",
@@ -260,7 +260,7 @@
   "ui.shifts": "Sound shifts",
   "ui.dogmas": "Dogmas",
   "ui.holy": "Holy town",
-  "ui.loading": "Weaving the world…",
+  "ui.loading": "Raising the world…",
   "sheet.age": "Age",
   "sheet.job": "Trade",
   "sheet.health": "Health",
@@ -603,7 +603,12 @@
   "kind.lich": "Lich",
   "kind.imp": "Imp",
   "kind.colossus": "Tarn-Colossus",
-  "opt.provisional": "Provisional content"
+  "opt.provisional": "Provisional content",
+  "menu.tag": "Shape a world. Seed its peoples. Watch them live.",
+  "menu.play": "Enter this world",
+  "menu.continue": "Continue",
+  "menu.load": "Load a world",
+  "menu.made": "Every image and sound is made by code"
  },
  "fr": {
   "cat.world": "Monde",
@@ -846,7 +851,7 @@
   "ui.loaded": "Monde chargé",
   "ui.autosaved": "Sauvegarde automatique faite",
   "ui.nostorage": "Le stockage du navigateur est indisponible : utilisez Exporter.",
-  "ui.badfile": "Ce fichier n'est pas un monde Aeonloom.",
+  "ui.badfile": "Ce fichier n'est pas un monde Dustcrown.",
   "ui.presskey": "Appuyez sur une touche…",
   "ui.followers": "fidèles",
   "ui.members": "membres",
@@ -866,7 +871,7 @@
   "ui.shifts": "Glissements",
   "ui.dogmas": "Dogmes",
   "ui.holy": "Ville sainte",
-  "ui.loading": "Tissage du monde…",
+  "ui.loading": "Le monde se lève…",
   "sheet.age": "Âge",
   "sheet.job": "Métier",
   "sheet.health": "Santé",
@@ -1209,6 +1214,11 @@
   "kind.lich": "Liche",
   "kind.imp": "Diablotin",
   "kind.colossus": "Colosse des tourbières",
-  "opt.provisional": "Contenu provisoire"
+  "opt.provisional": "Contenu provisoire",
+  "menu.tag": "Façonnez un monde. Semez ses peuples. Regardez-les vivre.",
+  "menu.play": "Entrer dans ce monde",
+  "menu.continue": "Continuer",
+  "menu.load": "Charger un monde",
+  "menu.made": "Chaque image et chaque son est fait par du code"
  }
 }

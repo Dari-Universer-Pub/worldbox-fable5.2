@@ -3,7 +3,7 @@
 const { chromium } = require('playwright');
 (async () => { const b = await chromium.launch({ args: ['--autoplay-policy=user-gesture-required'] }), p = await b.newPage({ viewport: { width: 1280, height: 720 } }); const errs = [], out = {};
   p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); }); p.on('pageerror', e => errs.push('PAGEERR ' + e.message));
-  await p.goto('file://' + process.cwd() + '/game/index.html'); await p.waitForFunction(() => window.AL && AL.Game.ready && AL.Scene.cur && AL.UI.btn.cat0, null, { timeout: 30000 });
+  await p.goto('file://' + process.cwd() + '/game/index.html?play'); await p.waitForFunction(() => window.AL && AL.Game.ready && AL.Scene.cur && AL.UI.btn.cat0, null, { timeout: 30000 });
   const wait = ms => p.waitForTimeout(ms), ev = (f, a) => p.evaluate(f, a), cnt = n => ev(n => AL.Mixer.counts[n] || 0, n);
   const btn = async id => { await p.waitForFunction(id => AL.UI.btn[id] && AL.UI.btn[id][4] >= AL.UI.frameNo - 2, id, { timeout: 8000 }); const r = await ev(id => { const q = AL.UI.btn[id], k = (AL.Game.options.uiSize || 1) * AL.Game.scale; return [(q[0] + q[2] / 2) * k, (q[1] + q[3] / 2) * k]; }, id); await p.mouse.click(r[0], r[1]); await wait(150); };
   await ev(() => { const M = AL.Game.map, n = M.n; for (let k = 0; k < 40000; k++) { const x = 40 + ((AL.hash2(k, 1, 9) * (n - 80)) | 0), y = 40 + ((AL.hash2(k, 2, 9) * (n - 80)) | 0); let g = 0; for (let dy = -6; dy <= 6; dy++) for (let dx = -6; dx <= 6; dx++) if (M.ground[(y + dy) * n + x + dx] === AL.G.grass) g++; if (g > 150) { const c = AL.Game.cam; c.x = x * 8 - AL.Gfx.W / 2; c.y = y * 8 - AL.Gfx.H / 2 + 30; return; } } });
