@@ -184,7 +184,7 @@
  "lynx": {
   "atlas": "creatures2",
   "provisional": true,
-  "size": 16,
+  "size": 24,
   "hp": 22,
   "speed": 1.35,
   "attack": 7,

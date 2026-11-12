@@ -6,7 +6,7 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — task in progress: **A.3 weak creatures redone and review of the 49**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — task in progress: **A.4 animals living in the world**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
 
@@ -15,6 +15,8 @@
 2. Rognage (0.1) : tous les robots avec les images rognées ; une frame vide devient 1×1 ; les pixels de la page sont partagés entre images identiques (un robot qui lirait la taille d'une image dans `AL.Assets.frames` verrait la taille rognée).
 3. A.1 : la fiche de ville affiche les stocks en icônes + nombres (ligne `stock` dans `ui.js`) ; `tests/step10.js` lit peut-être l'ancien texte.
 4. A.2 : les créatures provisoires ont maintenant toutes leurs animations ; `tools/measure-sprite.js creatures2` (scintillement, pixels isolés) jamais lancé ; `tools/validate-data.js` OK.
+
+**A.3 — créatures faibles refaites, revue des 49 (fait).** Vu, en couleur et en silhouette, depuis les sources (`node tools/creature-sheet.js`, nouvel outil) : `shots/review-16.png`, `review-24.png`, `review-32.png`, `review-48.png`. Refaits : lynx (maintenant en 24×24 : oreilles à pinceaux, favoris blancs, taches, queue courte), hérisson (boule sombre hérissée, museau clair), castor (queue plate grise quadrillée), grenouille (yeux jaunes sur la tête, cuisses), hyène (dos en pente par le nouveau paramètre `rearLeg` du squelette, crinière, taches), chèvre (cornes courbes sombres, barbiche, toison), écureuil (queue rousse en panache), requin (queue en croissant), léviathan (corps épais, crête) ; les oiseaux au repos sont debout sur leurs pattes (`perch`) ; tous les débordements de case corrigés. Les 8 espèces soignées restent identiques à l'octet. Les plus faibles qui restent : troll et géant vus de profil (bras peu lisibles), oiseaux au repos (petits). Non vérifié : en jeu. Le drapeau `provisional` reste dans les données jusqu'à A.4 (animaux) et A.5 (monstres).
 
 **A.2 — animations complètes des 49 créatures (fait).** Vu : `shots/creatures2-anims-a.png` (lion, cheval, crocodile, éléphant : course, repas, attaque en 6 temps avec recul d'avertissement, coup reçu, sommeil), cuisson 5 684 images en 2 min 25 (`tools/bake-creatures.js` sur 4 fils), les 8 espèces soignées identiques à l'octet. Non vérifié : `shots/creatures2-anims-b.png` (hibou, requin, léviathan, troll, renard, tortue) écrite mais pas regardée ; les animations en jeu ; le geste d'avertissement est celui du squelette commun, pas un geste propre à chaque monstre (prévu en A.5).
 
@@ -110,4 +112,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **A.3** — redo lynx, beaver, hedgehog, frog, hyena, goat and the leviathan in `tools/art/creatures.js`, look at each of the 49 species enlarged, remove `provisional` species by species; then A.4 (densities and biomes), A.5 (monster behaviours), and so on. Heavy tests are for Sonnet (see the list above).
+First unticked line of `CHANTIER.md`: **A.4** — give the 32 animals of the second set their densities and biomes so that they live by themselves (remove `provisional` and the `!K.provisional` filter for animals), keep the old 8 species alive, prove it with ONE `node tools/balance-bot.js run wild <seed> 100`; then A.5 (monster behaviours), and so on.

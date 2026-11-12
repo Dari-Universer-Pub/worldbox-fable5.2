@@ -90,3 +90,6 @@ Dans les atlas, `left` et `right` sont nommés d'après le signe du yaw du baker
 - `tools/build.js` écrit dans `game/` : `dustcrown.js`, `assets.js`, `index.html`, `logo.png`, `icon-64.png`, `icon-192.png`, `icon-512.png`, `manifest.webmanifest`, et les messages de chargement dessinés avec la police du jeu (`load-en-0..2.png`, `load-fr-0..2.png`).
 - `src/client/index.html` : écran de chargement (logo, barre, message) ; les deux scripts sont chargés l'un après l'autre pour que la page s'affiche avant le code du jeu. `src/client/app.js` (`AL.App`) : écran-titre posé sur un monde vivant ; `?play` dans l'adresse saute le titre (utilisé par les robots).
 - `tests/step13.js` : robot (vraie souris, vrai clavier) du chargement, du titre, des fenêtres ouvertes depuis le titre, de l'entrée en jeu, de `?play`, des fichiers d'icônes et du manifeste, des requêtes hors du dossier. Captures : `shots/step13-*.png`.
+
+## tools/creature-sheet.js
+`node tools/creature-sheet.js <out.png> <noms|all|second> [échelle] [par ligne]` : rend des espèces directement depuis `tools/art/creatures.js` sans cuire l'atlas (profil, trois-quarts, image en mouvement, et la même chose en silhouette) ; signale les sprites qui touchent le bord de leur case. `tools/bake-creatures.js` cuit maintenant sur 4 fils (environ 2 min 30).

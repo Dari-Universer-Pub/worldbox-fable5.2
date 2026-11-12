@@ -23,8 +23,10 @@ function build(specIn, pose = {}) {
   const sp = Object.assign({}, DEF, specIn), sc = new Scene(), decals = [], k = sp.scale, P = pose;
   const fall = P.fall || 0, lie = P.lie || 0;
   const legLen = sp.legLen * k * (1 - lie * 0.75);
-  const rootR = mul(rotY(fall * PI / 2 * 0.95), rotX((P.pitch || 0)));
-  const bz = legLen + sp.bodyR[1] * k * 0.75;
+  // rearLeg < 1: shorter hind legs and a back that slopes down to the rump (hyena); the body pitches so that all feet stay on the ground
+  const rearK = sp.rearLeg || 1, slope = rearK === 1 ? 0 : Math.atan(legLen * (1 - rearK) / (sp.bodyLen * k * 0.72)) * (1 - lie);
+  const rootR = mul(rotY(fall * PI / 2 * 0.95), rotX((P.pitch || 0) + slope));
+  const bz = legLen * (1 + rearK) / 2 + sp.bodyR[1] * k * 0.75;
   const rootT = [(P.x || 0) + fall * 1.2 * k, P.y || 0, (P.z || 0) + bz * (1 - fall * 0.55)];
   const W = v => add(app(rootR, v), rootT);
   const sq = P.sq || 1, bl = sp.bodyLen * k / 2, br = sp.bodyR, M = sp.mats;
@@ -37,8 +39,8 @@ function build(specIn, pose = {}) {
   // legs: 0 front-left, 1 front-right, 2 back-left, 3 back-right
   const legs = P.legs || [];
   for (let i = 0; i < 4; i++) {
-    const front = i < 2, side = (i & 1) ? 1 : -1, L = legs[i] || {}, sw = (L.sw || 0) * (1 - lie), kn = (L.kn || 0) + lie * 1.4;
-    const hip = [side * sp.legSpread * k, (front ? 1 : -1) * bl * 0.72, -br[1] * k * 0.35], h2 = legLen / 2 + br[1] * k * 0.2;
+    const front = i < 2, side = (i & 1) ? 1 : -1, L = legs[i] || {}, sw = (L.sw || 0) * (1 - lie) - slope, kn = (L.kn || 0) + lie * 1.4;
+    const hip = [side * sp.legSpread * k, (front ? 1 : -1) * bl * 0.72, -br[1] * k * 0.35], h2 = legLen * (front ? 1 : rearK) / 2 + br[1] * k * 0.2;
     const knee = add(hip, [0, S(sw) * h2, -C(sw) * h2]), bend = front ? -kn : kn, foot = add(knee, [0, S(sw + bend) * h2, -C(sw + bend) * h2]);
     const lm = M.leg || body;
     sc.cap(W(hip), W(knee), sp.legR * k * 1.25, sp.legR * k, lm, { g: 2 + i });
