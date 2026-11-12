@@ -1,7 +1,7 @@
 # RESUME — handoff file
 
 > **APRÈS L'ÉTAPE 13 : Julien a mis l'étape 14 de côté. Le travail suit maintenant `CHANTIER.md`** (0 préalable technique, A contenu provisoire au niveau visé, B systèmes absents, C finitions). Lire ce fichier-ci puis `CHANTIER.md`.
-> **RÉPARTITION DES RÔLES (Julien) : l'agent de contenu crée (mécaniques, assets, pouvoirs, sons) et regarde ses planches ; il NE lance PAS `node tests/run-all.js`, ni la batterie `balance-bot`, ni les robots, et ne corrige pas les bugs qu'ils révèlent : c'est Sonnet qui le fait plus tard. Après chaque tâche touchant à la simulation, écrire ici une ligne « À tester par Sonnet : … ». Détail dans `CHANTIER.md`.**
+> **RÉPARTITION DES RÔLES (Julien) : l'agent de contenu crée (mécaniques, assets, pouvoirs, sons) et regarde ses planches ; il NE lance PAS les tests lourds (`node tests/run-all.js`, batterie `balance-bot`, robots Playwright) ni le réglage des chiffres : c'est Sonnet, à la fin. Pour chaque tâche qui touche à la simulation il fait une preuve légère : build + validate-data + UNE courte partie sous Node (~100 ans, un scénario en `run`) qui montre que la mécanique se déclenche au moins une fois, corrigée aussitôt sinon. Il écrit ici « Vu : … », « Non vérifié : … », « À tester par Sonnet : … ». Détail dans `CHANTIER.md`.**
 > **NOM DU JEU : Dustcrown** (l'ancien nom était Aeonloom ; les identifiants internes de sauvegarde gardent l'ancien nom, voir `IDEAS.md`).
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
