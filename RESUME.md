@@ -1,6 +1,7 @@
 # RESUME — Aeonloom handoff file
 
 > **État synchronisé.** Ce dépôt contient, en plus de l'étape 12 commencée par l'agent Fable, tout le travail fait ensuite dans une copie du dépôt (sessions Sonnet 5.5, trailer `Co-Authored-By: Claude Sonnet 5.5`) : réparation des bugs trouvés en jouant (`BUGS.md`), robot d'équilibrage et passes d'équilibrage (`BALANCE.md`), langue française complète du journal d'événements, sprites gauche/droite corrigés, inventaire du contenu (`INVENTAIRE.md`). Ce travail correspond à la partie « tests et corrections » de l'étape 14 : voir l'étape 14 de `CLAUDE.md` (ce qui est fait, ce qui reste pour la fin).
+> **PÉRIMÈTRE DE L'AGENT QUI REPREND (décision de Julien) : étapes 12 et 13 UNIQUEMENT, puis s'arrêter. NE PAS faire l'étape 14** (ni revue indépendante, ni REPORT.md final, ni longues parties, ni campagne finale de mesures et de captures) : un autre agent s'en chargera ensuite, pour limiter le coût.
 > **Suite attendue : le contenu.** Finir l'étape 12 (images des 32 animaux et 8 monstres provisoires, les 4 peuples provisoires complets, pouvoirs/sons/musiques provisoires, `tools/validate-data.js`), puis l'étape 13, puis le reste de l'étape 14. Voir « Precise next action ».
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
@@ -66,7 +67,7 @@
 - `tools/validate-data.js` does not exist yet (step 12); buildings.json/jobs.json are only checked by use.
 
 ### Remaining (in order)
-12 data skeleton + provisional assets (see "Precise next action", and `INVENTAIRE.md` for the exact gaps: 32 animals and 8 monsters without images, 4 peoples with 3 looks and the human architecture, 56 powers, 44 sounds, 5 tracks, building stages 3–4, `tools/validate-data.js`) → 13 title/loading/icons/delivery → 14 (the part listed as STILL TO DO in `CLAUDE.md`: final screenshots and measurements, real-hardware performance, two real long games, independent review, REPORT.md).
+12 data skeleton + provisional assets (see "Precise next action", and `INVENTAIRE.md` for the exact gaps: 32 animals and 8 monsters without images, 4 peoples with 3 looks and the human architecture, 56 powers, 44 sounds, 5 tracks, building stages 3–4, `tools/validate-data.js`) → 13 title/loading/icons/delivery → STOP. Step 14 (the part listed as STILL TO DO in `CLAUDE.md`) is reserved for a later agent.
 
 ### Blocked
 - Nothing.
@@ -93,4 +94,4 @@ Next actions, in order:
 3. Powers 44 → 100: 56 provisional entries in `src/data/powers.json` with `"provisional": true` and `"like": "<existing power>"` (route in `Pw.use`, icon and i18n of the stand-in or new keys); sounds 76 → 120 (derived provisional patches in `tools/art/sounds.py`, then `node tools/level-audio.js`); music 3 → 8 (5 short provisional tracks); buildings: declare stages 3–4 provisional (sprites exist for stages 0–2 only); the 4 provisional peoples already have baked atlases (`assets/people_elf|dwarf|myrrin|okari.*`) that are not in the build manifest — add them if the page and the weight allow.
 4. `tools/validate-data.js` (uses `tools/lib/schema.js`): one schema per data file, cross-references (atlas frames exist, i18n keys EN/FR exist, sounds/icons referenced exist), table of counts against the final vision (6 peoples, 14 biomes, 40 animals, 20 monsters, 100 powers, 10 eras, 60 traits, 12 dogmas, 15 building types × 5 stages, 20 jobs, 25 flora, 120 sounds, 8 tracks). Add it to `tests/run-all.js`.
 5. Run `node tests/run-all.js`, update RESUME/PLAYTEST/IDEAS/TOOLS/PROVENANCE, commit "Step 12", push.
-Then step 13 (title and loading screens, logo, game and web-app icons, README launch page, delivery of `game/`), step 14 (all robots, screenshots at several zooms / biomes / day and night, successive animation frames, measurements of the priority 1–3 requirements, real performance numbers, two long playtests of ≥ 30 game minutes each in PLAYTEST.md, independent sub-agent review with every defect fixed, honest REPORT.md, list of what Julien must judge himself).
+Then step 13 (title and loading screens, logo, game and web-app icons, README launch page, delivery of `game/`) and STOP there. Step 14 (final screenshots and measurements, real-hardware performance, two real long games, independent sub-agent review, REPORT.md) is RESERVED for another agent: do not start it. End your last session with RESUME.md saying exactly that the content steps are finished and step 14 is next.
