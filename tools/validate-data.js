@@ -58,7 +58,7 @@ for (const [k, p] of Object.entries(D.powers)) { if (k !== 'spawn') { need('pw.'
   if (p.kind === 'zone' && !p.zone) E('powers.' + k + ': zone power without a zone'); if (p.like && !HANDLED.includes(p.like)) E('powers.' + k + ': like "' + p.like + '" has no handler'); if (p.provisional && p.kind !== 'zone' && !p.like) E('powers.' + k + ': provisional power without "like"');
   if (p.like === 'summon') { if (!p.spawn) E('powers.' + k + ': summon without spawn'); else for (const [kn, c] of p.spawn) { if (!(kn in D.animals) && !(kn in D.monsters)) E('powers.' + k + ': unknown creature ' + kn); if (!(c >= 1)) E('powers.' + k + ': bad count'); } } }
 for (const c of CATS) need('cat.' + c);
-for (const k in D.buildings) need('bld.' + k); for (const k in D.jobs) need('job.' + k); for (const k in D.resources) { need('res.' + k); if (!frames.has('ic/' + D.resources[k].icon) && !frames.has('ic/' + k)) warn.push('resources.' + k + ': icon ' + D.resources[k].icon + ' is not drawn yet (the field is not used by the interface)'); }
+for (const k in D.buildings) need('bld.' + k); for (const k in D.jobs) need('job.' + k); for (const k in D.resources) { need('res.' + k); if (!frames.has('ic/' + D.resources[k].icon)) E('resources.' + k + ': no icon ic/' + D.resources[k].icon); }
 for (const k in D.grounds) if (!['soil', 'road'].includes(k)) need('ground.' + k); D.stages.forEach((s, i) => need('stage.' + i)); for (const k in D.keys) need('key.' + k);
 for (const [k, j] of Object.entries(D.jobs)) if (j.look && !LOOKS.includes(j.look)) E('jobs.' + k + ': unknown look ' + j.look);
 for (const [k, f] of Object.entries(D.flora)) if (f.sprite && ![...frames].some(x => x.startsWith(f.sprite))) E('flora.' + k + ': no sprite ' + f.sprite);

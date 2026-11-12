@@ -1,47 +1,47 @@
 {
  "wood": {
   "id": 0,
-  "icon": "res_wood"
+  "icon": "wood"
  },
  "stone": {
   "id": 1,
-  "icon": "res_stone"
+  "icon": "stone"
  },
  "food": {
   "id": 2,
-  "icon": "res_food"
+  "icon": "food"
  },
  "copper": {
   "id": 3,
-  "icon": "res_copper",
+  "icon": "copper",
   "ore": true
  },
  "iron": {
   "id": 4,
-  "icon": "res_iron",
+  "icon": "iron",
   "ore": true
  },
  "gold": {
   "id": 5,
-  "icon": "res_gold",
+  "icon": "gold",
   "ore": true
  },
  "aetherite": {
   "id": 6,
-  "icon": "res_aether",
+  "icon": "aetherite",
   "ore": true,
   "rare": true
  },
  "tools": {
   "id": 7,
-  "icon": "res_tools"
+  "icon": "tools"
  },
  "weapons": {
   "id": 8,
-  "icon": "res_weapons"
+  "icon": "weapons"
  },
  "armor": {
   "id": 9,
-  "icon": "res_armor"
+  "icon": "armor"
  }
 }
