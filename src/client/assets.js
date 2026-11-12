@@ -7,10 +7,10 @@
   A.load = function () {
     const R = self.AL_ASSETS, pal = A.palette = R.palette; A.raw = {};
     for (const name in R.atlases) { const a = R.atlases[name]; A.raw[name] = { w: a.w, h: a.h, d: unrle(b64(a.d), a.w * a.h), frames: a.frames, meta: a.meta || {} }; }
-    // one page for every sprite atlas (terrain and masks keep their own textures)
+    // one page for every sprite atlas (terrain and masks keep their own textures): 4096 wide, up to 8192 high, tallest atlases first
     const P = A.PAGE; let ph = 0, x = 0, y = 0, rowH = 0; const place = [];
-    for (const name in A.raw) { if (name === 'terrain' || name === 'tmask') continue; const a = A.raw[name]; if (x + a.w > P) { x = 0; y += rowH; rowH = 0; } place.push([name, x, y]); x += a.w; rowH = Math.max(rowH, a.h); ph = Math.max(ph, y + a.h); }
-    A.pageH = Math.min(P, 1 << Math.ceil(Math.log2(Math.max(64, ph)))); if (ph > P) throw new Error('sprite page overflow ' + ph);
+    for (const name of Object.keys(A.raw).sort((p, q) => A.raw[q].h - A.raw[p].h)) { if (name === 'terrain' || name === 'tmask') continue; const a = A.raw[name]; if (x + a.w > P) { x = 0; y += rowH; rowH = 0; } place.push([name, x, y]); x += a.w; rowH = Math.max(rowH, a.h); ph = Math.max(ph, y + a.h); }
+    A.MAXH = 8192; A.pageH = Math.min(A.MAXH, 1 << Math.ceil(Math.log2(Math.max(64, ph)))); if (ph > A.MAXH) throw new Error('sprite page overflow ' + ph);
     const page = A.page = new Uint8Array(P * A.pageH).fill(255);
     for (const [name, ox, oy] of place) { const a = A.raw[name]; for (let r = 0; r < a.h; r++) page.set(a.d.subarray(r * a.w, (r + 1) * a.w), (oy + r) * P + ox);
       for (const k in a.frames) { const f = a.frames[k]; A.frames[k] = [f[0] + ox, f[1] + oy, f[2], f[3], f[4], f[5]]; } A.atlas[name] = { ox, oy, w: a.w, h: a.h, meta: a.meta }; }

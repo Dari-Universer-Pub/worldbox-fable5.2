@@ -266,4 +266,6 @@ odef('hospital', (k, s, W, Dp) => { O.shell(k, s, W - 1.4, Dp - 1.2, [9.5, 13, 1
 odef('wall', (k, s) => { if (s < 2) { for (const x of [-2.2, -0.75, 0.75, 2.2]) { const h = (s ? 10.5 : 9) + (x * x > 2 ? 0 : 1.5); k.stake(x, 0, h, 0.95); } k.box(0, 0.9, 5, 3, 0.4, 0.8, 'bone', { pri: 3 }); } else { k.box(0, 0, 0, 3.1, 3, 9.5, 'blackS').box(0, 0, 9.5, 3.2, 3.2, 1, 'black', { pri: 3 }); O.spike(k, -1.9, 1.5, 10.5, 3.2); O.spike(k, 1.9, 1.5, 10.5, 3.2); } });
 odef('gate', (k, s) => { if (s < 2) { k.stake(-2.4, 0, 12, 1.05).stake(2.4, 0, 12, 1.05).box(0, 0, 8.4, 3, 0.8, 1.4, 'timber', { pri: 4 }).door(0, 0, 0, 1.7, 7.8, 'door'); O.skull(k, 0, 1, 10.6, 1.1); } else { k.box(0, 0, 0, 3.1, 3, 11.5, 'blackS').box(0, 0, 11.5, 3.2, 3.2, 1, 'black', { pri: 3 }); O.spike(k, -2, 1.5, 12.5, 3.4); O.spike(k, 2, 1.5, 12.5, 3.4); k.arch(0, 3, 0, 1.9, 7.5, 'door'); O.skull(k, 0, 3.3, 9.6, 1); } });
 const DSETS = { human: D, orc: DO };
-module.exports = { D, DSETS, SETS, kit, site, hash, ZS, YS };
+module.exports = { D, DSETS, SETS, PAT, kit, site, hash, ZS, YS };
+// the four provisional peoples register their own sets (elf, dwarf, myrrin, okari)
+require('./buildings2')(module.exports, { mat, team, glow, glass, ix, rotX, rotY, rotZ });

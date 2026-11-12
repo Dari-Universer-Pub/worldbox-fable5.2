@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Animals baker (pipeline A): species x animation x direction from the quadruped, bird and fish rigs.  node tools/bake-creatures.js
+// Animals baker (pipeline A): species x animation x direction from the quadruped, bird, fish, serpent rigs (and the humanoid rig
+// for the provisional monsters baked at their own size).  node tools/bake-creatures.js
 // Frame keys: <species>/<anim>/<dir>/<i>. Same passes as the people baker (despeckle, temporal stabilise, outline, patches).
 'use strict';
 const fs = require('fs'), path = require('path');
@@ -13,7 +14,7 @@ for (const prov of [false, true]) { const at = new Atlas(prov ? 'creatures2' : '
 for (const name of Object.keys(CR.SPECIES).filter(n => !!CR.SPECIES[n].prov === prov)) { const sp = CR.SPECIES[name], cell = sp.cell;
   for (const [anim, n, nd] of CR.anims(name)) for (const dir of nd === 4 ? DIRS4 : ['left', 'right']) { const raws = [];
     for (let i = 0; i < n; i++) { const { scene, decals } = CR.frame(name, anim, i);
-      const dd = decals.filter(d => dir !== 'up' && ((dir === 'down' && sp.rig !== 'quad') || (dir === 'left' || dir === 'down' ? !/R$/.test(d.tag) : !/L$/.test(d.tag)))).map(d => Object.assign({}, d, { idx: d.idx === 'eye' ? sp.eye : d.idx === 'tusk' ? sp.tusk : ix('stone', 0) }));
+      const side = dir === 'left' || dir === 'right', dd = decals.filter(d => dir !== 'up' && (sp.rig === 'human' ? (d.tag === 'sideeye' ? side : /^eye/.test(d.tag) ? !side : (dir === 'down' || (dir === 'left' ? !/R$/.test(d.tag) : !/L$/.test(d.tag)))) : ((dir === 'down' && sp.rig !== 'quad') || (dir === 'left' || dir === 'down' ? !/R$/.test(d.tag) : !/L$/.test(d.tag))))).map(d => Object.assign({}, d, { idx: d.idx === 'eye' ? sp.eye : d.idx === 'tusk' ? sp.tusk : ix('stone', 0) }));
       raws.push(render(scene, { w: cell, h: cell, ox: cell / 2, oy: sp.oy + 0.2, yaw: (sp.rig === 'quad' ? YAWQ : YAW)[dir], mats: sp.mats, decals: dd, ss: 4, raw: true })); }
     for (const r of raws) despeckle(r.img, r.matAt, r.protect); stabilize(raws, !/death|hit|attack/.test(anim));
     raws.forEach((r, i) => { const key = `${name}/${anim}/${dir}/${i}`, im = finish(r); const pk = patches[key]; if (pk) for (const [x, y, v] of pk) im.set(x, y, v); at.add(key, im, cell / 2, sp.oy); nf++; }); } }

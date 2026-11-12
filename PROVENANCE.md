@@ -16,3 +16,5 @@ See TOOLS.md (kept up to date). Palette: `tools/make-palette.js`. Bakers: `tools
 `node tools/check-provenance.js` (added in step 2) walks the project and fails on any binary/media file that is not a regenerated output of the tools, and on any URL to an external host in shipped files. The browser network log is checked by `tests/` (no request outside the game folder).
 
 - `tools/art/sounds.py` (written for this project, Python 3 standard library only — `json`, `os`): source of the sound patches; `tools/level-audio.js`: level calibration. The Python interpreter present on the build machine is a code tool; it brings no content.
+
+- Étape 12 : les 49 créatures provisoires (`tools/art/creatures.js`), les 18 aspects des 4 peuples (`tools/art/peoples.js`), leur architecture (`tools/art/buildings2.js`), les 44 sons provisoires (`tools/art/sounds.py`) et les 5 pistes provisoires (`src/data/music.json`) sont écrits dans ce dépôt et régénérés par `node tools/bake-all.js` ; rien n'a été téléchargé. Nouveaux outils internes : `tools/validate-data.js`, `tests/prov-run.js`.

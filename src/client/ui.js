@@ -46,7 +46,7 @@
   // ------------------------------------------------------------ model
   const CATS = ['world', 'peoples', 'creatures', 'nature', 'destruction', 'divine', 'tools'];
   function buildModel() { const P = AL.DATA.powers; UI.items = CATS.map(() => []);
-    for (const id in P) { const d = P[id], ci = CATS.indexOf(d.cat); if (ci < 0 || d.kind === 'spawn') continue; UI.items[ci].push({ id, icon: id, name: 'pw.' + id, desc: 'pwd.' + id }); }
+    for (const id in P) { const d = P[id], ci = CATS.indexOf(d.cat); if (ci < 0 || d.kind === 'spawn' || (d.provisional && !Game.options.showProvisional)) continue; UI.items[ci].push({ id, icon: d.icon || id, name: 'pw.' + id, desc: 'pwd.' + id }); }
     UI.items[6].unshift({ id: 'none', icon: 'select', name: 'pw.none', desc: 'pwd.none' });
     AL.KINDS.forEach((Kd, kd) => { if (!Kd) return; const ci = Kd.cls === 0 ? 1 : 2; if (Kd.provisional && !Game.options.showProvisional) return; UI.items[ci].push({ id: 'spawn:' + Kd.name, kind: kd, name: 'kind.' + Kd.name, desc: 'pwd.spawn' }); });
     UI.grounds = AL.GROUND.filter(gd => gd && gd.name !== 'road' && gd.name !== 'soil').map(gd => gd.name); }
@@ -210,7 +210,7 @@
     lab('opt.uisize', y); for (const s of [1, 2]) if (button('uis' + s, bx + (s - 1) * 32, y, 30, 16, { label: 'x' + s, sel: (o.uiSize || 1) === s, dis: s === 2 && G.W < 560 })) { o.uiSize = s; UI.applyOptions(); UI.saveOptions(); } y += 19;
     lab('opt.scale', y); [0, 1, 2, 3, 4].forEach((s, k) => { if (button('sc' + s, bx + k * 32, y, 30, 16, { label: s ? 'x' + s : t('opt.auto'), sel: (o.scale || 0) === s })) { o.scale = s; Game.layout(); UI.saveOptions(); } }); y += 19;
     const tog = (k, name, on, fn) => { lab(name, y); if (button('tg' + k, bx, y, 40, 16, { label: t(on ? 'ui.yes' : 'ui.no'), sel: on })) { fn(); UI.saveOptions(); } y += 19; };
-    tog('fill', 'opt.fill', o.fill !== false, () => { o.fill = o.fill === false; Game.layout(); }); tog('shake', 'opt.shake', !o.noShake, () => { o.noShake = !o.noShake; }); tog('hc', 'opt.contrast', !!o.contrast, () => { o.contrast = !o.contrast; buildColors(); }); tog('as', 'opt.autosave', !!o.autosave, () => { o.autosave = !o.autosave; });
+    tog('fill', 'opt.fill', o.fill !== false, () => { o.fill = o.fill === false; Game.layout(); }); tog('shake', 'opt.shake', !o.noShake, () => { o.noShake = !o.noShake; }); tog('hc', 'opt.contrast', !!o.contrast, () => { o.contrast = !o.contrast; buildColors(); }); tog('as', 'opt.autosave', !!o.autosave, () => { o.autosave = !o.autosave; }); tog('pv', 'opt.provisional', !!o.showProvisional, () => { o.showProvisional = !o.showProvisional; buildModel(); });
     lab('opt.fullscreen', y); if (button('fs', bx, y, 40, 16, { icon: 'fullscreen' })) UI.action('fullscreen'); y += 19;
     if (button('okeys', X, y, 120, 16, { label: t('opt.keys'), icon: 'keys' })) { UI.win = 'keys'; UI.scroll = 0; } }
   function winKeys(X, Y, Wd, Hd) { const acts = Object.keys(AL.DATA.keys), vis = Math.floor((Hd - 20) / 17) * 2; UI.scroll = AL.clamp(UI.scroll + wheelD * 2, 0, Math.max(0, acts.length - vis)); const half = Wd >> 1;

@@ -37,3 +37,13 @@
 - Retouches pixel à la main des poses clés (scintillement des animations d'action, pixels isolés des orques).
 - Feu : les incendies naturels sont maintenant rares (surtout la foudre sèche des ères chaudes) ; régler la fréquence si on veut plus de feux de forêt.
 - Forêts : elles dépassent maintenant 150 % de leur niveau de départ ; prévoir une densité maximale ou des maladies/abattage.
+
+## Après l'étape 12 (contenu provisoire)
+- Les 49 créatures provisoires n'ont que 3 ou 4 animations (repos, marche/vol/nage, attaque pour les monstres, mort) : il manque course, repas, coup reçu, sommeil, et le geste d'avertissement propre à chaque monstre. Aucune retouche à la main. Les plus faibles à 16 px : lynx, castor, hérisson, grenouille (lisibles surtout par la couleur) ; la hyène et la chèvre restent génériques.
+- Les monstres provisoires partagent le comportement générique des monstres (pas de nid ni de trésor pour le dragon, pas de capacités spéciales pour le colosse, le léviathan nage comme un poisson).
+- Les 4 peuples provisoires : mêmes règles que les humains avec leurs chiffres ; pas de bâtiment ni de métier propre ; types d'un même peuple = une coque + des accessoires (lisibilité des types plus faible que chez les humains).
+- Stades de bâtiments 4 et 5 : déclarés dans `stages.json` (`look` 3 et 4) mais dessinés avec les sprites du stade 3 (`sprite` 2). À dessiner : il faudra d'abord rogner les images des atlas (la page de sprites 4096×8192 est presque pleine).
+- Page de sprites 4096×8192 : les appareils limités à des textures de 4096 px ne peuvent plus lancer le jeu. Rogner les cadres vides à la construction ramènerait la page sous 4096×4096.
+- 56 pouvoirs provisoires = variantes (rayon, durée, dispersion, invocations) des 44 pouvoirs soignés, avec l'icône du pouvoir d'origine ; à remplacer par de vrais pouvoirs avec icône, effet et son propres.
+- 44 sons et 5 pistes provisoires jamais écoutés ; les pistes de climat et de catastrophe ne jouent qu'avec l'option « Contenu provisoire ».
+- Icônes de ressources manquantes (cuivre, fer, or, aéthérite, outils, armes, armures) : signalé par `tools/validate-data.js`.

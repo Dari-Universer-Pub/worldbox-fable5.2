@@ -111,9 +111,13 @@
   H.relic = (sim, m) => { const town = townNear(sim, m.x, m.y, 20); if (!town) return 0; const R = AL.RES; town.stock[R.weapons] += 12; town.stock[R.armor] += 8; town.stock[R.tools] += 8; if (AL.Realm && sim.chron) AL.Realm.log(sim, 'relic', ['log.relic', town.name], town.cx, town.cy); return 1; };
   function incite(sim, m, war) { const town = townNear(sim, m.x, m.y, 40); if (!town || town.kingdom < 0 || !sim.kingdoms) return 0; const a = sim.kingdoms[town.kingdom]; let b = null, bd = 1e9; for (const k of sim.kingdoms) { if (!k.alive || k === a) continue; if (!war && a.wars[k.id] == null) continue; const cap = sim.towns[k.capital]; if (!cap) continue; const d = Math.hypot(cap.cx - town.cx, cap.cy - town.cy); if (d < bd) { bd = d; b = k; } } if (!b) return 0;
     sim.command({ t: 'incite', a: a.id, b: b.id, war }); return 1; }
+  // summon: the creatures listed in the power's data ('spawn': [[kind, count]...]) appear around the point
+  H.summon = (sim, m) => { const D = AL.DATA.powers[m.id], W = sim.world; let c = 0; if (!D.spawn || !AL.Creatures) return 0; for (const [kn, cnt] of D.spawn) { const kd = AL.K[kn]; if (kd == null || AL.KINDS[kd].cls === 0) continue; for (let k = 0; k < cnt; k++) { const x = m.x + (c ? sim.rng.range(-2.5, 2.5) : 0), y = m.y + (c ? sim.rng.range(-2.5, 2.5) : 0); if (W.inb(x | 0, y | 0) && AL.Creatures.spawn(sim, kd, x, y) >= 0) c++; } } return c; };
   H.war = (sim, m) => incite(sim, m, true); H.peace = (sim, m) => incite(sim, m, false);
   Pw.use = function (sim, m) { const D = AL.DATA.powers[m.id]; if (!D) return 0; const W = sim.world; if (!W.inb(m.x | 0, m.y | 0)) return 0; let r = m.r || D.r || 1, n = 0;
-    if (D.kind === 'zone') { Pw.addZone(sim, ZN[D.zone], m.x, m.y, r, D.dur); n = 1; } else if (H[m.id]) n = H[m.id](sim, m, r);
+    const hid = D.like || m.id;
+    if (D.kind === 'zone') { Pw.addZone(sim, ZN[D.zone], m.x, m.y, r, D.dur); n = 1; }
+    else if (H[hid]) { if (D.scatter) { for (let k = 0; k < D.scatter; k++) { const a = sim.rng.f() * 6.2832, d = Math.sqrt(sim.rng.f()) * (D.spread || r * 2), x = m.x + Math.cos(a) * d, y = m.y + Math.sin(a) * d; if (W.inb(x | 0, y | 0)) n += H[hid](sim, Object.assign({}, m, { x, y }), r) || 0; } } else n = H[hid](sim, m, r); }
     sim.stats.powers++; sim.lastPower = { id: m.id, n }; sim.emit('pw', m.id, m.x, m.y, r); return n; };
   // ------------------------------------------------------------ per-unit states (every 8 ticks per unit)
   function stateTick(sim, i) { const E = sim.E, W = sim.world, n = W.n, rng = sim.rng, t1 = E.traits1[i], x = E.x[i], y = E.y[i], ti = (y | 0) * n + (x | 0);

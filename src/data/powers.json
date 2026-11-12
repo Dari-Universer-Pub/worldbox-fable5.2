@@ -1,46 +1,952 @@
 {
-  "raise":      { "cat": "world", "kind": "brush", "fx": "dust", "snd": "earth" },
-  "lower":      { "cat": "world", "kind": "brush", "fx": "dust", "snd": "earth" },
-  "dig":        { "cat": "world", "kind": "brush", "fx": "dust", "snd": "earth" },
-  "ground":     { "cat": "world", "kind": "brush", "fx": "dust", "snd": "earth" },
-  "forest":     { "cat": "world", "kind": "brush", "fx": "heal", "snd": "plant" },
-  "grass":      { "cat": "world", "kind": "brush", "fx": "heal", "snd": "plant" },
-  "river":      { "cat": "world", "kind": "brush", "fx": "splash", "snd": "splash" },
-  "lava":       { "cat": "world", "kind": "brush", "fx": "ember", "snd": "fire" },
-  "erase":      { "cat": "tools", "kind": "brush", "fx": "dust", "snd": "earth" },
-  "spawn":      { "cat": "peoples", "kind": "spawn", "fx": "magic", "snd": "spawn" },
-  "rain":       { "cat": "nature", "kind": "zone", "zone": "rain", "r": 14, "dur": 900, "snd": "rain" },
-  "acidrain":   { "cat": "nature", "kind": "zone", "zone": "acid", "r": 10, "dur": 500, "snd": "acid" },
-  "storm":      { "cat": "nature", "kind": "zone", "zone": "storm", "r": 16, "dur": 600, "snd": "thunder" },
-  "drought":    { "cat": "nature", "kind": "zone", "zone": "drought", "r": 16, "dur": 1200, "snd": "wind" },
-  "coldsnap":   { "cat": "nature", "kind": "zone", "zone": "cold", "r": 16, "dur": 1200, "fx": "frost", "snd": "frost" },
-  "heatwave":   { "cat": "nature", "kind": "zone", "zone": "heat", "r": 16, "dur": 1200, "snd": "wind" },
-  "lightning":  { "cat": "nature", "kind": "point", "fx": "bolt", "snd": "thunder" },
-  "fire":       { "cat": "nature", "kind": "area", "r": 1.5, "drag": true, "fx": "ember", "snd": "fire" },
-  "tornado":    { "cat": "nature", "kind": "point", "snd": "tornado" },
-  "earthquake": { "cat": "nature", "kind": "area", "r": 12, "fx": "crack", "snd": "quake" },
-  "eruption":   { "cat": "nature", "kind": "point", "fx": "blast", "snd": "eruption" },
-  "meteor":     { "cat": "nature", "kind": "area", "r": 5, "fx": "meteor", "snd": "boom_big" },
-  "flood":      { "cat": "nature", "kind": "area", "r": 14, "fx": "wave", "snd": "wave" },
-  "bomb":       { "cat": "destruction", "kind": "area", "r": 2.5, "fx": "boom", "snd": "boom" },
-  "bigbomb":    { "cat": "destruction", "kind": "area", "r": 6, "fx": "blast", "snd": "boom_big" },
-  "nuke":       { "cat": "destruction", "kind": "area", "r": 15, "fx": "mushroom", "snd": "nuke" },
-  "acid":       { "cat": "destruction", "kind": "area", "r": 2, "drag": true, "fx": "acid", "snd": "acid" },
-  "heal":       { "cat": "divine", "kind": "area", "r": 5, "fx": "heal", "snd": "heal" },
-  "strength":   { "cat": "divine", "kind": "area", "r": 5, "fx": "bless", "snd": "bless" },
-  "fertility":  { "cat": "divine", "kind": "area", "r": 6, "fx": "heart", "snd": "bless" },
-  "curse":      { "cat": "divine", "kind": "area", "r": 5, "fx": "curse", "snd": "curse" },
-  "poison":     { "cat": "divine", "kind": "area", "r": 3, "fx": "poison", "snd": "acid" },
-  "plague":     { "cat": "divine", "kind": "area", "r": 3, "fx": "toxic", "snd": "curse" },
-  "rage":       { "cat": "divine", "kind": "area", "r": 4, "fx": "rage", "snd": "curse" },
-  "madness":    { "cat": "divine", "kind": "area", "r": 4, "fx": "mad", "snd": "curse" },
-  "inspire":    { "cat": "divine", "kind": "area", "r": 2, "fx": "magic", "snd": "bless" },
-  "resurrect":  { "cat": "divine", "kind": "area", "r": 6, "fx": "holy", "snd": "heal" },
-  "death":      { "cat": "divine", "kind": "area", "r": 1.5, "fx": "skull", "snd": "curse" },
-  "teleport":   { "cat": "divine", "kind": "move", "r": 3, "fx": "teleport", "snd": "teleport" },
-  "prophet":    { "cat": "divine", "kind": "point", "fx": "bless", "snd": "prophet" },
-  "relic":      { "cat": "divine", "kind": "point", "fx": "magic", "snd": "relic" },
-  "war":        { "cat": "divine", "kind": "point", "fx": "rage", "snd": "horn" },
-  "peace":      { "cat": "divine", "kind": "point", "fx": "heart", "snd": "bless" },
-  "control":    { "cat": "tools", "kind": "control", "fx": "magic", "snd": "magic" }
+ "raise": {
+  "cat": "world",
+  "kind": "brush",
+  "fx": "dust",
+  "snd": "earth"
+ },
+ "lower": {
+  "cat": "world",
+  "kind": "brush",
+  "fx": "dust",
+  "snd": "earth"
+ },
+ "dig": {
+  "cat": "world",
+  "kind": "brush",
+  "fx": "dust",
+  "snd": "earth"
+ },
+ "ground": {
+  "cat": "world",
+  "kind": "brush",
+  "fx": "dust",
+  "snd": "earth"
+ },
+ "forest": {
+  "cat": "world",
+  "kind": "brush",
+  "fx": "heal",
+  "snd": "plant"
+ },
+ "grass": {
+  "cat": "world",
+  "kind": "brush",
+  "fx": "heal",
+  "snd": "plant"
+ },
+ "river": {
+  "cat": "world",
+  "kind": "brush",
+  "fx": "splash",
+  "snd": "splash"
+ },
+ "lava": {
+  "cat": "world",
+  "kind": "brush",
+  "fx": "ember",
+  "snd": "fire"
+ },
+ "erase": {
+  "cat": "tools",
+  "kind": "brush",
+  "fx": "dust",
+  "snd": "earth"
+ },
+ "spawn": {
+  "cat": "peoples",
+  "kind": "spawn",
+  "fx": "magic",
+  "snd": "spawn"
+ },
+ "rain": {
+  "cat": "nature",
+  "kind": "zone",
+  "zone": "rain",
+  "r": 14,
+  "dur": 900,
+  "snd": "rain"
+ },
+ "acidrain": {
+  "cat": "nature",
+  "kind": "zone",
+  "zone": "acid",
+  "r": 10,
+  "dur": 500,
+  "snd": "acid"
+ },
+ "storm": {
+  "cat": "nature",
+  "kind": "zone",
+  "zone": "storm",
+  "r": 16,
+  "dur": 600,
+  "snd": "thunder"
+ },
+ "drought": {
+  "cat": "nature",
+  "kind": "zone",
+  "zone": "drought",
+  "r": 16,
+  "dur": 1200,
+  "snd": "wind"
+ },
+ "coldsnap": {
+  "cat": "nature",
+  "kind": "zone",
+  "zone": "cold",
+  "r": 16,
+  "dur": 1200,
+  "fx": "frost",
+  "snd": "frost"
+ },
+ "heatwave": {
+  "cat": "nature",
+  "kind": "zone",
+  "zone": "heat",
+  "r": 16,
+  "dur": 1200,
+  "snd": "wind"
+ },
+ "lightning": {
+  "cat": "nature",
+  "kind": "point",
+  "fx": "bolt",
+  "snd": "thunder"
+ },
+ "fire": {
+  "cat": "nature",
+  "kind": "area",
+  "r": 1.5,
+  "drag": true,
+  "fx": "ember",
+  "snd": "fire"
+ },
+ "tornado": {
+  "cat": "nature",
+  "kind": "point",
+  "snd": "tornado"
+ },
+ "earthquake": {
+  "cat": "nature",
+  "kind": "area",
+  "r": 12,
+  "fx": "crack",
+  "snd": "quake"
+ },
+ "eruption": {
+  "cat": "nature",
+  "kind": "point",
+  "fx": "blast",
+  "snd": "eruption"
+ },
+ "meteor": {
+  "cat": "nature",
+  "kind": "area",
+  "r": 5,
+  "fx": "meteor",
+  "snd": "boom_big"
+ },
+ "flood": {
+  "cat": "nature",
+  "kind": "area",
+  "r": 14,
+  "fx": "wave",
+  "snd": "wave"
+ },
+ "bomb": {
+  "cat": "destruction",
+  "kind": "area",
+  "r": 2.5,
+  "fx": "boom",
+  "snd": "boom"
+ },
+ "bigbomb": {
+  "cat": "destruction",
+  "kind": "area",
+  "r": 6,
+  "fx": "blast",
+  "snd": "boom_big"
+ },
+ "nuke": {
+  "cat": "destruction",
+  "kind": "area",
+  "r": 15,
+  "fx": "mushroom",
+  "snd": "nuke"
+ },
+ "acid": {
+  "cat": "destruction",
+  "kind": "area",
+  "r": 2,
+  "drag": true,
+  "fx": "acid",
+  "snd": "acid"
+ },
+ "heal": {
+  "cat": "divine",
+  "kind": "area",
+  "r": 5,
+  "fx": "heal",
+  "snd": "heal"
+ },
+ "strength": {
+  "cat": "divine",
+  "kind": "area",
+  "r": 5,
+  "fx": "bless",
+  "snd": "bless"
+ },
+ "fertility": {
+  "cat": "divine",
+  "kind": "area",
+  "r": 6,
+  "fx": "heart",
+  "snd": "bless"
+ },
+ "curse": {
+  "cat": "divine",
+  "kind": "area",
+  "r": 5,
+  "fx": "curse",
+  "snd": "curse"
+ },
+ "poison": {
+  "cat": "divine",
+  "kind": "area",
+  "r": 3,
+  "fx": "poison",
+  "snd": "acid"
+ },
+ "plague": {
+  "cat": "divine",
+  "kind": "area",
+  "r": 3,
+  "fx": "toxic",
+  "snd": "curse"
+ },
+ "rage": {
+  "cat": "divine",
+  "kind": "area",
+  "r": 4,
+  "fx": "rage",
+  "snd": "curse"
+ },
+ "madness": {
+  "cat": "divine",
+  "kind": "area",
+  "r": 4,
+  "fx": "mad",
+  "snd": "curse"
+ },
+ "inspire": {
+  "cat": "divine",
+  "kind": "area",
+  "r": 2,
+  "fx": "magic",
+  "snd": "bless"
+ },
+ "resurrect": {
+  "cat": "divine",
+  "kind": "area",
+  "r": 6,
+  "fx": "holy",
+  "snd": "heal"
+ },
+ "death": {
+  "cat": "divine",
+  "kind": "area",
+  "r": 1.5,
+  "fx": "skull",
+  "snd": "curse"
+ },
+ "teleport": {
+  "cat": "divine",
+  "kind": "move",
+  "r": 3,
+  "fx": "teleport",
+  "snd": "teleport"
+ },
+ "prophet": {
+  "cat": "divine",
+  "kind": "point",
+  "fx": "bless",
+  "snd": "prophet"
+ },
+ "relic": {
+  "cat": "divine",
+  "kind": "point",
+  "fx": "magic",
+  "snd": "relic"
+ },
+ "war": {
+  "cat": "divine",
+  "kind": "point",
+  "fx": "rage",
+  "snd": "horn"
+ },
+ "peace": {
+  "cat": "divine",
+  "kind": "point",
+  "fx": "heart",
+  "snd": "bless"
+ },
+ "control": {
+  "cat": "tools",
+  "kind": "control",
+  "fx": "magic",
+  "snd": "magic"
+ },
+ "drizzle": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "zone",
+  "zone": "rain",
+  "r": 8,
+  "dur": 500,
+  "snd": "rain",
+  "icon": "rain"
+ },
+ "monsoon": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "zone",
+  "zone": "rain",
+  "r": 28,
+  "dur": 1800,
+  "snd": "rain",
+  "icon": "rain"
+ },
+ "hailstorm": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "zone",
+  "zone": "storm",
+  "r": 10,
+  "dur": 300,
+  "snd": "hail",
+  "icon": "storm"
+ },
+ "tempest": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "zone",
+  "zone": "storm",
+  "r": 28,
+  "dur": 900,
+  "snd": "thunder",
+  "icon": "storm"
+ },
+ "blizzard": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "zone",
+  "zone": "cold",
+  "r": 26,
+  "dur": 1500,
+  "snd": "blizzard",
+  "fx": "frost",
+  "icon": "coldsnap"
+ },
+ "frostbite": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "zone",
+  "zone": "cold",
+  "r": 7,
+  "dur": 500,
+  "snd": "frost",
+  "fx": "frost",
+  "icon": "coldsnap"
+ },
+ "scorch": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "zone",
+  "zone": "heat",
+  "r": 8,
+  "dur": 600,
+  "snd": "wildfire",
+  "icon": "heatwave"
+ },
+ "greatdrought": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "zone",
+  "zone": "drought",
+  "r": 30,
+  "dur": 2400,
+  "snd": "wind",
+  "icon": "drought"
+ },
+ "acidfog": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "zone",
+  "zone": "acid",
+  "r": 18,
+  "dur": 300,
+  "snd": "acid",
+  "icon": "acidrain"
+ },
+ "thunderclap": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "area",
+  "like": "lightning",
+  "r": 6,
+  "fx": "bolt",
+  "snd": "thunder",
+  "scatter": 5,
+  "spread": 6,
+  "icon": "lightning"
+ },
+ "firestorm": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "area",
+  "like": "fire",
+  "r": 5,
+  "fx": "ember",
+  "snd": "wildfire",
+  "icon": "fire"
+ },
+ "wildfire": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "area",
+  "like": "fire",
+  "r": 9,
+  "fx": "ember",
+  "snd": "wildfire",
+  "icon": "fire"
+ },
+ "twister": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "area",
+  "like": "tornado",
+  "r": 10,
+  "snd": "tornado",
+  "scatter": 3,
+  "spread": 10,
+  "icon": "tornado"
+ },
+ "tremor": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "area",
+  "like": "earthquake",
+  "r": 5,
+  "fx": "crack",
+  "snd": "tremor",
+  "icon": "earthquake"
+ },
+ "cataclysm": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "area",
+  "like": "earthquake",
+  "r": 24,
+  "fx": "crack",
+  "snd": "quake",
+  "icon": "earthquake"
+ },
+ "meteorshower": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "area",
+  "like": "meteor",
+  "r": 3,
+  "fx": "meteor",
+  "snd": "comet",
+  "scatter": 6,
+  "spread": 14,
+  "icon": "meteor"
+ },
+ "comet": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "area",
+  "like": "meteor",
+  "r": 10,
+  "fx": "meteor",
+  "snd": "comet",
+  "icon": "meteor"
+ },
+ "tsunami": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "area",
+  "like": "flood",
+  "r": 26,
+  "fx": "wave",
+  "snd": "tsunami",
+  "icon": "flood"
+ },
+ "spring": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "area",
+  "like": "flood",
+  "r": 5,
+  "fx": "wave",
+  "snd": "splash",
+  "icon": "flood"
+ },
+ "caldera": {
+  "cat": "nature",
+  "provisional": true,
+  "kind": "area",
+  "like": "eruption",
+  "r": 8,
+  "fx": "blast",
+  "snd": "eruption",
+  "scatter": 3,
+  "spread": 10,
+  "icon": "eruption"
+ },
+ "firecracker": {
+  "cat": "destruction",
+  "provisional": true,
+  "kind": "area",
+  "like": "bomb",
+  "r": 1.2,
+  "fx": "boom",
+  "snd": "boom",
+  "icon": "bomb"
+ },
+ "minefield": {
+  "cat": "destruction",
+  "provisional": true,
+  "kind": "area",
+  "like": "bomb",
+  "r": 2.5,
+  "fx": "boom",
+  "snd": "boom",
+  "scatter": 8,
+  "spread": 10,
+  "icon": "bomb"
+ },
+ "carpetbomb": {
+  "cat": "destruction",
+  "provisional": true,
+  "kind": "area",
+  "like": "bigbomb",
+  "r": 6,
+  "fx": "blast",
+  "snd": "boom_big",
+  "scatter": 5,
+  "spread": 14,
+  "icon": "bigbomb"
+ },
+ "megabomb": {
+  "cat": "destruction",
+  "provisional": true,
+  "kind": "area",
+  "like": "bigbomb",
+  "r": 10,
+  "fx": "blast",
+  "snd": "boom_big",
+  "icon": "bigbomb"
+ },
+ "tsar": {
+  "cat": "destruction",
+  "provisional": true,
+  "kind": "area",
+  "like": "nuke",
+  "r": 24,
+  "fx": "mushroom",
+  "snd": "nuke",
+  "icon": "nuke"
+ },
+ "acidflood": {
+  "cat": "destruction",
+  "provisional": true,
+  "kind": "area",
+  "like": "acid",
+  "r": 6,
+  "fx": "acid",
+  "snd": "acid",
+  "icon": "acid"
+ },
+ "smite": {
+  "cat": "destruction",
+  "provisional": true,
+  "kind": "area",
+  "like": "death",
+  "r": 0.8,
+  "fx": "bolt",
+  "snd": "smite",
+  "icon": "death"
+ },
+ "annihilate": {
+  "cat": "destruction",
+  "provisional": true,
+  "kind": "area",
+  "like": "death",
+  "r": 6,
+  "fx": "skull",
+  "snd": "curse",
+  "icon": "death"
+ },
+ "mend": {
+  "cat": "divine",
+  "provisional": true,
+  "kind": "area",
+  "like": "heal",
+  "r": 2,
+  "fx": "heal",
+  "snd": "heal",
+  "icon": "heal"
+ },
+ "sanctuary": {
+  "cat": "divine",
+  "provisional": true,
+  "kind": "area",
+  "like": "heal",
+  "r": 12,
+  "fx": "heal",
+  "snd": "sanctuary",
+  "icon": "heal"
+ },
+ "might": {
+  "cat": "divine",
+  "provisional": true,
+  "kind": "area",
+  "like": "strength",
+  "r": 12,
+  "fx": "bless",
+  "snd": "bless",
+  "icon": "strength"
+ },
+ "bloom": {
+  "cat": "divine",
+  "provisional": true,
+  "kind": "area",
+  "like": "fertility",
+  "r": 14,
+  "fx": "heart",
+  "snd": "bloom",
+  "icon": "fertility"
+ },
+ "hex": {
+  "cat": "divine",
+  "provisional": true,
+  "kind": "area",
+  "like": "curse",
+  "r": 12,
+  "fx": "curse",
+  "snd": "hex",
+  "icon": "curse"
+ },
+ "venom": {
+  "cat": "divine",
+  "provisional": true,
+  "kind": "area",
+  "like": "poison",
+  "r": 8,
+  "fx": "poison",
+  "snd": "acid",
+  "icon": "poison"
+ },
+ "pestilence": {
+  "cat": "divine",
+  "provisional": true,
+  "kind": "area",
+  "like": "plague",
+  "r": 9,
+  "fx": "toxic",
+  "snd": "hex",
+  "icon": "plague"
+ },
+ "frenzy": {
+  "cat": "divine",
+  "provisional": true,
+  "kind": "area",
+  "like": "rage",
+  "r": 10,
+  "fx": "rage",
+  "snd": "curse",
+  "icon": "rage"
+ },
+ "delirium": {
+  "cat": "divine",
+  "provisional": true,
+  "kind": "area",
+  "like": "madness",
+  "r": 10,
+  "fx": "mad",
+  "snd": "curse",
+  "icon": "madness"
+ },
+ "genius": {
+  "cat": "divine",
+  "provisional": true,
+  "kind": "area",
+  "like": "inspire",
+  "r": 6,
+  "fx": "magic",
+  "snd": "genius",
+  "icon": "inspire"
+ },
+ "revival": {
+  "cat": "divine",
+  "provisional": true,
+  "kind": "area",
+  "like": "resurrect",
+  "r": 16,
+  "fx": "holy",
+  "snd": "revival",
+  "icon": "resurrect"
+ },
+ "armory": {
+  "cat": "divine",
+  "provisional": true,
+  "kind": "point",
+  "like": "relic",
+  "fx": "magic",
+  "snd": "armory",
+  "icon": "relic"
+ },
+ "crusade": {
+  "cat": "divine",
+  "provisional": true,
+  "kind": "point",
+  "like": "war",
+  "fx": "rage",
+  "snd": "horn",
+  "icon": "war"
+ },
+ "truce": {
+  "cat": "divine",
+  "provisional": true,
+  "kind": "point",
+  "like": "peace",
+  "fx": "heart",
+  "snd": "bless",
+  "icon": "peace"
+ },
+ "wolfpack": {
+  "cat": "creatures",
+  "provisional": true,
+  "kind": "point",
+  "like": "summon",
+  "spawn": [
+   [
+    "wolf",
+    6
+   ]
+  ],
+  "fx": "magic",
+  "snd": "wolf_howl",
+  "icon": "cat_creatures"
+ },
+ "herd": {
+  "cat": "creatures",
+  "provisional": true,
+  "kind": "point",
+  "like": "summon",
+  "spawn": [
+   [
+    "deer",
+    8
+   ]
+  ],
+  "fx": "magic",
+  "snd": "deer_call",
+  "icon": "cat_creatures"
+ },
+ "flock": {
+  "cat": "creatures",
+  "provisional": true,
+  "kind": "point",
+  "like": "summon",
+  "spawn": [
+   [
+    "sheep",
+    8
+   ]
+  ],
+  "fx": "magic",
+  "snd": "sheep_bleat",
+  "icon": "cat_creatures"
+ },
+ "swarm": {
+  "cat": "creatures",
+  "provisional": true,
+  "kind": "point",
+  "like": "summon",
+  "spawn": [
+   [
+    "rat",
+    12
+   ]
+  ],
+  "fx": "magic",
+  "snd": "rat_squeak",
+  "icon": "cat_creatures"
+ },
+ "pride": {
+  "cat": "creatures",
+  "provisional": true,
+  "kind": "point",
+  "like": "summon",
+  "spawn": [
+   [
+    "lion",
+    4
+   ]
+  ],
+  "fx": "magic",
+  "snd": "lion_roar",
+  "icon": "cat_creatures"
+ },
+ "undeadhorde": {
+  "cat": "creatures",
+  "provisional": true,
+  "kind": "point",
+  "like": "summon",
+  "spawn": [
+   [
+    "zombie",
+    8
+   ]
+  ],
+  "fx": "magic",
+  "snd": "zombie_moan",
+  "icon": "cat_creatures"
+ },
+ "boneguard": {
+  "cat": "creatures",
+  "provisional": true,
+  "kind": "point",
+  "like": "summon",
+  "spawn": [
+   [
+    "skeleton",
+    6
+   ]
+  ],
+  "fx": "magic",
+  "snd": "skeleton_rattle",
+  "icon": "cat_creatures"
+ },
+ "hellgate": {
+  "cat": "creatures",
+  "provisional": true,
+  "kind": "point",
+  "like": "summon",
+  "spawn": [
+   [
+    "demon",
+    2
+   ],
+   [
+    "imp",
+    4
+   ],
+   [
+    "hellhound",
+    2
+   ]
+  ],
+  "fx": "magic",
+  "snd": "demon_roar",
+  "icon": "cat_creatures"
+ },
+ "dragoncall": {
+  "cat": "creatures",
+  "provisional": true,
+  "kind": "point",
+  "like": "summon",
+  "spawn": [
+   [
+    "dragon",
+    1
+   ]
+  ],
+  "fx": "magic",
+  "snd": "dragon_roar",
+  "icon": "cat_creatures"
+ },
+ "colossuscall": {
+  "cat": "creatures",
+  "provisional": true,
+  "kind": "point",
+  "like": "summon",
+  "spawn": [
+   [
+    "colossus",
+    1
+   ]
+  ],
+  "fx": "magic",
+  "snd": "colossus_step",
+  "icon": "cat_creatures"
+ },
+ "leviathancall": {
+  "cat": "creatures",
+  "provisional": true,
+  "kind": "point",
+  "like": "summon",
+  "spawn": [
+   [
+    "leviathan",
+    1
+   ]
+  ],
+  "fx": "magic",
+  "snd": "leviathan_call",
+  "icon": "cat_creatures"
+ },
+ "giantcall": {
+  "cat": "creatures",
+  "provisional": true,
+  "kind": "point",
+  "like": "summon",
+  "spawn": [
+   [
+    "giant",
+    2
+   ]
+  ],
+  "fx": "magic",
+  "snd": "giant_shout",
+  "icon": "cat_creatures"
+ },
+ "feywild": {
+  "cat": "creatures",
+  "provisional": true,
+  "kind": "point",
+  "like": "summon",
+  "spawn": [
+   [
+    "treant",
+    2
+   ],
+   [
+    "spirit",
+    3
+   ]
+  ],
+  "fx": "magic",
+  "snd": "spirit_wail",
+  "icon": "cat_creatures"
+ },
+ "voidrift": {
+  "cat": "creatures",
+  "provisional": true,
+  "kind": "point",
+  "like": "summon",
+  "spawn": [
+   [
+    "voidling",
+    5
+   ]
+  ],
+  "fx": "magic",
+  "snd": "voidling_chirp",
+  "icon": "cat_creatures"
+ }
 }

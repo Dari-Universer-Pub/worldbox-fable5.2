@@ -121,7 +121,7 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=texture(uScene,q); vec3 l=texture(uLi
     lightBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, lightBuf); gl.bufferData(gl.ARRAY_BUFFER, lights.byteLength, gl.DYNAMIC_DRAW);
     gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 24, 0); gl.vertexAttribDivisor(1, 1); gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 24, 16); gl.vertexAttribDivisor(2, 1);
     gl.bindVertexArray(null);
-    texPal = tex(256, 1, 'rgba', As.palBytes); texPage = tex(As.PAGE, As.pageH, 'r8', As.page);
+    texPal = tex(256, 1, 'rgba', As.palBytes); { const mx = gl.getParameter(gl.MAX_TEXTURE_SIZE); if (mx < As.pageH) throw new Error('This device cannot hold the sprite page (' + As.pageH + ' px, limit ' + mx + ')'); } texPage = tex(As.PAGE, As.pageH, 'r8', As.page);
     const T = As.raw.terrain, Mk = As.raw.tmask; texTer = tex(T.w, T.h, 'r8', T.d); texMask = tex(Mk.w, Mk.h, 'r8', Mk.d);
     texLayerPal = tex(256, 1, 'rgba', new Uint8Array(1024));
     G.flat = new Int32Array(32); G.rank = new Int32Array(32); AL.GROUND.forEach((g, i) => { G.flat[i] = As.ix(g.flat[0], g.flat[1]); G.rank[i] = g.rank; });

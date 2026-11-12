@@ -25,9 +25,9 @@ function runOne(scn, seed, years) {
   // a start on a small island (under 4000 tiles) caps a people at ~140 whatever the rules are, and there is no sea colonisation yet: not a fair test
   const regSize = new Map(); for (let i = 0; i < n * n; i++) { const r = W.region[i]; if (r) regSize.set(r, (regSize.get(r) || 0) + 1); }
   const site = (dist, minQ) => { let best = null, bq = -1; for (let k = 0; k < 9000; k++) { const x = 30 + ((AL.hash2(k, 1, seed) * (n - 70 - dist)) | 0), y = 40 + ((AL.hash2(k, 2, seed) * (n - 80)) | 0), x2 = x + dist; if (W.region[y * n + x] === 0 || W.region[y * n + x] !== W.region[y * n + x2] || (regSize.get(W.region[y * n + x]) || 0) < 4000) continue; const q = Math.min(AL.Units.siteQuality(sim, x, y), dist ? AL.Units.siteQuality(sim, x2, y) : 9); if (q > bq) { bq = q; best = [x, y, x2]; } if (q >= minQ && k > 400) break; } return { best, bq }; };
-  const dist = { 'solo-human': 0, 'solo-orc': 0, duel44: 44, duel80: 80, chaos: 60, small: 6, wild: 0 }[scn];
+  const dist = { 'solo-human': 0, 'solo-orc': 0, 'solo-elf': 0, 'solo-dwarf': 0, 'solo-myrrin': 0, 'solo-okari': 0, duel44: 44, duel80: 80, chaos: 60, small: 6, wild: 0 }[scn];
   if (scn !== 'wild') { const { best, bq } = site(dist, 0.62); if (!best) return { scn, seed, error: 'no site' };
-    if (scn === 'solo-orc') sim.command({ t: 'spawn', kind: 'orc', x: best[0] + .5, y: best[1] + .5, count: 16 });
+    if (scn.startsWith('solo-') && scn !== 'solo-human') sim.command({ t: 'spawn', kind: scn.slice(5), x: best[0] + .5, y: best[1] + .5, count: 16 });
     else { const cnt = scn === 'small' ? 3 : 16; sim.command({ t: 'spawn', kind: 'human', x: best[0] + .5, y: best[1] + .5, count: cnt }); if (dist) sim.command({ t: 'spawn', kind: 'orc', x: best[2] + .5, y: best[1] + .5, count: cnt }); } }
   const rng = new AL.Rng(seed * 7919 + 13), POW = ['rain', 'storm', 'lightning', 'fire', 'tornado', 'earthquake', 'meteor', 'bomb', 'heal', 'curse', 'plague', 'madness', 'rage', 'poison', 'inspire', 'resurrect', 'prophet', 'war', 'peace', 'flood', 'eruption', 'drought', 'coldsnap', 'heatwave', 'teleport', 'fertility', 'strength', 'bigbomb'];
   let land = 0, trees0 = 0; for (let i = 0; i < n * n; i++) { if (AL.GROUND[W.ground[i]].cost > 0) land++; if (AL.fKind[W.feature[i]] === 1) trees0++; }
@@ -78,6 +78,23 @@ function judge(results) {
   // check(group, name, target text, value fn per run -> number, ok fn on {median, all}, why it matters)
   const chk = (grp, name, target, vf, ok, why) => { const rs = (by[grp] || []).filter(r => !r.error); if (!rs.length) return; const vals = rs.map(vf), m = med(vals), mn = Math.min(...vals.filter(Number.isFinite)), mx = Math.max(...vals.filter(Number.isFinite)); const v = ok({ m, vals, mn, mx, n: rs.length }); rows.push({ grp, name, target, obs: `${fmt(m)} [${fmt(mn)}..${fmt(mx)}]`, verdict: v ? 'ok' : 'FAIL', why }); };
   const share = (vals, f) => vals.filter(f).length / Math.max(1, vals.length);
+  // ---- the four provisional peoples alone: the same world rules, a pace that follows their nature (BIBLE.md §2):
+  // elves and dwarves are slow breeders who live long (fertility 0.5 / 0.6, maturity 30 / 25): a small, slow, steady people;
+  // the myrrin are fertile and short-lived (fertility 1.6, maturity 8): they must outgrow everyone; the okari sit in between.
+  const PACE = { 'solo-elf': { y30: [30, 140], y100: [200, 1100], s3: [15, 60] }, 'solo-dwarf': { y30: [30, 140], y100: [200, 1100], s3: [15, 60] }, 'solo-myrrin': { y30: [180, 700], y100: [900, 3000], s3: [6, 22] }, 'solo-okari': { y30: [70, 400], y100: [500, 2200], s3: [8, 30] } };
+  for (const g in PACE) { const T = PACE[g], who = g.slice(5);
+    chk(g, 'people at year 30', T.y30.join(' - '), r => (r.series.find(s => s.y === 30) || {}).people || 0, ({ m }) => m >= T.y30[0] && m <= T.y30[1], 'the pace of the ' + who + ' people in its first generation');
+    chk(g, 'people at year 100', T.y100.join(' - '), r => r.final.people, ({ m }) => m >= T.y100[0] && m <= T.y100[1], 'a living ' + who + ' world after a century, at its own scale');
+    chk(g, 'first town of stage 3 (year)', T.s3.join(' - '), r => r.milestone.stage3 ?? 999, ({ m }) => m >= T.s3[0] && m <= T.s3[1], 'the first change of look comes at the pace of the people');
+    chk(g, 'a people dies out alone (runs with 0 people at year 100)', '0', r => r.final.people === 0 ? 1 : 0, ({ vals }) => vals.every(v => v === 0), 'a starting village must not vanish by itself');
+    // elves and dwarves hardly die in a century (a dozen deaths of old age): a share of deaths says nothing there, so famine is counted against the living
+    if (who === 'elf' || who === 'dwarf') chk(g, 'starved people per 100 inhabitants at year 100', '<= 10', r => 100 * (r.deaths.people.hunger || 0) / Math.max(1, r.final.people), ({ m }) => m <= 10, 'famine stays an accident for a people that lives long');
+    else chk(g, 'starved share of people deaths %', '<= 15', r => 100 * ((r.deaths.people.hunger || 0) / Math.max(1, Object.values(r.deaths.people).reduce((a, b) => a + b, 0))), ({ m }) => m <= 15, 'famine is not the main killer');
+    chk(g, 'biggest collapse in 5 years (share of the population lost)', '<= 45 %', r => 100 * Math.max(0, ...r.series.slice(1).map((x, i) => r.series[i].people > 40 ? 1 - x.people / r.series[i].people : 0)), ({ m }) => m <= 45, 'no mass death spiral');
+    chk(g, 'average hunger of people (0 fed .. 100 starving)', '<= 45', r => med(r.series.filter(s => s.y >= 10).map(s => s.hunger)), ({ m }) => m <= 45, 'a fed population');
+    chk(g, 'consistency violations', '0', r => Object.values(r.invariants).reduce((a, b) => a + b, 0) + r.nanCount, ({ vals }) => vals.every(v => v === 0), 'the books add up for this people too'); }
+  // the peoples differ: the fertile one ends well above the slow ones
+  { const fin = g => med((by[g] || []).filter(r => !r.error).map(r => r.final.people)); if (by['solo-myrrin'] && by['solo-elf'] && by['solo-dwarf']) rows.push({ grp: 'peoples', name: 'myrrin people at year 100 / slowest of elves and dwarves', target: '>= 1.5', obs: fmt(fin('solo-myrrin') / Math.max(1, Math.max(fin('solo-elf'), fin('solo-dwarf')))), verdict: fin('solo-myrrin') >= 1.5 * Math.max(fin('solo-elf'), fin('solo-dwarf')) ? 'ok' : 'FAIL', why: 'fertile bog folk against slow breeders: the difference must show' }); }
   for (const g of ['solo-human', 'solo-orc']) {
     chk(g, 'first town of stage 2 (year)', '<= 8', r => r.milestone.stage2 ?? 999, ({ m }) => m <= 8, 'a settlement must visibly become a village quickly');
     chk(g, 'first town of stage 3 (year)', '8 - 22', r => r.milestone.stage3 ?? 999, ({ m }) => m >= 8 && m <= 22, 'the first real change of look, within the first generation');
@@ -134,6 +151,7 @@ async function battery() {
   const oo = process.argv.indexOf('--only'), only = oo > 0 ? process.argv[oo + 1].split(',') : null, so = process.argv.indexOf('--seeds'), seedArg = so > 0 ? process.argv[so + 1].split(',').map(Number) : null;
   const seeds = seedArg || (quick ? [7, 3, 5] : [1, 2, 3, 4, 5, 6, 7, 8]), jobs = [];
   for (const s of seeds) { jobs.push(['solo-human', s, quick ? 80 : 100]); jobs.push(['solo-orc', s, quick ? 80 : 100]); jobs.push(['duel44', s, quick ? 80 : 100]); jobs.push(['duel80', s, quick ? 80 : 100]); jobs.push(['chaos', s, quick ? 60 : 100]); jobs.push(['small', s, 40]); }
+  for (const s of seeds.slice(0, 4)) for (const p of ['elf', 'dwarf', 'myrrin', 'okari']) jobs.push(['solo-' + p, s, quick ? 80 : 100]);
   for (const s of (quick ? [7, 3] : [1, 2, 3, 4, 5, 6])) jobs.push(['wild', s, quick ? 120 : 200]);
   if (only) for (let k = jobs.length - 1; k >= 0; k--) if (!only.includes(jobs[k][0])) jobs.splice(k, 1);
   const results = [], par = Math.max(1, os.cpus().length), queue = jobs.slice(); let done = 0;

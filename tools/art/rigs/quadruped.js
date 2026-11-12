@@ -65,6 +65,8 @@ function build(specIn, pose = {}) {
   if (sp.tusks) for (const s of [-1, 1]) decals.push({ p: HL([s * hr[0] * 0.8, hr[1] * 0.6 + sp.snout * k * 0.7, -hr[2] * 0.5]), idx: 'tusk', tag: s < 0 ? 'tuskL' : 'tuskR' });
   // tail
   const tl = sp.tail; if (tl && tl.len) { const tb = [0, -bl * 1.15, br[1] * k * 0.3], ta = tl.up + (P.tail || 0) * 0.3; sc.cap(W(tb), W(add(tb, [S((P.tail || 0) * 0.5) * tl.len * k * 0.5, -C(ta) * tl.len * k, S(ta) * tl.len * k])), tl.r * k, tl.r * k * (tl.tip || 0.6), M.tail || body, { pri: 1 }); }
+  // species-specific parts (trunk, horns, wings, shell...): spec.extra(bones)
+  if (sp.extra) sp.extra({ sc, W, HL, hr, k, bl, br, M, P, rootR, headR, decals, nb, nt, legLen, body, sp });
   return { scene: sc, decals };
 }
 module.exports = { build, ANIMS, DEF };

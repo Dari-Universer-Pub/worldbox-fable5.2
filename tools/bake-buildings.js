@@ -37,7 +37,7 @@ function bakeOne(job, cellForce) {
 if (!isMainThread) { parentPort.postMessage(workerData.jobs.map(j => bakeOne(j))); }
 else (async () => {
   const noCache = process.argv.includes('--no-cache'), cacheDir = path.join(__dirname, '.cache'); fs.mkdirSync(cacheDir, { recursive: true });
-  const srcHash = crypto.createHash('sha1').update(['lib/sdf.js', 'lib/mats.js', 'art/buildings.js', 'art/palette.json', 'bake-buildings.js'].map(f => fs.readFileSync(path.join(__dirname, f))).join('')).digest('hex').slice(0, 12);
+  const srcHash = crypto.createHash('sha1').update(['lib/sdf.js', 'lib/mats.js', 'art/buildings.js', 'art/buildings2.js', 'art/palette.json', 'bake-buildings.js'].map(f => fs.readFileSync(path.join(__dirname, f))).join('')).digest('hex').slice(0, 12);
   const cf = path.join(cacheDir, `buildings-${srcHash}.json`); let res;
   if (!noCache && fs.existsSync(cf)) res = JSON.parse(fs.readFileSync(cf, 'utf8'));
   else { const jobs = [], fps = {}; for (const set of Object.keys(BL.SETS)) for (const type of Object.keys(BL.D)) { fps[BL.D[type].fp.join('x')] = 1; for (let s = 0; s < 3; s++) for (let v = 0; v < 4; v++) jobs.push([set, type, s, v]); }

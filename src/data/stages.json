@@ -1,14 +1,18 @@
 [
  {
   "name": "nomads",
-  "pop": 0
+  "pop": 0,
+  "look": 0,
+  "sprite": 0
  },
  {
   "name": "hamlet",
   "pop": 7,
   "need": [
    "house"
-  ]
+  ],
+  "look": 0,
+  "sprite": 0
  },
  {
   "name": "village",
@@ -16,7 +20,9 @@
   "need": [
    "farm",
    "warehouse"
-  ]
+  ],
+  "look": 1,
+  "sprite": 1
  },
  {
   "name": "town",
@@ -24,7 +30,9 @@
   "need": [
    "market",
    "temple"
-  ]
+  ],
+  "look": 2,
+  "sprite": 2
  },
  {
   "name": "city",
@@ -33,13 +41,19 @@
    "forge",
    "library",
    "barracks"
-  ]
+  ],
+  "look": 3,
+  "sprite": 2,
+  "provisional": true
  },
  {
   "name": "realm",
   "pop": 260,
   "need": [
    "tavern"
-  ]
+  ],
+  "look": 4,
+  "sprite": 2,
+  "provisional": true
  }
 ]

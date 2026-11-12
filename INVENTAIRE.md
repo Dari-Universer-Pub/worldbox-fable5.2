@@ -6,19 +6,21 @@
 
 | Élément | Présent | Visé par le plan | Remarque |
 |---|---|---|---|
-| Peuples | 6 définis, **2 actifs** (humains, orques) | 6 | elfes, nains, myrrins, okaris : provisoires, cachés dans la barre d'outils (option « provisoires ») |
-| Animaux | 8 | 40 | lapin, cerf, mouton, sanglier, loup, ours, aigle, saumon |
-| Monstres | 3 | 20 | zombie, squelette, démon (ni dragon, ni géant, ni colosse) |
-| Pouvoirs | 44 | 100 | |
+| Peuples | 6 définis, **2 soignés** (humains, orques) + **4 provisoires jouables** (elfes, nains, myrrins, okaris) | 6 | les 4 provisoires ont leurs 18 aspects et leur architecture en 3 stades ; cachés tant que l'option « Contenu provisoire » est coupée |
+| Animaux | 40 (8 soignés + 32 provisoires) | 40 | les provisoires n'apparaissent jamais seuls (densité 0), seulement posés par le joueur |
+| Monstres | 20 (3 soignés + 17 provisoires) | 20 | dont dragon, géant, golem, esprit, néantin, léviathan, colosse 64×64 ; comportement générique |
+| Pouvoirs | 100 (44 soignés + 56 provisoires) | 100 | les provisoires sont des variantes (rayon, durée, dispersion, invocations) |
 | Métiers | 21 | 20 | **3 ne servent à rien** : marin, ingénieur, guérisseur |
-| Bâtiments | 17 types × 3 stades | 15 types × 5 stades | stades 4 et 5 manquants |
+| Bâtiments | 17 types × 3 stades dessinés × 6 peuples | 15 types × 5 stades | stades 4 et 5 déclarés dans `stages.json` mais dessinés avec les sprites du stade 3 |
 | Ères | 10 | 10 | complet |
 | Dogmes | 12 | 12 | complet |
 | Traits | 60 | 60 | complet |
 | Flore | 31 | 25 | complet |
 | Sols / biomes | 18 | 14 | complet |
-| Ressources | 10 | 4 minerais dont 1 rare | cuivre, fer, or, aéthérite : complet |
-| Sons / musiques | 77 / 3 pistes | 120 / 8 | |
+| Ressources | 10 | 4 minerais dont 1 rare | cuivre, fer, or, aéthérite : complet (7 icônes de ressources non dessinées) |
+| Sons / musiques | 120 (76 + 44 provisoires) / 8 pistes (3 + 5 provisoires) | 120 / 8 | jamais écoutés |
+
+Ces comptes sont vérifiés par `node tools/validate-data.js` (tableau « vision / données / provisoire »).
 
 ## Mécaniques actives et vérifiées par le robot (`BALANCE.md`)
 
@@ -39,16 +41,16 @@
 - **Fusion de royaumes :** non trouvée. Rébellions et indépendance existent, pas de fusion ni de guerre civile à proprement parler.
 - **Pillage et réfugiés :** absents.
 - **Moral :** seulement un trait, pas de vraie fuite sur le champ de bataille (non vérifié en détail).
-- **Dragon avec nid et trésor, colosse contrôlable :** absents.
+- **Dragon avec nid et trésor, capacités du colosse :** absents (le dragon et le colosse existent comme monstres provisoires au comportement générique ; le pouvoir « contrôle » marche sur eux comme sur toute créature, non vérifié en jeu).
 - **Métiers inutilisés :** marin, ingénieur, guérisseur (définis, jamais affectés par le code).
 
 ## Non vérifié
 
-- qualité des sprites des 4 peuples provisoires ;
+- les 4 peuples provisoires dans une vraie partie longue, et leurs guerres (le robot ne les joue que seuls) ;
 - amitiés et rivalités entre individus (le code gère les couples ; pas de vraie amitié vue) ;
 - effet réel d'un hôpital sans métier de guérisseur ;
 - ressenti de jeu, son, performances sur un vrai PC, tactile (voir `BALANCE.md`).
 
 ## Étapes du plan restantes
 
-12 (finir : 40 espèces, pouvoirs provisoires jusqu'à 100, sons, validation des données), 13 (titre, chargement, icônes), 14 (vérification finale, deux longues parties, revue indépendante, rapport).
+12 faite (squelette de données et contenu provisoire), 13 (titre, chargement, icônes), 14 (vérification finale, deux longues parties, revue indépendante, rapport : réservée à un autre agent).
