@@ -95,6 +95,8 @@ exports.GRIDS = {
     '..osonoSo..',
     '..ooooooo..'],
   'step': ['.o.', 'oTo', '.o.'],
+  // the bell of a tamed animal (chantier B.9)
+  'bell': ['.ooo.', '.oKo.', 'oFFko', 'ooooo', '..o..'],
   'head/0': ['.oo..', '.oTo.', '.oTTo', '.oTo.', '.oo..'],
   'head/1': ['...oo', '..oTo', '.oTTo', 'oTTTo', 'ooooo'],
   'head/2': ['ooooo', 'oTTTo', '.oTo.', '..o..', '.....'],

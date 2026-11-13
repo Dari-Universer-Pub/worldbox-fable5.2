@@ -243,12 +243,32 @@ const O = {
 };
 const dims = fp => [fp[0] * 3.25, fp[1] * 2.9];
 const DO = {};
+// ---- the pen (chantier B.9): a fenced yard open to the sky — the animals standing in it are real units — with a lean-to
+// shelter over the hay in a back corner, a water trough and an open gate at the front. g = stage 0..4; M = materials.
+function pen(k, g, W, Dp, M) { const h = 2.9 + Math.min(g, 2) * 0.35, X = W - 0.9, Y0 = -Dp + 1.2, Y1 = Dp + 1.4, r = g >= 2 ? 0.62 : 0.5, cm = g >= 3 ? M.corner : M.post;
+  const xs = [-X, -X * 0.5, 0, X * 0.5, X], ys = [Y0 + (Y1 - Y0) / 3, Y0 + 2 * (Y1 - Y0) / 3];
+  for (const x of xs) k.post(x, Y0, 0, h + (Math.abs(x) === X && g >= 3 ? 1.4 : 0), Math.abs(x) === X ? cm : M.post, r);
+  for (const y of ys) { k.post(-X, y, 0, h, M.post, r); k.post(X, y, 0, h, M.post, r); }
+  for (const x of [-X, -X * 0.5, X * 0.5, X]) k.post(x, Y1, 0, h + (Math.abs(x) === X && g >= 3 ? 1.4 : Math.abs(x) < X ? 1.1 : 0), Math.abs(x) === X ? cm : M.post, r + (Math.abs(x) < X ? 0.12 : 0));
+  for (const z of g ? [h * 0.42, h * 0.84] : [h * 0.7]) { k.cap([-X, Y0, z], [X, Y0, z], 0.36, 0.36, M.rail, { pri: 2 }); k.cap([-X, Y0, z], [-X, Y1, z], 0.36, 0.36, M.rail, { pri: 4 }); k.cap([X, Y0, z], [X, Y1, z], 0.36, 0.36, M.rail, { pri: 4 });
+    k.cap([-X, Y1, z], [-X * 0.5, Y1, z], 0.36, 0.36, M.rail, { pri: 6 }); k.cap([X * 0.5, Y1, z], [X, Y1, z], 0.36, 0.36, M.rail, { pri: 6 }); }
+  // the gate leaf, swung open toward the viewer
+  k.cap([X * 0.5, Y1, h * 0.84], [X * 0.5 - 1.2, Y1 + 3.2, h * 0.84], 0.34, 0.34, M.rail, { pri: 7 }).cap([X * 0.5, Y1, h * 0.42], [X * 0.5 - 1.2, Y1 + 3.2, h * 0.42], 0.34, 0.34, M.rail, { pri: 7 }).cap([X * 0.5 - 1.2, Y1 + 3.2, 0], [X * 0.5 - 1.2, Y1 + 3.2, h], 0.4, 0.4, M.post, { pri: 7 });
+  // shelter and hay in the back left corner
+  const sx = -X * 0.48, sw = X * 0.44, sh = 6 + Math.min(g, 3) * 0.5; k.post(sx - sw, Y0 + 0.6, 0, sh + 1.6, M.post, 0.55).post(sx + sw, Y0 + 0.6, 0, sh + 1.6, M.post, 0.55).post(sx - sw, Y0 + 5.2, 0, sh - 1, M.post, 0.55).post(sx + sw, Y0 + 5.2, 0, sh - 1, M.post, 0.55);
+  k.slab(sx, Y0 + 2.9, sh + 0.9, sw + 0.9, 3.5, 0.42, M.roof[Math.min(2, g)], 0.9); k.hay(sx - 0.6, Y0 + 3.4, 2.5 + Math.min(g, 2) * 0.3, 3.4 + Math.min(g, 2) * 0.5); if (g >= 1) k.hay(sx + sw + 2.2, Y0 + 2, 1.7, 2.3);
+  // trough on the right, a sack of feed, then richer things with the stages
+  k.box(X * 0.5, Y0 + 3, 0, 2.7, 0.95, 1.25, M.trough, { round: 0.2, pri: 3 }).box(X * 0.5, Y0 + 3, 1.05, 2.3, 0.6, 0.3, 'tealc', { pri: 4 });
+  if (g >= 1) k.sack(X - 2, Y0 + 6.2); if (g >= 2) k.barrel(X - 2.2, Y1 - 2.4); if (g >= 3) k.flag(-X * 0.5, Y1, 0, 9 + g); if (g >= 4) { k.ell(X, Y1, h + 2.2, [0.9, 0.8, 0.9], 'gold', { pri: 8 }); k.ell(-X, Y1, h + 2.2, [0.9, 0.8, 0.9], 'gold', { pri: 8 }); }
+  return k; }
+D.pen = { fp: [3, 3], make(k) { const [W, Dp] = dims(this.fp); return pen(k, k.s + (k.lvl || 0), W, Dp, { post: 'timber', rail: 'log', corner: 'stoneL', roof: ['thatch', 'shingle', 'shingle'], trough: 'wood' }); } };
 const odef = (type, make) => { DO[type] = { fp: D[type].fp, great: D[type].great, make(k) { const [W, Dp] = dims(D[type].fp); make(k, k.s, W, Dp); return k; } }; };
 odef('house', (k, s, W, Dp) => { O.shell(k, s, W - (s ? 0.6 : 0), Dp, [8.6, 13, 15][s]); if (s === 0) O.totem(k, W + 0.2, Dp + 1.5, 5); else if (s === 1) { O.shield(k, -W * 0.55, Dp, 3.6); k.stake(W + 0.6, Dp + 1.5, 5.5, 0.8); } });
 odef('hall', (k, s, W, Dp) => { O.shell(k, s, W - 1, Dp - 0.5, [12.5, 16.5, 17][s], 0, 'hideR');
   if (s === 0) { k.ell(-W * 0.72, -2, 0, [5.5, 4.6, 8.4], 'hideO', { pri: -1 }); O.tusk(k, -4.6, Dp + 0.6, 0, 11, -1, 1.2); O.tusk(k, 4.6, Dp + 0.6, 0, 11, 1, 1.2); O.totem(k, W + 0.5, Dp, 9); k.fire(-W + 0.5, Dp + 3, 0, 1.7).ell(-W + 0.5, Dp + 3, 0.5, [3, 2.4, 0.9], 'black'); }
   else if (s === 1) { O.tusk(k, -4.4, Dp + 1, 0, 14, -1, 1.35); O.tusk(k, 4.4, Dp + 1, 0, 14, 1, 1.35); k.banner(-W - 0.5, 3, 0, 17, 'war').banner(W - 2.5, 3, 0, 17, 'war'); O.brazier(k, -W + 2.5, Dp + 3.4, 0); O.shield(k, -8, Dp - 0.5, 4.2); O.shield(k, 8, Dp - 0.5, 4.2); k.chimney(-6, -3, 11, 6, 'blackS'); }
   else { k.cyl(0, -1.5, 18.2, 4.6, 7.5, 'blackS', { pri: 4 }).cone(0, -1.5, 25.4, 5.8, 6, 'hideO', { pri: 5 }); O.tusk(k, -5.2, -1.5, 24.5, 7.5, -1, 1); O.tusk(k, 5.2, -1.5, 24.5, 7.5, 1, 1); k.win(0, 3, 22, 0.7, 1.4); O.brazier(k, -W + 1.5, Dp + 3, 0); O.brazier(k, W - 1.5, Dp + 3, 0); k.banner(-W - 0.2, 4, 10, 13, 'war').banner(W - 3.2, 4, 10, 13, 'war'); } });
+odef('pen', (k, s, W, Dp) => pen(k, s + (k.lvl || 0), W, Dp, { post: 'log', rail: 'bone', corner: 'blackS', roof: ['hide', 'hideR', 'hideO'], trough: 'log' }));
 odef('farm', (k, s, W, Dp) => { if (s === 0) { k.palisade(-W, -1, -Dp, 3.2).palisade(-W, -1, Dp + 1, 2.6); O.rack(k, 5, 2, 3.6, 7.5, 'meat'); k.hay(-5.4, 1, 3.2, 4.4).ell(4.6, 6, 0.8, [1.6, 1.2, 1.1], 'bone'); }
   else { O.shell(k, s, W * 0.55, Dp - 0.3, s === 1 ? 11 : 13, -W * 0.42); O.rack(k, W * 0.55, 2.5, 3.5, 8, 'meat'); k.palisade(W * 0.1, W, -Dp + 0.5, 3.4).hay(W * 0.62, 6.4, 2.3, 3.4); if (s === 2) O.skull(k, W * 0.55, 3, 9.4, 1.2); } });
 odef('warehouse', (k, s, W, Dp) => { O.shell(k, s, W - 0.4, Dp - 1.6, [9.5, 13, 15][s], 0, 'thatchD'); k.crate(-W + 1.2, Dp + 0.9, 0, 1.8).barrel(W - 1.5, Dp + 1.2).sack(W - 5, Dp + 1.8).sack(-W + 5, Dp + 2); if (s) k.crate(-W + 1.6, Dp + 0.7, 3.6, 1.3).barrel(W - 4.6, Dp + 0.4); if (s === 0) k.ell(4.5, Dp + 2.5, 0.7, [1.5, 1.1, 1], 'bone'); });
@@ -296,7 +316,7 @@ function orcHi(type, k, fp) { const lv = k.lvl, W = fp[0] * 3.25, Dp = fp[1] * 2
   if (type === 'wall' || type === 'gate') { k.box(0, 0, top, 3.3, 3.3, 1.2, lv === 2 ? 'obsidL' : 'ironD', { pri: 6 }); O.spike(k, 0, 1.2, top + 1.2, 3.6 + lv); if (lv === 2) k.fire(0, -0.5, top + 1.2, 0.9); return; }
   if (type === 'watchtower') { k.cyl(0, 0, top - 1, 5.9, 1.4, lv === 2 ? 'obsidL' : 'ironD', { pri: 6 }); O.tusk(k, -5.6, 0, top, 5 + lv, -1, 1); O.tusk(k, 5.6, 0, top, 5 + lv, 1, 1); if (lv === 2) k.banner(4.4, 3, 0, top + 2, 'war'); return; }
   O.shellHi(k, lv, W * 0.3, Dp * 0.42, 9, type === 'temple' ? 0 : -W * 0.62); if (type !== 'temple') { O.brazier(k, W - 1.5, Dp + 2.4, 0); k.banner(W - 2, -Dp + 1.5, 0, 12 + lv * 2, 'war'); } }
-function finishHi(set, type, k, fp) { if (k.lvl && set === 'human') humanHi(type, k, fp); else if (k.lvl && set === 'orc') orcHi(type, k, fp); return k; }
-module.exports = { D, DSETS, SETS, PAT, kit, site, hash, ZS, YS, finishHi };
+function finishHi(set, type, k, fp) { if (k.lvl && set === 'human' && type !== 'pen') humanHi(type, k, fp); else if (k.lvl && set === 'orc') orcHi(type, k, fp); return k; }
+module.exports = { D, DSETS, SETS, PAT, kit, site, hash, ZS, YS, finishHi, pen };
 // the four provisional peoples register their own sets (elf, dwarf, myrrin, okari)
 require('./buildings2')(module.exports, { mat, team, glow, glass, ix, rotX, rotY, rotZ });

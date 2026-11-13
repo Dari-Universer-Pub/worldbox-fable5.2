@@ -137,6 +137,11 @@ def vary(layers, pitch=1.0, time=1.0):
 # ---- war (chantier B.4)
 def war3(name, cat, dur, cen, layers, **k):
     snd(name, cat, dur, cen, variants=[layers, vary(layers, 1.09, 0.93), vary(layers, 0.92, 1.08)], **k)
+# ---- livestock and migrations (chantier B.9)
+# milk: two jets ring in a wooden pail
+war3("milk", "work", [0.2, 1.2], [600, 6000], [N(0.5, 0.005, 0.1, 0.06, bp(2600, 2.5, (0.1, 1500))), O("sine", [900, 620, 0.1], 0.12, 0.005, 0.1, 0.06), N(0.5, 0.005, 0.12, 0.08, bp(2100, 2.5, (0.12, 1200)), at=0.26), O("sine", [760, 520, 0.12], 0.12, 0.005, 0.12, 0.08, at=0.26)])
+# migrate: a herd sets off — a low roll of many hooves that swells, a far call above it
+war3("migrate", "animal", [0.8, 3.0], [100, 2500], [N(0.6, 0.4, 0.9, 0.6, bp(260, 1.0), trem=[11, 0.8]), N(0.3, 0.4, 0.8, 0.6, bp(600, 1.2), trem=[13, 0.7]), O("sawtooth", [330, 290, 0.5], 0.14, 0.1, 0.5, 0.3, at=0.5, flt=bp(700, 3))], rev=0.3)
 # ---- seasons (chantier B.8)
 # spring: a bird's trill of quick rising notes over a soft breath of air
 war3("season_spring", "disaster", [0.5, 2.5], [1500, 7000], [O("sine", [2600, 3300, 0.07], 0.25, 0.005, 0.07, 0.04), O("sine", [2900, 3600, 0.07], 0.25, 0.005, 0.07, 0.04, at=0.11), O("sine", [3200, 3900, 0.07], 0.25, 0.005, 0.07, 0.04, at=0.22), O("sine", [3500, 2800, 0.25], 0.22, 0.005, 0.25, 0.15, at=0.36), N(0.08, 0.2, 0.6, 0.4, bp(2500, 1.0))], rev=0.3)

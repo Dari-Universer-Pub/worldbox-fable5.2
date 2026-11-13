@@ -86,6 +86,7 @@
       G.seasAmt = SCOVER[se] ? edge : 0; S.frost = se === 3 && edge > 0.5; S.seasonEdge = edge; }
     S.night = p > 0.72 || p < 0.04 ? 1 : p > 0.66 ? (p - 0.66) / 0.06 : p < 0.08 ? 1 - (p - 0.04) / 0.04 : 0; env.night = S.night; env.sun[0] = 0.55 - (p - 0.4) * 0.5; };
   // ---- drawing
+  let bellF = null;
   const LOADF = [], LOX = [0, -5, 0, 5], LOY = [-2, -3, -3, -3], LOZ = [4, 5, 5, 5], loadOf = r => LOADF[r] !== undefined ? LOADF[r] : (LOADF[r] = AL.Assets.frames['load/' + AL.RESN[r]] || null);
   const markUnit = () => S._mk || (S._mk = AL.Assets.frames['mark/unit/0']);
   S.draw = function (env) { const G = AL.Gfx, c = Game.cam, z = c.z, A = AL.Assets, vx0 = c.x - 40, vy0 = c.y - 40, vx1 = c.x + G.W / z + 40, vy1 = c.y + G.H / z + 70, far = z < 0.74, night = S.night > 0.5;
@@ -111,7 +112,7 @@
       if (pv && i < pv.n && pv.alive[i] && pv.gen[i] === m.gen[i]) { const ox = pv.x[i], oy = pv.y[i], dx = x - ox, dy = y - oy; if (dx * dx + dy * dy < 9) { x = ox + dx * al; y = oy + dy * al; } }
       px[i] = x; py[i] = y; const an = m.anim[i]; if (an !== lastAnim[i] || m.gen[i] !== lastGen[i]) { lastAnim[i] = an; lastGen[i] = m.gen[i]; animStart[i] = t; }
       if (an === 14) continue; // inside a building
-      const wx = x * 8, wy = y * 8 + 2; if (wx < vx0 || wx > vx1 || wy < vy0 || wy > vy1) continue; if (S.sel === i) S.selPos = [wx, wy]; const kind = m.kind[i]; if (kind >= np && S.drawCreature(m, i, kind, an, wx, wy, t, far)) { nu++; continue; }
+      const wx = x * 8, wy = y * 8 + 2; if (wx < vx0 || wx > vx1 || wy < vy0 || wy > vy1) continue; if (S.sel === i) S.selPos = [wx, wy]; const kind = m.kind[i]; if (kind >= np && S.drawCreature(m, i, kind, an, wx, wy, t, far)) { if (!far && m.hd && m.hd[i] && an !== 7) { const bf = bellF || (bellF = AL.Assets.frames['mark/bell']); if (bf) G.spr(bf, wx, wy - AL.KINDS[kind].size * 0.42, 0, 0, 0, 1, 1, 14); } nu++; continue; }
       const team = S.teamOf(kind, m.kd[i]), fl = m.flags[i];
       if (far) { if (mk) G.spr(mk, wx, wy, team, 0, 0, 1, 0.8 / z, 0); nu++; continue; }
       const fs = framesOf(kind, m.look[i], an, m.dir[i]); let fi; const el = t - animStart[i];

@@ -68,7 +68,7 @@
       else if (!f && AL.gCost[W.ground[t]] > 0 && !(W.flags[t] & 2) && ((X + Y) & 1) === 0) { if ((X + 1 < n && AL.gWater[W.ground[t + 1]] === 1) || (X > 0 && AL.gWater[W.ground[t - 1]] === 1) || (Y + 1 < n && AL.gWater[W.ground[t + n]] === 1) || (Y > 0 && AL.gWater[W.ground[t - n]] === 1)) town.shore.push(t); } }
     town.scanAt = sim.tick; };
   // ---------------------------------------------------------------- planner (every 40 ticks per town)
-  const ORDER = ['house', 'farm', 'sporebed', 'tidehouse', 'grove', 'delve', 'warehouse', 'sawmill', 'mine', 'port', 'market', 'temple', 'barracks', 'forge', 'library', 'tavern', 'watchtower', 'hospital'];
+  const ORDER = ['house', 'farm', 'pen', 'sporebed', 'tidehouse', 'grove', 'delve', 'warehouse', 'sawmill', 'mine', 'port', 'market', 'temple', 'barracks', 'forge', 'library', 'tavern', 'watchtower', 'hospital'];
   T.wantCount = function (town, bt) { const base = bt.max[0], per = bt.max[1]; return base + (per ? Math.floor(town.pop / per) : 0); };
   T.plan = function (sim, town) { const D = AL.DATA.buildings, B = sim.B, st = town.stock; const hungry = st[AL.RES.food] / Math.max(1, town.pop) < 5, lim = Math.min(7, 1 + Math.floor(town.adults / 10)); if (town.sites >= lim + (hungry ? 1 : 0)) return; const farmOnly = town.sites >= lim; // a hungry town may open a farm site on top of its other works
     let pick = null; const cv = town.cultureValues || AL.KINDS[town.people].culture;
@@ -130,7 +130,7 @@
     { const nG = done(BT.grove), nD = done(BT.delve), nS = done(BT.sporebed), nT = done(BT.tidehouse); if (nG && !crisis) want[J.warden] = tight ? 1 : Math.min(nG * 2, Math.max(1, Math.ceil(pop * 0.08))); if (nD) want[J.delver] = Math.min(nD * 3, Math.max(1, Math.ceil(pop * 0.15)));
       if (nS) want[J.sporer] = Math.min(nS * 3, Math.max(1, Math.ceil(pop * (crisis ? 0.5 : tight ? 0.35 : foodPer > 14 ? 0.1 : 0.22)))); if (nT) want[J.diver] = Math.min(nT * 3, Math.max(1, Math.ceil(pop * (crisis ? 0.4 : tight ? 0.3 : foodPer > 14 ? 0.08 : 0.18)))); }
     want[J.healer] = done(BT.hospital) ? 1 + (pop > 120 ? 1 : 0) : 0; want[J.engineer] = town.bridge || (town.atWar && town.stage >= 3 && done(BT.barracks)) ? 1 : (town.stage >= 3 && pop > 50 && !crisis ? 1 : 0); // chantier B.3
-    want[J.scholar] = done(BT.library) ? 1 + (cv.lore > 0.6 ? 1 : 0) : 0; want[J.bard] = done(BT.tavern) ? 1 : 0; want[J.herder] = town.herd ? 1 : 0;
+    want[J.scholar] = done(BT.library) ? 1 + (cv.lore > 0.6 ? 1 : 0) : 0; want[J.bard] = done(BT.tavern) ? 1 : 0; want[J.herder] = done(BT.pen) ? (tight ? 1 : Math.min(done(BT.pen) * 2, Math.max(1, Math.ceil(pop * 0.05)))) : 0; // chantier B.9
     // monsters near the town (zombies, skeletons, demons) call the militia out, war or no war
     { let mc = 0; const nq = E.query(town.cx, town.cy, 22); for (let k = 0; k < nq; k++) { const j = E.near[k]; if (!(E.flags[j] & 1) && E.kind[j] >= AL.NPEOPLE && AL.KINDS[E.kind[j]].cls === 2) mc++; } town.monsters = mc; town.threat = !!town.atWar || mc > 0; }
     let mil = Math.min(Math.ceil(pop * 0.4), (done(BT.barracks) ? Math.ceil(pop * (0.06 + cv.war * 0.14 + (town.atWar ? 0.15 : 0))) : (town.threat ? Math.ceil(pop * 0.1) : 0)) + (town.monsters ? Math.ceil(pop * 0.12 + town.monsters * 0.5) : 0)); { const levy = town.atWar && !tight ? Math.ceil(town.adults * (0.3 + cv.war * 0.25)) : 0; if (levy > mil) mil = Math.min(levy, Math.ceil(town.adults * 0.6)); } want[J.soldier] = Math.ceil(mil * 0.6); want[J.archer] = Math.floor(mil * 0.3); want[J.knight] = town.stage >= 4 ? Math.floor(mil * 0.1) : 0;

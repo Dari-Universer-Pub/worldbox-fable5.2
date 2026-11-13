@@ -11,7 +11,7 @@
 | Monstres | 20 (3 soignés + 17 provisoires) | 20 | dont dragon, géant, golem, esprit, néantin, léviathan, colosse 64×64 ; comportement générique |
 | Pouvoirs | 100 (tous de vrais pouvoirs depuis A.7) | 100 | chacun a son icône, son effet, son son et son geste propre ; équilibrage non réglé |
 | Métiers | 25 (dont 4 propres à un peuple : gardien, puisatier, sporier, plongeur) | 20 | tous affectés : le marin mène les barques (B.2), l'ingénieur pose les ponts et répare, le guérisseur soigne (B.3) |
-| Bâtiments | 17 types × 5 stades dessinés × 6 peuples + 4 bâtiments propres (bosquet, puits, champignonnière, maison des marées) | 15 types × 5 stades | fait (chantiers A.6 et A.8) |
+| Bâtiments | 18 types × 5 stades dessinés × 6 peuples (dont l'enclos, chantier B.9) + 4 bâtiments propres (bosquet, puits, champignonnière, maison des marées) | 15 types × 5 stades | fait (chantiers A.6 et A.8) |
 | Ères | 10 | 10 | complet |
 | Dogmes | 12 | 12 | complet |
 | Traits | 60 | 60 | complet |
@@ -29,7 +29,7 @@ Ces comptes sont vérifiés par `node tools/validate-data.js` (tableau « vision
 - Bâtiments : chantiers visibles, ruines, effondrement.
 - Royaumes : capitale, succession, dynasties, alliances, traités, mariages royaux, vassalité, rébellions et indépendance.
 - Guerre : mobilisation (levée de 30 à 55 % des adultes), sièges avec dégâts aux bâtiments, paix par lassitude de guerre ; depuis B.4 : cavalerie (chevaux apprivoisés), armes selon le stade, héros et champions, moral et fuite, blessures et soins, béliers et catapultes, pillage, réfugiés (`src/sim/war.js`). Calque « Guerres » (B.5) : fronts, armées en marche, sièges, villes prises.
-- Culture, langues, religions (prophètes, schismes), chronique, histoire.
+- Culture, langues, religions (prophètes, schismes), chronique, histoire. Depuis B.9 : élevage (enclos, bêtes apprivoisées à cloche, lait et laine, abattage) et migrations saisonnières (cerf, élan, bison, éléphant, cheval, mouette, corbeau) — `src/sim/herds.js`.
 - Nature : monde sauvage stable, feu, météo (pluie, orage, neige, brouillard), catastrophes, jour et nuit.
 
 ## Ce qui manque ou n'est pas actif (recherche dans le code, rien trouvé)

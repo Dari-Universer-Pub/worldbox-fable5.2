@@ -37,7 +37,8 @@
    "tundra"
   ],
   "density": 1.0,
-  "courage": 0.05
+  "courage": 0.05,
+  "migrates": true
  },
  "sheep": {
   "atlas": "creatures",
@@ -439,7 +440,8 @@
   ],
   "density": 0.35,
   "courage": 0.1,
-  "livestock": true
+  "livestock": true,
+  "migrates": true
  },
  "cow": {
   "atlas": "creatures2",
@@ -477,7 +479,8 @@
    "tundra"
   ],
   "density": 0.35,
-  "courage": 0.4
+  "courage": 0.4,
+  "migrates": true
  },
  "elk": {
   "atlas": "creatures2",
@@ -496,7 +499,8 @@
    "hills"
   ],
   "density": 0.3,
-  "courage": 0.15
+  "courage": 0.15,
+  "migrates": true
  },
  "moose": {
   "atlas": "creatures2",
@@ -572,7 +576,8 @@
    "jungle"
   ],
   "density": 0.15,
-  "courage": 0.7
+  "courage": 0.7,
+  "migrates": true
  },
  "rhino": {
   "atlas": "creatures2",
@@ -633,7 +638,8 @@
   ],
   "density": 0.3,
   "courage": 0,
-  "fly": true
+  "fly": true,
+  "migrates": true
  },
  "gull": {
   "atlas": "creatures2",
@@ -652,7 +658,8 @@
   ],
   "density": 0.4,
   "courage": 0,
-  "fly": true
+  "fly": true,
+  "migrates": true
  },
  "owl": {
   "atlas": "creatures2",

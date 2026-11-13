@@ -135,6 +135,14 @@ E['loot'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), SK = R('s
   if (!open) { im.set(7, 8, SK[0]); im.set(8, 8, SK[0]); im.set(7, 7, SK[1]); im.set(8, 7, SK[2]); } else for (let x = 5; x < 11; x++) im.set(x, 9, G[1 + (x & 1)]);
   if (open) for (let k = 0; k < 6; k++) { const a = -Math.PI * (0.18 + 0.64 * (k + 0.5) / 6), sp = 5 + (k * 37 % 5) * 0.7, x = Math.round(7.5 + Math.cos(a) * sp * t), y = Math.round(9 + Math.sin(a) * sp * 1.5 * t + 11 * t * t); if (y > 15 || y < 0 || x < 0 || x > 15) continue; im.set(x, y, G[3 - (f % 2 === k % 2 ? 1 : 0)]); if (y + 1 < 16) im.set(x, y + 1, G[1]); if (f < 3 && x + 1 < 16) im.set(x + 1, y, G[2]); }
   return im; }, pivot: [8, 15] };
+// ---- livestock (chantier B.9)
+// milk: a wooden pail fills — a white jet falls in, the milk rises to the brim, a drop jumps
+E['milk'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), WD = R('earth', [1, 3, 4]), M = R('ice', [5, 4]), IR = ix('stone', 3), lvl = [0, 1, 2, 3, 4, 4][f];
+  for (let j = 0; j < 6; j++) { const w = 3 + (j < 2 ? 1 : 0); for (let k = -w; k < w; k++) im.set(8 + k, 9 + j, k === -w ? WD[2] : k === w - 1 ? WD[0] : WD[1]); } for (let k = -4; k < 4; k++) { im.set(8 + k, 11, IR); im.set(8 + k, 14, WD[0]); }
+  for (let k = -3; k < 3; k++) im.set(8 + k, 9, lvl >= 3 ? M[k < 0 ? 0 : 1] : WD[0]); if (lvl >= 4) for (let k = -2; k < 2; k++) im.set(8 + k, 8, M[0]);
+  if (f < 4) { for (let y = 1 + f; y < 9; y++) if ((y + f) % 3) im.set(7 + ((y + f) & 1), y, M[0]); } if (f >= 3) { im.set(4 - (f - 3), 7 - (f === 4 ? 2 : f === 5 ? 1 : 0), M[0]); im.set(11 + (f - 3), 6 - (f === 4 ? 2 : f === 5 ? 0 : 0), M[1]); }
+  im.set(3, 8, IR); im.set(2, 9, IR); im.set(12, 8, IR); im.set(13, 9, IR); im.set(4, 7, f < 3 ? IR : 255);
+  return im; }, pivot: [8, 15] };
 // ---- seasons (chantier B.8)
 // particles of the season: an autumn leaf, a spring petal
 E['p/aleaf'] = { w: 2, h: 2, n: 1, pivot: [0, 0], fn: () => { const im = new Img(2, 2); im.set(0, 0, ix('fire', 3)); im.set(1, 0, ix('fire', 2)); im.set(1, 1, ix('earth', 3)); return im; } };

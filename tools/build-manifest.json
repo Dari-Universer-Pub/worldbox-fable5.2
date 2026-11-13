@@ -20,6 +20,7 @@
   "src/sim/culture.js",
   "src/sim/powers2.js",
   "src/sim/seasons.js",
+    "src/sim/herds.js",
     "src/sim/save.js"
  ],
  "client": [

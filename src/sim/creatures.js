@@ -99,7 +99,7 @@
     // rare species find each other (wider mate search) and recover faster: without this, wolves, eagles and rabbits sat at the migration floor for centuries
     const kn = sim.kindLast[E.kind[i]], kcap = sim.kindCap[E.kind[i]], rare = kn < Math.max(14, kcap * 0.15), boost = rare ? 2 : 1;
     if (E.sex[i] === 1 && E.hunger[i] < (K.diet === 'pred' ? 85 : 55) && age > E.life[i] * 0.15 && sim.nAnimals < sim.animalCap && rng.chance(0.05 * K.fertility * boost * (sim.breedMul || 1)) && kn < kcap) { const c = E.query(E.x[i], E.y[i], rare ? 45 : K.herd <= 1 ? 30 : 12); let same = 0, male = false; for (let k = 0; k < c; k++) { const j = E.near[k]; if (E.kind[j] === E.kind[i] && !(E.flags[j] & F.DEAD)) { same++; if (E.sex[j] === 0) male = true; } }
-      if (male && same < K.herd * 2 + 3) { const b = C.spawn(sim, E.kind[i], E.x[i], E.y[i], { age: 0 }); if (b >= 0) { sim.emit('cub', E.x[i], E.y[i]); if (sim.season != null) { const key = 'cubs_' + AL.Seasons.NAMES[sim.season]; sim.stats[key] = (sim.stats[key] || 0) + 1; } } } } };
+      if (male && same < K.herd * 2 + 3) { const b = C.spawn(sim, E.kind[i], E.x[i], E.y[i], { age: 0 }); if (b >= 0) { sim.emit('cub', E.x[i], E.y[i]); if (E.herdOf[i] >= 0 && AL.Herds) AL.Herds.born(sim, i, b); if (sim.season != null) { const key = 'cubs_' + AL.Seasons.NAMES[sim.season]; sim.stats[key] = (sim.stats[key] || 0) + 1; } } } } };
   // ------------------------------------------------------------ module
   AL.Sim.modules.push({
     name: 'creatures',
