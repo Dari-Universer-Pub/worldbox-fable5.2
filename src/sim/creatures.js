@@ -7,7 +7,7 @@
   ACT.HUNT = 19;
   // ------------------------------------------------------------ fight
   // a hits t. cause: 'fight' | 'zombie' | 'hunt' | 'beast'
-  Fi.hit = function (sim, a, t, dmg, cause) { const E = sim.E; if (!E.alive[t] || (E.flags[t] & F.DEAD)) return false; const np = AL.NPEOPLE; { const ar = AL.KINDS[E.kind[t]].armor; if (ar) dmg *= 1 - ar; } // stone and thick hides (monsters.json "armor")
+  Fi.hit = function (sim, a, t, dmg, cause) { const E = sim.E; if (!E.alive[t] || (E.flags[t] & F.DEAD)) return false; if (sim.zones && sim.zones.length && AL.Powers.inZone(sim, E.x[t], E.y[t], 8)) { sim.stats.spared++; return false; } /* a sanctuary of the god: no blow lands inside */ const np = AL.NPEOPLE; { const ar = AL.KINDS[E.kind[t]].armor; if (ar) dmg *= 1 - ar; } // stone and thick hides (monsters.json "armor")
     if (E.kind[t] < np) { const town = sim.towns[E.town[t]]; if (town && town.stock[AL.RES.armor] > 0 && AL.JOBS[E.job[t]].military) dmg *= 0.7; }
     // home advantage: a person hurt by another person on the land of their own kingdom takes a quarter less damage (conquest is slower than defence, the weaker side can hold)
     if (E.kind[t] < np && a >= 0 && E.kind[a] < np) { const W = sim.world, o = W.owner[(E.y[t] | 0) * W.n + (E.x[t] | 0)]; if (o && sim.towns[o - 1] && sim.towns[o - 1].kingdom === E.kingdom[t] && E.kingdom[t] >= 0) dmg *= 0.75; }

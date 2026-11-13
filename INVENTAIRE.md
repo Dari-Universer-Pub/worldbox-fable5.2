@@ -9,7 +9,7 @@
 | Peuples | 6 définis, **2 soignés** (humains, orques) + **4 provisoires jouables** (elfes, nains, myrrins, okaris) | 6 | les 4 provisoires ont leurs 18 aspects et leur architecture en 3 stades ; cachés tant que l'option « Contenu provisoire » est coupée |
 | Animaux | 40 (8 soignés + 32 provisoires) | 40 | les provisoires n'apparaissent jamais seuls (densité 0), seulement posés par le joueur |
 | Monstres | 20 (3 soignés + 17 provisoires) | 20 | dont dragon, géant, golem, esprit, néantin, léviathan, colosse 64×64 ; comportement générique |
-| Pouvoirs | 100 (44 soignés + 56 provisoires) | 100 | les provisoires sont des variantes (rayon, durée, dispersion, invocations) |
+| Pouvoirs | 100 (tous de vrais pouvoirs depuis A.7) | 100 | chacun a son icône, son effet, son son et son geste propre ; équilibrage non réglé |
 | Métiers | 21 | 20 | **3 ne servent à rien** : marin, ingénieur, guérisseur |
 | Bâtiments | 17 types × 5 stades dessinés × 6 peuples | 15 types × 5 stades | fait (chantier A.6) |
 | Ères | 10 | 10 | complet |
@@ -18,7 +18,7 @@
 | Flore | 31 | 25 | complet |
 | Sols / biomes | 18 | 14 | complet |
 | Ressources | 10 | 4 minerais dont 1 rare | cuivre, fer, or, aéthérite : complet (7 icônes de ressources non dessinées) |
-| Sons / musiques | 120 (76 + 44 provisoires) / 8 pistes (3 + 5 provisoires) | 120 / 8 | jamais écoutés |
+| Sons / musiques | 163 (119 + 44 provisoires) / 8 pistes (3 + 5 provisoires) | 120 / 8 | jamais écoutés |
 
 Ces comptes sont vérifiés par `node tools/validate-data.js` (tableau « vision / données / provisoire »).
 

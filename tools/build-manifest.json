@@ -14,6 +14,7 @@
   "src/sim/powers.js",
   "src/sim/monsters.js",
   "src/sim/culture.js",
+  "src/sim/powers2.js",
   "src/sim/save.js"
  ],
  "client": [

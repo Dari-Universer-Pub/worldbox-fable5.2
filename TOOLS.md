@@ -39,7 +39,7 @@ Added in later steps: bakers per category, `bake-all.js`, `build.js`, `validate-
 | `tests/war-run.js` | headless kingdoms run (humans and orcs 44 tiles apart): prints the chronicle; fails if there is no war, no battle, no end of war, no succession, or more than 12 wars | `node tests/war-run.js 40000 <seed> [--quiet]` | WAR OK / FAIL |
 
 ## tools/bake-fx.js (+ tools/art/fx.js)
-Effects baker. `node tools/bake-fx.js` renders every procedural effect of `tools/art/fx.js` (54 types, 242 frames: fire, smoke, explosions, mushroom cloud, lightning, tornado, rings, sprays, state icons, rain cloud, weather particles) into the atlas `assets/fx.*` with frames named `fx/<name>/<i>`. Look at them with `node tools/sheet.js fx --match <regex> --scale 4 --out shots/x.png`. Included in `node tools/bake-all.js`.
+Effects baker. `node tools/bake-fx.js` renders every procedural effect of `tools/art/fx.js` (115 types, 550 frames since A.7; first set: fire, smoke, explosions, mushroom cloud, lightning, tornado, rings, sprays, state icons, rain cloud, weather particles) into the atlas `assets/fx.*` with frames named `fx/<name>/<i>`. Look at them with `node tools/sheet.js fx --match <regex> --scale 4 --out shots/x.png`. Included in `node tools/bake-all.js`.
 
 ## tests/powers-run.js, tests/step8.js
 `node tests/powers-run.js`: headless, 34 cases, each power must change a measured quantity; checks determinism. `node tests/step8.js`: browser robot using real clicks/drags/keys for the powers, writes `shots/step8-*.png`.
@@ -99,3 +99,7 @@ Dans les atlas, `left` et `right` sont nommés d'après le signe du yaw du baker
 
 ## Scénario `bestiary` du robot (preuve des comportements de monstres)
 `node tools/balance-bot.js run bestiary <graine> <années>` : un village humain, puis un monstre différent posé près de la ville tous les 3 ans à partir de l'an 12 ; les compteurs `m_*` sont dans `stats` du JSON de sortie.
+
+## tools/power-proof.js et tools/art/fx-powers.js (chantier A.7)
+`node tools/power-proof.js [graine] [id,id,…]` : preuve légère des 56 pouvoirs de `src/sim/powers2.js`. Fait grandir une ville sous Node, sauvegarde, puis pour chaque pouvoir recharge la sauvegarde, lance le pouvoir sur la ville et lit un compteur (`sim.stats`), les zones, les phénomènes et la chronique ; écrit `ok`/`FAIL` par pouvoir et « ALL 56 POWERS FIRED » à la fin. Ce n'est pas un test d'équilibrage.
+`tools/art/fx-powers.js` : source des 57 effets dessinés des pouvoirs (chargée par `tools/art/fx.js`, cuite par `node tools/bake-fx.js` : 115 types, 550 images). Planches : `node tools/sheet.js fx --match "<regex>" --scale 4 --labels [--silhouette] --out shots/x.png`. Les 43 sons des pouvoirs sont dans `tools/art/sounds.py` (bloc « chantier A.7 »).
