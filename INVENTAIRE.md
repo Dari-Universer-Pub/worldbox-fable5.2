@@ -38,7 +38,7 @@ Ces comptes sont vérifiés par `node tools/validate-data.js` (tableau « vision
 - **Ponts :** fait (B.1) : les villes jettent des ponts de planches sur les eaux peu profondes ; pas de garde-corps ni de piles.
 - **Saisons :** aucune.
 - **Cavalerie et machines de siège :** faites en B.4 (atlas `cavalry` 32×32, atlas `machines` 48×48, `src/sim/war.js`) ; équilibrage à faire par Sonnet.
-- **Fusion de royaumes :** non trouvée. Rébellions et indépendance existent, pas de fusion ni de guerre civile à proprement parler.
+- **Fusion de royaumes, guerre civile, chef d'alliance :** faits en B.6 (`src/sim/diplo.js`) ; rébellion d'une ville seule et mariage de deux souverains toujours jamais vus.
 - **Pillage et réfugiés :** absents.
 - **Moral :** seulement un trait, pas de vraie fuite sur le champ de bataille (non vérifié en détail).
 - **Dragon avec nid et trésor, capacités du colosse :** absents (le dragon et le colosse existent comme monstres provisoires au comportement générique ; le pouvoir « contrôle » marche sur eux comme sur toute créature, non vérifié en jeu).

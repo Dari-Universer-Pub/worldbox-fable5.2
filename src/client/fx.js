@@ -134,6 +134,11 @@
     wreck(x, y) { if (!Fx.vis(x, y, 40)) return; Fx.add('impact', x, y - 4, { life: 0.6, zb: 20 }); burst('soot', x, y - 6, 4, 10, { vy: -8, life: 1.2 }); Fx.snd('collapse', x, y, 0.7); },
     mount(x, y) { if (!Fx.vis(x, y)) return; Fx.add('dust', x - 3, y - 2); Fx.add('dust', x + 3, y - 2); Fx.snd('gallop', x, y, 0.6); },
     tame(x, y) { if (!Fx.vis(x, y)) return; Fx.add('heal', x, y - 8, { life: 0.6 }); Fx.snd('gallop', x, y, 0.5); },
+    // diplomacy (chantier B.6)
+    wedding(x, y) { if (Fx.vis(x, y, 60)) { Fx.add('wedding', x, y - 22, { life: 1.3, zb: 30 }); Fx.add('wedding', x - 16, y - 8, { life: 1.3, delay: 0.35, zb: 30 }); Fx.add('wedding', x + 15, y - 10, { life: 1.3, delay: 0.6, zb: 30 }); } Fx.snd('wedding', x, y, 0.8); },
+    revolt(x, y) { if (Fx.vis(x, y, 60)) { Fx.add('revolt', x, y - 16, { life: 1.1, zb: 30 }); Fx.add('revolt', x - 14, y - 4, { life: 1.1, delay: 0.25, zb: 30 }); Fx.add('revolt', x + 13, y - 6, { life: 1.1, delay: 0.45, zb: 30 }); Fx.add('dust', x, y - 2); } Fx.snd('revolt', x, y, 0.9); },
+    union(x, y) { if (Fx.vis(x, y, 60)) { Fx.add('union', x, y - 24, { life: 1.5, zb: 30, scale: 2 }); Fx.add('holy', x, y + 8, { zb: -20 }); } Fx.snd('union', x, y, 0.9); },
+    league(x, y) { if (Fx.vis(x, y, 60)) Fx.add('league', x, y - 22, { life: 1.4, zb: 30, scale: 2 }); Fx.snd('league', x, y, 0.8); },
     champion(x, y) { if (!Fx.vis(x, y, 40)) return; Fx.add('holy', x, y + 8, { zb: -20 }); Fx.snd('champion', x, y, 0.8); },
     care(x, y) { if (!Fx.vis(x, y)) return; burst('mend', x, y - 8, 2, 6, { life: 0.6 }); Fx.add('heal', x, y - 4, { life: 0.7 }); Fx.snd('care', x, y, 0.6); }, // a healer treats someone (chantier B.3)
     launch(x, y, big) { if (!Fx.vis(x, y, 40)) return; burst('splash', x, y + 2, big ? 5 : 3, big ? 12 : 8); Fx.add('ripple', x, y + 4, { zb: -20, life: 0.9 }); Fx.snd('launch', x, y, big ? 0.8 : 0.55); }, // a boat is put to sea (chantier B.2)
@@ -147,7 +152,7 @@
     surface(x, y) { if (!Fx.vis(x, y, 80)) return; burst('splash', x, y, 8, 20); Fx.add('ripple', x, y + 8, { zb: -20, life: 0.9, scale: 2 }); Fx.snd('wave', x, y, 0.8); }
   });
   Fx.tsarT = -9;
-  const TILEEV = { wound: 1, rout: 1, loot: 1, ramhit: 1, machine: 1, wreck: 1, mount: 1, tame: 1, champion: 1, care: 1, launch: 1, landing: 1, bridge: 1, tend: 1, delve: 1, spore: 1, dive: 1, hail: 1, shockwave: 1, smite: 1, mend: 1, might: 1, idea: 1, acidrun: 1, gate: 1, surface: 1, surge: 1, howl: 1, haunt: 1, steal: 1, arson: 1, snatch: 1, hit: 1, death: 1, chop: 1, mine: 1, hammer: 1, anvil: 1, built: 1, collapse: 1, splash: 1, love: 1, birth: 1, cub: 1, spawn: 1, rise: 1, risen: 1, stomp: 1, bolt: 1, boom: 1, nuke: 1, impact: 1, meteor: 1, quake: 1, flood: 1, siege: 1, trade: 1 };
+  const TILEEV = { wedding: 1, revolt: 1, union: 1, league: 1, wound: 1, rout: 1, loot: 1, ramhit: 1, machine: 1, wreck: 1, mount: 1, tame: 1, champion: 1, care: 1, launch: 1, landing: 1, bridge: 1, tend: 1, delve: 1, spore: 1, dive: 1, hail: 1, shockwave: 1, smite: 1, mend: 1, might: 1, idea: 1, acidrun: 1, gate: 1, surface: 1, surge: 1, howl: 1, haunt: 1, steal: 1, arson: 1, snatch: 1, hit: 1, death: 1, chop: 1, mine: 1, hammer: 1, anvil: 1, built: 1, collapse: 1, splash: 1, love: 1, birth: 1, cub: 1, spawn: 1, rise: 1, risen: 1, stomp: 1, bolt: 1, boom: 1, nuke: 1, impact: 1, meteor: 1, quake: 1, flood: 1, siege: 1, trade: 1 };
   Fx.event = function (e) { const t = e[0], h = EV[t]; Fx.counts['ev:' + t] = (Fx.counts['ev:' + t] || 0) + 1; if (!h) return;
     if (t === 'pw') h(e[1], e[2] * 8, e[3] * 8, e[4]); else if (t === 'arrow' || t === 'bomb' || t === 'teleport' || t === 'breath' || t === 'rock' || t === 'charge' || t === 'gaze' || t === 'chain') h(e[1] * 8, e[2] * 8, e[3] * 8 + (t === 'bomb' ? 4 : 0), e[4] * 8 + (t === 'bomb' ? 4 : 0)); else if (TILEEV[t]) h(e[1] * 8, e[2] * 8, e[3], e[4]); else h(e[1], e[2], e[3], e[4]); };
   // chimney smoke (called by the scene for each visible finished building with a chimney)

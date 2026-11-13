@@ -137,6 +137,15 @@ def vary(layers, pitch=1.0, time=1.0):
 # ---- war (chantier B.4)
 def war3(name, cat, dur, cen, layers, **k):
     snd(name, cat, dur, cen, variants=[layers, vary(layers, 1.09, 0.93), vary(layers, 0.92, 1.08)], **k)
+# ---- diplomacy (chantier B.6)
+# wedding: two bells answer each other, a third rings them together
+war3("wedding", "crowd", [0.8, 3.5], [400, 5000], [O("sine", 784, 0.35, 0.002, 1.1, 0.6, fm=[3.51, 2.0, 0.8, 0.02]), O("sine", 2163, 0.08, 0.002, 0.6, 0.3), O("sine", 1047, 0.35, 0.002, 1.1, 0.6, at=0.28, fm=[3.51, 2.0, 0.8, 0.02]), O("sine", 2889, 0.07, 0.002, 0.6, 0.3, at=0.28), O("sine", 1319, 0.3, 0.002, 1.3, 0.8, at=0.56, fm=[3.51, 1.6, 0.8, 0.02]), O("sine", 659, 0.16, 0.002, 1.2, 0.8, at=0.56)], rev=0.5)
+# revolt: a crowd roars, a cracked horn falls
+war3("revolt", "crowd", [0.6, 2.4], [200, 3000], [N(0.6, 0.12, 0.7, 0.4, bp(700, 1.2, (0.5, 1100))), N(0.35, 0.2, 0.6, 0.4, bp(1500, 1.5)), O("sawtooth", [330, 233, 0.6], 0.3, 0.04, 0.6, 0.25, flt=bp(800, 2)), O("sawtooth", [165, 117, 0.6], 0.22, 0.04, 0.6, 0.25, flt=bp(500, 2))], rev=0.25)
+# union: a rising fanfare of three notes closed by a bell
+war3("union", "crowd", [0.8, 3.0], [300, 4000], [O("sawtooth", 392, 0.24, 0.02, 0.16, 0.05, flt=bp(1300, 2)), O("sawtooth", 494, 0.24, 0.02, 0.16, 0.05, at=0.18, flt=bp(1500, 2)), O("sawtooth", 587, 0.26, 0.02, 0.2, 0.06, at=0.36, flt=bp(1700, 2)), O("sawtooth", 784, 0.28, 0.02, 0.6, 0.4, at=0.58, flt=bp(2000, 2)), O("sine", 1568, 0.2, 0.002, 1.0, 0.7, at=0.58, fm=[3.51, 1.5, 0.8, 0.02])], rev=0.45)
+# league: a long horn call answered a fifth above
+war3("league", "crowd", [0.8, 3.0], [200, 2500], [O("sawtooth", [294, 296, 0.5], 0.3, 0.06, 0.5, 0.2, flt=bp(900, 2)), O("sawtooth", [147, 148, 0.5], 0.2, 0.06, 0.5, 0.2, flt=bp(500, 2)), O("sawtooth", [440, 442, 0.6], 0.28, 0.06, 0.7, 0.4, at=0.5, flt=bp(1200, 2)), O("sine", 880, 0.08, 0.06, 0.7, 0.4, at=0.5)], rev=0.4)
 # ram: the log lands on timber — a deep wooden boom, a crack, the frame creaks
 war3("ram", "combat", [0.3, 1.6], [120, 2500], [O("sine", [130, 60, 0.18], 0.5, 0.002, 0.2, 0.12), O("triangle", [340, 170, 0.07], 0.5, 0.001, 0.09, 0.06), N(0.95, 0.001, 0.09, 0.07, bp(1100, 0.8)), N(0.45, 0.01, 0.25, 0.2, bp(450, 0.8)), O("sawtooth", [210, 160, 0.2], 0.12, 0.05, 0.2, 0.1, at=0.22, flt=bp(600, 3))])
 # catapult: the arm lets go — a rope creak, a hard wooden clack on the cross-beam, the stone whistles away

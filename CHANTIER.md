@@ -31,7 +31,7 @@ Règles qui restent valables (voir `CLAUDE.md`) : aucun asset validé sans planc
 - [x] **B.3 Métiers inutilisés** : marin (B.2), ingénieur (ponts, machines de siège), guérisseur (hôpital, soins après bataille).
 - [x] **B.4 Guerre complète** : cavalerie (avec les chevaux), machines de siège (bélier, catapulte), héros et champions, moral et fuite, blessures et soins, pillage, réfugiés, capture et annexion (vérifiées ensuite par Sonnet) ; armes selon l'ère. **Assets de guerre : chaque unité et machine (cavalier, bélier, catapulte, héros, champion, réfugié, guérisseur) a ses propres sprites (déplacement, attaque, coup reçu, mort), ses effets visuels (blessure, fuite, pillage, impact) et ses sons ; planches regardées, rien de réutilisé tel quel.**
 - [x] **B.5 Lecture de la guerre** : couche « guerres » avec fronts et armées en marche ; icônes et marqueurs dessinés un à un (armée, front, siège, ville capturée), lisibles à tous les zooms.
-- [ ] **B.6 Diplomatie** : fusion de royaumes, guerre civile, chef d'alliance ; mariage royal, rébellion et capture (aujourd'hui codés, jamais vus : Sonnet les fera observer par des tests).
+- [x] **B.6 Diplomatie** : fusion de royaumes, guerre civile, chef d'alliance ; mariage royal, rébellion et capture (aujourd'hui codés, jamais vus : Sonnet les fera observer par des tests).
 - [ ] **B.7 Individus** : amitiés, rivalités, amours visibles dans la fiche ; ce que porte un villageois visible sur le sprite.
 - [ ] **B.8 Saisons** : seulement si elles apportent au jeu (récoltes, migrations, neige) ; décision écrite dans `DECISIONS.md`.
 - [ ] **B.9 Élevage et migrations** : enclos, bétail gardé (mouton, vache, chèvre, cheval, chameau, yak), migrations saisonnières.

@@ -135,6 +135,33 @@ E['loot'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), SK = R('s
   if (!open) { im.set(7, 8, SK[0]); im.set(8, 8, SK[0]); im.set(7, 7, SK[1]); im.set(8, 7, SK[2]); } else for (let x = 5; x < 11; x++) im.set(x, 9, G[1 + (x & 1)]);
   if (open) for (let k = 0; k < 6; k++) { const a = -Math.PI * (0.18 + 0.64 * (k + 0.5) / 6), sp = 5 + (k * 37 % 5) * 0.7, x = Math.round(7.5 + Math.cos(a) * sp * t), y = Math.round(9 + Math.sin(a) * sp * 1.5 * t + 11 * t * t); if (y > 15 || y < 0 || x < 0 || x > 15) continue; im.set(x, y, G[3 - (f % 2 === k % 2 ? 1 : 0)]); if (y + 1 < 16) im.set(x, y + 1, G[1]); if (f < 3 && x + 1 < 16) im.set(x + 1, y, G[2]); }
   return im; }, pivot: [8, 15] };
+// ---- diplomacy (chantier B.6), drawn frame by frame
+// wedding: two gold rings slide together and interlock, a heart rises above them, petals drift
+E['wedding'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), G = R('fire', [2, 3, 5]), H = R('red', [2, 3, 4]), P = R('pink', [3, 5]), d = [3.5, 2, 1, 1, 1, 1][f];
+  const ring = (cx, cy) => { for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) { const dx = x + 0.5 - cx, dy = y + 0.5 - cy, r = Math.hypot(dx, dy); if (Math.abs(r - 2.9) < 0.72) im.set(x, y, G[dx + dy < -1.2 ? 2 : dx + dy > 1.6 ? 0 : 1]); } };
+  ring(8 - 1.5 - d, 11.5); ring(8 + 1.5 + d, 11.5); if (f >= 2) { im.set(7, 9, G[2]); im.set(8, 13, G[0]); }
+  if (f >= 2) { const hy = [0, 0, 6, 4, 2, 1][f], HT = ['.x.x.', 'xXxxx', 'xxxxo', '.xxo.', '..o..']; for (let j = 0; j < 5; j++) for (let k = 0; k < 5; k++) { const c = HT[j][k]; if (c !== '.' && hy + j < 16) im.set(6 + k, hy + j, c === 'X' ? H[2] : c === 'o' ? H[0] : H[1]); } }
+  if (f >= 3) { const PT = [[2, 6], [13, 5], [4, 2], [12, 9], [1, 10]]; for (let k = 0; k < PT.length; k++) { const y = PT[k][1] + (f - 3) * (1 + (k & 1)), x = PT[k][0] + ((f + k) & 1); if (y < 16) im.set(x, y, P[(k + f) & 1]); } }
+  return im; }, pivot: [8, 15] };
+// revolt: a torn red banner is thrust up on a pole and shaken, a torch burns beside it
+E['revolt'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), WD = R('earth', [1, 3]), B = R('red', [1, 2, 4]), FL = R('fire', [2, 4, 5]), up = [4, 1, 0, 1, 0, 1][f], lean = [0, 0, 1, -1, 1, 0][f], wave = [0, 1, 2, 3, 1, 2][f];
+  for (let y = 0; y < 12 - up; y++) { const x = 5 + Math.round(lean * y / 11); im.set(x, 15 - y, WD[y > 7 - up ? 1 : 0]); }
+  const tx = 5 + lean, ty = 4 + up; for (let j = 0; j < 6; j++) { const len = [7, 8, 7, 8, 6, 4][j] - ((j + wave) % 3 === 0 ? 1 : 0); for (let k = 0; k < len; k++) { const x = tx + 1 + k, y = ty + j + (((k + wave) >> 1) & 1); if (j === 3 && k === 3 + (wave & 1)) continue; if (x < 16 && y < 16) im.set(x, y, B[j === 0 || k === 0 ? 2 : j >= 4 || k >= len - 1 ? 0 : 1]); } }
+  const fx = 1, fy = 9 + (f === 0 ? 3 : 0); for (let y = fy + 2; y < 16; y++) im.set(fx + 1, y, WD[0]); const FT = [['.x.', 'xXx', 'xXx'], ['x..', 'xXx', '.Xx'], ['..x', 'xXx', 'xX.']][f % 3]; for (let j = 0; j < 3; j++) for (let k = 0; k < 3; k++) { const c = FT[j][k]; if (c !== '.') im.set(fx + k, fy - 1 + j, c === 'X' ? FL[2] : FL[j === 0 ? 0 : 1]); }
+  return im; }, pivot: [8, 15] };
+// union: the two halves of a crown slide together, flash where they meet, and the whole crown shines
+E['union'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), G = R('fire', [1, 3, 5]), W = ix('sand', 5), RD = ix('red', 3), d = [4, 2, 1, 0, 0, 0][f], lift = [0, 0, 0, 1, 2, 2][f];
+  const CR = ['G...GG...G', 'GG.GGGG.GG', 'GGGGGGGGGG', 'GgGgRRgGgG', 'gggggggggg'];
+  for (let j = 0; j < 5; j++) for (let k = 0; k < 10; k++) { const c = CR[j][k]; if (c === '.') continue; const x = 3 + k + (k < 5 ? -d : d), y = 8 + j - lift; if (x < 0 || x > 15) continue; im.set(x, y, c === 'R' ? (d ? G[1] : RD) : c === 'g' ? G[0] : k === 0 || k === 5 || j === 0 ? G[2] : G[1]); }
+  if (f === 3) { for (let y = 3; y < 14; y++) im.set(y & 1 ? 7 : 8, y, W); im.set(6, 8, W); im.set(9, 9, W); }
+  if (f >= 4) { const SP = [[2, 4], [13, 3], [1, 11], [14, 10], [8, 2]]; for (let k = 0; k < SP.length; k++) { if ((k + f) & 1) { const x = SP[k][0], y = SP[k][1]; im.set(x, y, W); if (f === 4) { im.set(x - 1, y, G[2]); im.set(x + 1, y, G[2]); im.set(x, y - 1, G[2]); im.set(x, y + 1, G[2]); } } } }
+  return im; }, pivot: [8, 15] };
+// league: three pennants rise side by side and a gold star lights above the middle one
+E['league'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), WD = R('earth', [1, 3]), C = [R('red', [2, 4]), R('water', [2, 4]), R('grass', [2, 4])], G = R('fire', [3, 5]), W = ix('sand', 5);
+  for (let p = 0; p < 3; p++) { const x = [2, 7, 12][p], h = Math.max(0, Math.min(8 + (p === 1 ? 2 : 0), (f + 1 - p * 0.5) * 3 | 0)); for (let y = 0; y < h; y++) im.set(x, 15 - y, WD[y > h - 3 ? 1 : 0]);
+    if (h >= 6) { const ty = 15 - h + 1, w = (f + p) & 1; for (let j = 0; j < 3; j++) for (let k = 0; k < 3 - (j === 1 ? 0 : 1); k++) im.set(x + 1 + k, ty + j + ((k + w) >> 1 & 1), C[p][j === 0 ? 1 : 0]); } }
+  if (f >= 3) { const r = f - 2, cx = 7, cy = 2 + (f === 3 ? 1 : 0); im.set(cx, cy, W); for (let k = 1; k <= Math.min(2, r); k++) { im.set(cx - k, cy, G[k === 1 ? 1 : 0]); im.set(cx + k, cy, G[k === 1 ? 1 : 0]); if (cy - k >= 0) im.set(cx, cy - k, G[k === 1 ? 1 : 0]); im.set(cx, cy + k, G[k === 1 ? 1 : 0]); } if (f === 5) { im.set(cx - 1, cy - 1, G[0]); im.set(cx + 1, cy + 1, G[0]); im.set(cx + 1, cy - 1, G[0]); im.set(cx - 1, cy + 1, G[0]); } }
+  return im; }, pivot: [8, 15] };
 // impact: a blow on wood and stone — a pale core, then splinters and chips flung out in a ring, dust at the foot
 E['impact'] = { size: 32, n: 5, fn: (f) => { const im = new Img(32, 32), t = (f + 0.5) / 5, W1 = R('sand', [2, 4]), ST = R('stone', [2, 4]), C = R('sand', [5, 4]);
   if (f < 2) { const r = f === 0 ? 4 : 2.5; for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) { const d = Math.hypot(x + 0.5 - 16, (y + 0.5 - 18) * 1.2); if (d < r) im.set(x, y, C[d < r * 0.55 ? 0 : 1]); } }

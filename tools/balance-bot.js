@@ -7,7 +7,7 @@
 //   node tools/balance-bot.js run <scenario> <seed> <years>             one run, JSON on stdout
 //
 // Scenarios: solo-human, solo-orc (one people alone), duel44, duel80 (humans and orcs 44 / 80 tiles apart), wild (animals
-// only, 200 years), chaos (two peoples 60 tiles apart and a random god power every 1.25 years).
+// only, 200 years), kin (two groups of humans 70 tiles apart: two kingdoms of one people, for marriages and unions), chaos (two peoples 60 tiles apart and a random god power every 1.25 years).
 'use strict';
 const path = require('path'), fs = require('fs'), os = require('os'), { spawn } = require('child_process');
 const ROOT = path.join(__dirname, '..');
@@ -25,10 +25,10 @@ function runOne(scn, seed, years) {
   // a start on a small island (under 4000 tiles) caps a people at ~140 whatever the rules are, and there is no sea colonisation yet: not a fair test
   const regSize = new Map(); for (let i = 0; i < n * n; i++) { const r = W.region[i]; if (r) regSize.set(r, (regSize.get(r) || 0) + 1); }
   const site = (dist, minQ) => { let best = null, bq = -1; for (let k = 0; k < 9000; k++) { const x = 30 + ((AL.hash2(k, 1, seed) * (n - 70 - dist)) | 0), y = 40 + ((AL.hash2(k, 2, seed) * (n - 80)) | 0), x2 = x + dist; if (W.region[y * n + x] === 0 || W.region[y * n + x] !== W.region[y * n + x2] || (scn === 'island' ? (regSize.get(W.region[y * n + x]) || 0) < 700 || regSize.get(W.region[y * n + x]) > 3500 : (regSize.get(W.region[y * n + x]) || 0) < 4000)) continue; const q = Math.min(AL.Units.siteQuality(sim, x, y), dist ? AL.Units.siteQuality(sim, x2, y) : 9); if (q > bq) { bq = q; best = [x, y, x2]; } if (q >= minQ && k > 400) break; } return { best, bq }; };
-  const dist = { 'solo-human': 0, 'solo-orc': 0, 'solo-elf': 0, 'solo-dwarf': 0, 'solo-myrrin': 0, 'solo-okari': 0, island: 0, bestiary: 0, duel44: 44, duel80: 80, chaos: 60, small: 6, wild: 0 }[scn];
+  const dist = { 'solo-human': 0, 'solo-orc': 0, 'solo-elf': 0, 'solo-dwarf': 0, 'solo-myrrin': 0, 'solo-okari': 0, island: 0, bestiary: 0, duel44: 44, duel80: 80, kin: 70, chaos: 60, small: 6, wild: 0 }[scn];
   if (scn !== 'wild') { const { best, bq } = site(dist, 0.62); if (!best) return { scn, seed, error: 'no site' };
     if (scn.startsWith('solo-') && scn !== 'solo-human') sim.command({ t: 'spawn', kind: scn.slice(5), x: best[0] + .5, y: best[1] + .5, count: 16 });
-    else { const cnt = scn === 'small' ? 3 : 16; sim.command({ t: 'spawn', kind: 'human', x: best[0] + .5, y: best[1] + .5, count: cnt }); if (dist) sim.command({ t: 'spawn', kind: 'orc', x: best[2] + .5, y: best[1] + .5, count: cnt }); } }
+    else { const cnt = scn === 'small' ? 3 : 16; sim.command({ t: 'spawn', kind: 'human', x: best[0] + .5, y: best[1] + .5, count: cnt }); if (dist) sim.command({ t: 'spawn', kind: scn === 'kin' ? 'human' : 'orc', x: best[2] + .5, y: best[1] + .5, count: cnt }); } }
   const rng = new AL.Rng(seed * 7919 + 13), POW = ['rain', 'storm', 'lightning', 'fire', 'tornado', 'earthquake', 'meteor', 'bomb', 'heal', 'curse', 'plague', 'madness', 'rage', 'poison', 'inspire', 'resurrect', 'prophet', 'war', 'peace', 'flood', 'eruption', 'drought', 'coldsnap', 'heatwave', 'teleport', 'fertility', 'strength', 'bigbomb'];
   let land = 0, trees0 = 0; for (let i = 0; i < n * n; i++) { if (AL.GROUND[W.ground[i]].cost > 0) land++; if (AL.fKind[W.feature[i]] === 1) trees0++; }
   const trees = () => { let t = 0; for (let i = 0; i < n * n; i++) if (AL.fKind[W.feature[i]] === 1) t++; return t; };
