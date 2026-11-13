@@ -6,9 +6,14 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A done (A.1–A.11); next task: **B.1 bridges**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and B.1 done; next task: **B.2 sea**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**B.1 — ponts (fait).** Nouveau sol `bridge` (id 18, franchissable, coût 0,55 ; rang 2 : les berges le recouvrent, il recouvre l'eau), texture de planches dans `tools/bake-terrain.js`, icône de pinceau `gr_bridge` (le joueur peut aussi peindre un pont), texte `ground.bridge`. `T.bridge` dans `src/sim/towns.js` : une ville de stade ≥ 1, ≥ 14 habitants et ≥ 40 bois sonde des traversées droites (4 directions) ; si une eau peu profonde de 1 à 6 cases la sépare d'une autre terre (région ≥ 80 cases) ou d'un détour d'au moins 40 cases, elle pose une planche par passe (3 bois), puis écrit « X jette un pont sur l'eau » dans la chronique. Les régions et les chemins se mettent à jour par `setGround`. Événement client `bridge` (éclaboussure, poussière, marteau).
+- Vu : `solo-human 7 100` → `bridgePlans=2`, `bridges=2`, `bridgeTiles=6`, 2 entrées `bridge` dans la chronique, 2442 habitants (pas de régression visible) ; texture sur planche (`shots/b1-terrain.png`), icône (`shots/b1-icon.png`), pont peint sur une rivière dans le jeu (`shots/b1-game.png`).
+- Non vérifié : un pont posé par une ville vu à l'écran (seulement par compteur) ; des unités vues en train de traverser ; pas de garde-corps ni de piles (le pont est une texture de sol, pas un sprite en relief) ; le pont ne brûle pas ; sauvegarde/chargement avec un chantier de pont en cours (`town.bridge`).
+- À tester par Sonnet : `tests/save-run.js` avec un pont en cours ; robots qui comptent les sols (19 au lieu de 18) ; cible du robot « une ville coupée par une rivière finit par la franchir ».
 
 **A.11 — option « Contenu provisoire » retirée (fait).** Plus rien n'est provisoire dans les peuples, animaux, monstres, pouvoirs, sons, pistes ni langues (les 4 langues elfe, naine, myrrine, okarie relues sur 9 noms de personnes et 9 noms de lieux chacune, drapeau retiré). L'option, son texte `opt.provisional` et le drapeau `showProvisional` sont supprimés de `src/client/ui.js` et `src/data/i18n.json`.
 - Vu : fenêtre Options sans la ligne (`shots/a11-options.png`), `validate-data` : colonne « provisional » à 0 partout sauf 1 bâtiment.
@@ -160,4 +165,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **B.1** — bridges: read the task line, see how roads form (`W.road`) and how the pathfinder treats water, add a bridge building/feature with its sprite, let towns build one where a road meets a narrow river, prove it with one `solo-human 7 100` game (counter `stats.bridges`).
+First unticked line of `CHANTIER.md`: **B.2** — sea: read how `port`, fishers and `shore` work today (`src/sim/towns.js`, `units.js`), add boats (fishing boat, transport ship: own sprites in a new atlas or the creatures atlas), fishing at sea from the port, and colonisation of another land by ship; proof with one `small`/island game: a ship leaves, a town is founded on another land (counters `stats.boats`, `stats.seaColonies`).

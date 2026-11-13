@@ -56,6 +56,9 @@ G.volcanic = () => { const t = new Tex(R('stone', 3)).patches(R('stone', 2), 0.1
   return [t.clean().stamps([[[0, 0, R('fire', 1)], [1, 0, R('fire', 0)]], [[0, 0, R('stone', 4)], [1, 0, R('stone', 4)], [0, 1, R('stone', 2)]]], 16, 0.55, 49).im]; };
 G.soil = () => { const t = new Tex(R('sand', 2)); for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const r = mod(y, 4); if (r === 3) t.set(x, y, R('earth', 4)); else if (r === 0 && hash(x >> 1, y, 50) < 0.5) t.set(x, y, R('sand', 3)); } return [t.im]; };
 G.road = () => [new Tex(R('sand', 3)).patches(R('sand', 2), 0.42, 51).clean().stamps(pebbles(R('sand', 4), R('earth', 4)), 8, 0.5, 52).im];
+// plank deck of a bridge (chantier B.1): boards 4 px wide, dark joints, staggered board ends with a nail, a few worn pale boards
+G.bridge = () => { const t = new Tex(R('earth', 4)); for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const row = y >> 2, r = y & 3, off = (hash(row, 0, 81) * 16) | 0, bx = mod(x + off, 16), board = (hash(row, (x + off) >> 4, 82) * 3) | 0;
+    let v = R(board === 0 ? 'sand' : 'earth', board === 0 ? 2 : 4); if (r === 3) v = R('earth', 2); else if (r === 0) v = R('sand', board === 2 ? 2 : 3); if (bx === 0 && r !== 3) v = R('earth', 2); else if (bx === 2 && r === 1) v = R('earth', 1); t.set(x, y, v); } return [t.im]; };
 // animated liquids: 4 frames. Waves are short lit dashes drifting along a diagonal; phase offsets per row keep it organic.
 function water(base, hi, lo, s, dens) { const fr = []; for (let f = 0; f < 4; f++) { const t = new Tex(base);
     for (let gy = 0; gy < 8; gy++) for (let gx = 0; gx < 4; gx++) { if (hash(gx, gy, s) > dens) continue; const len = 3 + ((hash(gx, gy, s + 1) * 3) | 0), x0 = gx * 8 + ((hash(gx, gy, s + 2) * 6) | 0) + f * 2 * (gy & 1 ? 1 : -1), y0 = gy * 4 + ((hash(gx, gy, s + 3) * 3) | 0), ph = (f + ((hash(gx, gy, s + 4) * 4) | 0)) & 3;
@@ -67,7 +70,7 @@ G.lava = () => { const fr = []; for (let f = 0; f < 4; f++) { const t = new Tex(
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const n = vn(x + f * 2, y + f, 4, 70) * 0.6 + vn(x - f, y + f * 2, 8, 71) * 0.4; if (n < 0.3) t.set(x, y, R('red', 2)); else if (n < 0.36) t.set(x, y, R('fire', 1)); else if (n > 0.66) t.set(x, y, R('fire', 4)); else if (n > 0.58) t.set(x, y, R('fire', 3)); }
     fr.push(t.clean().im); } return fr; };
 
-const ORDER = ['deep', 'shallow', 'lava', 'sand', 'soil', 'road', 'desert', 'savanna', 'grass', 'swamp', 'forest', 'jungle', 'tundra', 'hills', 'mountain', 'volcanic', 'snow', 'ice'];
+const ORDER = ['deep', 'shallow', 'lava', 'sand', 'soil', 'road', 'desert', 'savanna', 'grass', 'swamp', 'forest', 'jungle', 'tundra', 'hills', 'mountain', 'volcanic', 'snow', 'ice', 'bridge'];
 const atlas = new Atlas('terrain', { maxW: 128, meta: { order: ORDER, size: N } }); const P = palette(); const rows = [];
 ORDER.forEach((name) => { const frames = G[name](); for (let f = 0; f < 4; f++) atlas.add(name + '/' + f, frames[f % frames.length], 0, 0);
   // measures: mean luminance, dominant tone share, isolated pixels

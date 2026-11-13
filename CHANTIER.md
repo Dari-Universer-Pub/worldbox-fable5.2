@@ -26,7 +26,7 @@ Règles qui restent valables (voir `CLAUDE.md`) : aucun asset validé sans planc
 - [x] **A.11 Option « Contenu provisoire »** : la retirer quand plus rien n'est provisoire ; d'ici là regarder la barre d'outils avec l'option activée.
 
 ## B. Systèmes absents
-- [ ] **B.1 Ponts** : sur les rivières étroites, construits par les villes quand une route bute sur l'eau ; pathfinding mis à jour ; sprite.
+- [x] **B.1 Ponts** : sur les rivières étroites, construits par les villes quand une route bute sur l'eau ; pathfinding mis à jour ; sprite.
 - [ ] **B.2 Mer** : port actif, bateaux de pêche, navires de transport ; colonisation d'une autre terre par la mer ; sprites de bateaux ; objectif : une île ne doit plus plafonner à 140 habitants (test « île » du robot fait par Sonnet).
 - [ ] **B.3 Métiers inutilisés** : marin (B.2), ingénieur (ponts, machines de siège), guérisseur (hôpital, soins après bataille).
 - [ ] **B.4 Guerre complète** : cavalerie (avec les chevaux), machines de siège (bélier, catapulte), héros et champions, moral et fuite, blessures et soins, pillage, réfugiés, capture et annexion (vérifiées ensuite par Sonnet) ; armes selon l'ère. **Assets de guerre : chaque unité et machine (cavalier, bélier, catapulte, héros, champion, réfugié, guérisseur) a ses propres sprites (déplacement, attaque, coup reçu, mort), ses effets visuels (blessure, fuite, pillage, impact) et ses sons ; planches regardées, rien de réutilisé tel quel.**

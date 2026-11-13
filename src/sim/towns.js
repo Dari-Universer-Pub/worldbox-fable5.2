@@ -92,6 +92,19 @@
       if (s > bs) { bs = s; best = [x, y]; } }
     if (!best) return; for (const r in bt.cost) st[AL.RES[r]] -= bt.cost[r]; T.place(sim, town, pick, best[0], best[1], false); town.sites++; };
   // ---------------------------------------------------------------- jobs (every 20 ticks per town)
+  // ---- bridges (chantier B.1): where a narrow water cuts the town from land it wants (another shore, or a long way round), the
+  // town lays a deck of planks, one tile at a time, straight across (pathfinding only joins tiles side by side). 3 wood a plank.
+  T.bridge = function (sim, town) { const W = sim.world, n = W.n, G = AL.G, st = town.stock, WOOD = AL.RES.wood, S = sim.stats, pj = town.bridge;
+    if (pj) { if (st[WOOD] < 3) return; const i = pj.tiles[pj.at]; if (AL.gWater[W.ground[i]]) { st[WOOD] -= 3; W.feature[i] = 0; W.road[i] = 220; W.setGround(i, G.bridge); S.bridgeTiles = (S.bridgeTiles || 0) + 1; sim.emit('bridge', i % n + 0.5, ((i / n) | 0) + 0.5); }
+      if (++pj.at >= pj.tiles.length) { town.bridge = null; town.bridges = (town.bridges || 0) + 1; S.bridges = (S.bridges || 0) + 1; W.regionsDirty = true; if (AL.Realm && sim.chron) AL.Realm.log(sim, 'bridge', ['log.bridge', town.name], pj.tiles[0] % n, (pj.tiles[0] / n) | 0, town.kingdom); } return; }
+    if (town.stage < 1 || town.pop < 14 || st[WOOD] < 40 || (town.bridges || 0) >= 5 || sim.tick - (town.bridgeAt || 0) < 900) return; town.bridgeAt = sim.tick;
+    const rng = sim.rng, c = town.cy * n + town.cx, reg = W.region[c], f = sim.path.field(c).d, R = Math.min(30, town.radius + 10);
+    for (let k = 0; k < 24; k++) { const sx = town.cx + rng.int(R * 2 + 1) - R, sy = town.cy + rng.int(R * 2 + 1) - R; if (!W.inb(sx, sy) || W.region[sy * n + sx] !== reg || !reg) continue; const d = rng.int(4), dx = d === 0 ? 1 : d === 1 ? -1 : 0, dy = d === 2 ? 1 : d === 3 ? -1 : 0;
+      let x = sx, y = sy, run = 0, first = -1, ok = false; for (let s = 0; s < 12; s++) { x += dx; y += dy; if (!W.inb(x, y)) break; const i = y * n + x, g = W.ground[i]; if (g === G.shallow && !(W.flags[i] & 2)) { if (run === 0) first = i; if (++run > 6) break; } else if (run) { ok = AL.gCost[g] > 0 && g !== G.bridge && !(W.flags[i] & 2); break; } else if (AL.gCost[g] <= 0 || (W.flags[i] & 2)) break; }
+      if (!ok || run < 1) continue; const far = y * n + x, rf = W.region[far], near = first - dx - dy * n, len = run + 1;
+      // worth it: the far bank is another land of some size, or the way round is at least 40 tiles and six times the crossing
+      const other = rf !== reg && rf > 0 && (W.regionSize[rf] || 0) >= 80, round = rf === reg && f[far] !== 65535 && f[far] - f[near] > Math.max(320, len * 48); if (!other && !round) continue;
+      const tiles = []; for (let q = 0; q < run; q++) tiles.push(first + q * (dx + dy * n)); town.bridge = { tiles, at: 0 }; S.bridgePlans = (S.bridgePlans || 0) + 1; return; } };
   T.assign = function (sim, town) { const E = sim.E, J = AL.JOB, want = town.want, have = town.have, st = town.stock, pop = town.adults, cnt = town.count, BT = AL.BT, cv = town.cultureValues || AL.KINDS[town.people].culture; want.fill(0); have.fill(0);
     const done = id => { let c = 0; for (const b of town.blds) if (sim.B.type[b] === id && sim.B.state[b] === 1) c++; return c; };
     const foodPer = st[AL.RES.food] / Math.max(1, town.pop), farms = done(BT.farm), meat = AL.KINDS[town.people].diet === 'meat';
@@ -154,7 +167,7 @@
       if (sim.tick % 600 === 300) { const E = sim.E, F = AL.Ents.F; for (let i = 0; i < E.hi; i++) { if (!E.alive[i] || E.town[i] >= 0 || E.kind[i] >= AL.NPEOPLE || (E.flags[i] & (F.DEAD | F.SETTLER | F.CHILD)) || E.act[i] === 255) continue; let best = null, bd = 120; for (const o of towns) { if (!o.alive || o.people !== E.kind[i] || o.pop >= o.popCap + 4) continue; const d = Math.hypot(o.cx - E.x[i], o.cy - E.y[i]); if (d < bd) { bd = d; best = o; } } if (best) { AL.Units.joinTown(sim, i, best); AL.Units.stop(E, i); E.act[i] = AL.Units.ACT.NONE; } } }
       for (let k = 0; k < towns.length; k++) { const town = towns[k]; if (!town.alive) continue; const ph = (sim.tick + k * 7) % 40;
         if (ph === 0) { if (sim.tick - town.scanAt > 300) T.scan(sim, town); T.assign(sim, town); T.updateStage(sim, town); if (town.pop === 0 && sim.tick - town.founded > 200) { T.remove(sim, town, 'abandoned'); continue; } if (sim.tick - (town.tinyAt || 0) > 1200) { town.tinyAt = sim.tick; if (T.dissolveIfDying(sim, town)) continue; } }
-        else if (ph === 20) { T.assign(sim, town); T.plan(sim, town); } }
+        else if (ph === 20) { T.assign(sim, town); T.plan(sim, town); T.bridge(sim, town); } }
       // buildings: ruins fade, fires are handled by the disasters module
       if (sim.tick % 16 === 0) for (let b = 0; b < B.hi; b++) { if (!B.alive[b]) continue; if (B.state[b] === 3) { B.timer[b] -= 16; if (B.timer[b] <= 0) T.destroy(sim, b, false); } } },
     query(sim, m) { if (m.q === 'towns') return sim.towns.filter(t => t.alive).map(t => ({ id: t.id, name: t.name, people: t.people, kingdom: t.kingdom, cx: t.cx, cy: t.cy, pop: t.pop, adults: t.adults, popCap: t.popCap, stage: t.stage, stock: Array.from(t.stock), blds: t.blds.length, done: t.blds.filter(b => sim.B.state[b] === 1).length, founded: t.founded }));
