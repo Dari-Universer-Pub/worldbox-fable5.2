@@ -61,6 +61,8 @@ Orthographic, looking down **35°** below the horizontal (vertical scale 0.82, d
 | colossus | **64×64** | |
 | small boat | **32×32** | fishing boat 11×10 (side), one sailor's worth of hull |
 | ship | **48×48** | transport ship 18×14 (side); the sail carries the kingdom colour |
+| mounted unit | **32×32** | rider on a war horse, about 20×24 (three-quarter view) |
+| siege machine | **48×48** | battering ram about 34×20, catapult about 30×24 |
 | building | **48×48** | house 30×27, footprint 3×2 tiles (the sprite may overhang its footprint by one tile) |
 | great building | **64×64** | hall, temple, tall towers; footprint up to 4×3 tiles |
 | tree | **24×32** | |

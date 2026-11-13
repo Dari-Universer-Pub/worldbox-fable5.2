@@ -118,5 +118,29 @@ E['surge'] = { size: 32, n: 6, pivot: [16, 28], fn: (f, n) => { const t = f / (n
   for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) { const u = (x + 0.5 - 16) / 15, top = 28 - hgt * (1 - u * u) * (0.8 + 0.25 * nz(x * 0.35, t * 3, 71)), curl = top + 2.2 + 1.4 * nz(x * 0.5 + t * 4, 3, 72); if (Math.abs(u) > 1 || y + 0.5 < top || y > 28 - Math.abs(u) * 2) continue;
     im.set(x, y, y + 0.5 < curl ? FO[(nz(x * 0.6, y * 0.6 + t * 5, 73) > 0.5) | 0] : W2[AL.clamp((((y - top) / Math.max(4, hgt)) * 3) | 0, 0, 2) === 0 ? 2 : (y - top) / Math.max(4, hgt) < 0.6 ? 1 : 0]); } return clean(im); } };
 E['howl'] = { size: 32, n: 5, fn: (f, n) => { const t = f / (n - 1), im = new Img(32, 32), I2 = R('ice', [3, 4, 5]); for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) { const dx = x + 0.5 - 16, dy = (y + 0.5 - 16) * 1.25, d = Math.hypot(dx, dy), a = Math.atan2(dy, dx); if (Math.abs(Math.sin(a * 3)) < 0.35) continue; for (let k = 0; k < 2; k++) { const r = 4 + t * 10 + k * 4; if (r < 15 && Math.abs(d - r) < 0.8) im.set(x, y, I2[Math.max(0, 2 - k - ((t * 2) | 0))]); } } return clean(im); } };
+// ---- war (chantier B.4): wound, rout, loot, impact — small drawn scenes, not particle sprays
+// wound: a pale slash that turns red, then three drops that fall
+E['wound'] = { size: 16, n: 5, fn: (f) => { const im = new Img(16, 16), P = R('ice', [5, 4]), RD = R('red', [3, 2, 1]);
+  if (f < 2) { const len = f === 0 ? 5 : 8; for (let k = 0; k < len; k++) { const x = 3 + k + (f === 0 ? 2 : 0), y = 4 + Math.round(k * 0.7) + (f === 0 ? 1 : 0); im.set(x, y, f === 0 ? P[0] : RD[0]); im.set(x, y + 1, f === 0 ? P[1] : RD[1]); if (k > 1 && k < len - 2) im.set(x + 1, y, f === 0 ? P[0] : RD[0]); } }
+  else { const t = f - 2; for (let k = 0; k < 4; k++) { const x = 6 + k * 1.6, y = 6 + Math.round(k * 0.8); if (t < 2) im.set(Math.round(x), y, RD[1 + (t > 0)]); } for (const [x, y0, v] of [[5, 8, 2.2], [8, 9, 1.6], [11, 10, 2.0]]) { const y = Math.round(y0 + t * v + t * t * 0.4); if (y < 15) { im.set(x, y, RD[0]); im.set(x, y + 1, RD[1]); if (t < 2) im.set(x, y - 1, RD[2]); } else { im.set(x - 1, 15, RD[2]); im.set(x, 15, RD[1]); im.set(x + 1, 15, RD[2]); } } }
+  return im; }, pivot: [8, 12] };
+// rout: a white rag on a stick, raised and waved, then dropped
+E['rout'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), WD = R('earth', [1, 3]), FL = R('ice', [5, 4, 3]), up = [3, 1, 0, 0, 1, 4][f], lean = [0, 0, -1, 1, 0, 2][f], wave = [0, 1, 2, 0, 1, 0][f];
+  for (let y = 0; y < 11 - up; y++) { const x = 7 + Math.round(lean * (1 - y / 10)); im.set(x, 15 - y, WD[0]); if (y > 6 - up) im.set(x, 15 - y, WD[1]); }
+  const tx = 7 + lean, ty = 15 - (10 - up); for (let j = 0; j < 5; j++) for (let k = 0; k < 6 - (j > 3 ? 2 : 0); k++) { const y = ty + j + Math.round(Math.sin((k + wave * 2) * 0.9) * 0.9), x = tx + 1 + k; if (x < 16 && y >= 0 && y < 16) im.set(x, y, FL[j === 0 ? 0 : j < 3 ? (k % 3 === wave % 3 ? 1 : 0) : 2]); }
+  return im; }, pivot: [8, 15] };
+// loot: a sack bursts open and coins jump out and fall around it
+E['loot'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), SK = R('sand', [1, 2, 3]), G = R('fire', [2, 3, 4, 5]), t = f / 5, open = f > 0;
+  for (let y = 9; y < 16; y++) for (let x = 4; x < 12; x++) { const u = (x - 7.5) / 4, v = (y - 12.5) / 3.6; if (u * u + v * v > 1) continue; im.set(x, y, SK[u < -0.3 ? 2 : u > 0.4 || v > 0.5 ? 0 : 1]); }
+  if (!open) { im.set(7, 8, SK[0]); im.set(8, 8, SK[0]); im.set(7, 7, SK[1]); im.set(8, 7, SK[2]); } else for (let x = 5; x < 11; x++) im.set(x, 9, G[1 + (x & 1)]);
+  if (open) for (let k = 0; k < 6; k++) { const a = -Math.PI * (0.18 + 0.64 * (k + 0.5) / 6), sp = 5 + (k * 37 % 5) * 0.7, x = Math.round(7.5 + Math.cos(a) * sp * t), y = Math.round(9 + Math.sin(a) * sp * 1.5 * t + 11 * t * t); if (y > 15 || y < 0 || x < 0 || x > 15) continue; im.set(x, y, G[3 - (f % 2 === k % 2 ? 1 : 0)]); if (y + 1 < 16) im.set(x, y + 1, G[1]); if (f < 3 && x + 1 < 16) im.set(x + 1, y, G[2]); }
+  return im; }, pivot: [8, 15] };
+// impact: a blow on wood and stone — a pale core, then splinters and chips flung out in a ring, dust at the foot
+E['impact'] = { size: 32, n: 5, fn: (f) => { const im = new Img(32, 32), t = (f + 0.5) / 5, W1 = R('sand', [2, 4]), ST = R('stone', [2, 4]), C = R('sand', [5, 4]);
+  if (f < 2) { const r = f === 0 ? 4 : 2.5; for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) { const d = Math.hypot(x + 0.5 - 16, (y + 0.5 - 18) * 1.2); if (d < r) im.set(x, y, C[d < r * 0.55 ? 0 : 1]); } }
+  for (let k = 0; k < 11; k++) { const a = k / 11 * 2 * Math.PI + 0.3, sp = 8 + (k * 53 % 7), x = 16 + Math.cos(a) * sp * t, y = 18 + Math.sin(a) * sp * t * 0.75 - 6 * t + 9 * t * t, wood = k % 3 !== 0, tn = wood ? W1 : ST; if (f === 4 && k % 2) continue;
+    const X = Math.round(x), Y = Math.round(y); if (X < 1 || Y < 1 || X > 30 || Y > 30) continue; im.set(X, Y, tn[1]); if (wood) { im.set(X + (Math.cos(a) > 0 ? 1 : -1), Y + (Math.sin(a) > 0.3 ? 1 : 0), tn[0]); if (f < 3) im.set(X - (Math.cos(a) > 0 ? 1 : -1), Y - (Math.sin(a) > 0.3 ? 1 : 0), tn[1]); } else { im.set(X + 1, Y, tn[0]); im.set(X, Y + 1, tn[0]); } }
+  if (f > 0) for (let x = 8; x < 24; x++) { const h = Math.round((1.6 + 1.4 * nz(x * 0.45, f * 0.9, 81)) * (1 - Math.abs(x - 16) / 9) * (f < 4 ? 1 : 0.5)); for (let j = 0; j < h; j++) im.set(x, 27 - j - f, DUST[j === h - 1 ? 2 : 1]); }
+  return im; }, pivot: [16, 20] };
 require('./fx-powers')(E, { AL, Img, ix, R, nz, sm, field, clean, FIRE, SMOKE, SOOT, DUST, K1, ring, spray, glyphRise });
 module.exports = E;

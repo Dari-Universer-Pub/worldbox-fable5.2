@@ -38,7 +38,7 @@ An age lasts 40–90 years; the next one is drawn by weight, or forced by a god 
 - **Day = 300 ticks** (30 s at ×1). **Year = 4 days = 1200 ticks** (one day per season: spring, summer, autumn, winter).
 - Speeds: pause, ×0.5, ×1, ×2, ×5, ×10, ×50.
 - Tile = 8×8 px. Maps: small 128², medium 256², large 384², giant 512² tiles.
-- Sprite cells: people unit 24×24; humanoid monster 24×24; small animal 16×16; large animal 24×24; great animal 32×32; large monster 48×48; colossus 64×64; small boat 32×32; ship 48×48; building 48×48; great building 64×64; tree 24×32; small flora/decor 16×16; icon 16×16; effect frame 16×16, 32×32 or 64×64.
+- Sprite cells: people unit 24×24; humanoid monster 24×24; small animal 16×16; large animal 24×24; great animal 32×32; large monster 48×48; colossus 64×64; small boat 32×32; ship 48×48; mounted unit 32×32; siege machine 48×48; building 48×48; great building 64×64; tree 24×32; small flora/decor 16×16; icon 16×16; effect frame 16×16, 32×32 or 64×64.
 
 ## 5. Systems (all present from the first pass, at least minimal)
 ### 5.1 World and terrain

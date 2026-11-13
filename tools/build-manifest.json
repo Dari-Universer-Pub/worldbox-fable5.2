@@ -12,6 +12,7 @@
   "src/sim/creatures.js",
   "src/sim/realm.js",
   "src/sim/sea.js",
+  "src/sim/war.js",
   "src/sim/powers.js",
   "src/sim/monsters.js",
   "src/sim/culture.js",

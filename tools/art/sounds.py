@@ -134,6 +134,23 @@ def vary(layers, pitch=1.0, time=1.0):
             if len(L["flt"]) > 3: L["flt"][3] = [[round(t * time, 4), round(f * pitch, 1)] for t, f in L["flt"][3]]
         out.append(L)
     return out
+# ---- war (chantier B.4)
+def war3(name, cat, dur, cen, layers, **k):
+    snd(name, cat, dur, cen, variants=[layers, vary(layers, 1.09, 0.93), vary(layers, 0.92, 1.08)], **k)
+# ram: the log lands on timber — a deep wooden boom, a crack, the frame creaks
+war3("ram", "combat", [0.3, 1.6], [120, 2500], [O("sine", [130, 60, 0.18], 0.5, 0.002, 0.2, 0.12), O("triangle", [340, 170, 0.07], 0.5, 0.001, 0.09, 0.06), N(0.95, 0.001, 0.09, 0.07, bp(1100, 0.8)), N(0.45, 0.01, 0.25, 0.2, bp(450, 0.8)), O("sawtooth", [210, 160, 0.2], 0.12, 0.05, 0.2, 0.1, at=0.22, flt=bp(600, 3))])
+# catapult: the arm lets go — a rope creak, a hard wooden clack on the cross-beam, the stone whistles away
+war3("catapult", "combat", [0.5, 2.0], [200, 3500], [O("sawtooth", [140, 190, 0.16], 0.14, 0.02, 0.16, 0.05, flt=bp(700, 3)), N(0.8, 0.001, 0.05, 0.05, bp(1300, 1.0), at=0.17), O("triangle", [260, 120, 0.08], 0.5, 0.001, 0.1, 0.08, at=0.17), N(0.3, 0.05, 0.55, 0.3, bp(2200, 2.0, (0.6, 900)), at=0.22)])
+# wound: a short cut and a grunt
+war3("wound", "combat", [0.1, 0.8], [300, 4000], [N(0.6, 0.001, 0.05, 0.04, bp(3200, 1.2)), O("sawtooth", [230, 150, 0.14], 0.3, 0.01, 0.16, 0.1, at=0.04, flt=bp(700, 2))])
+# rout: a falling horn call, two notes
+war3("rout", "combat", [0.5, 2.0], [200, 2500], [O("sawtooth", [392, 380, 0.3], 0.3, 0.03, 0.32, 0.1, flt=bp(900, 2)), O("sawtooth", [294, 262, 0.5], 0.3, 0.03, 0.5, 0.25, at=0.34, flt=bp(800, 2))], rev=0.3)
+# loot: coins poured out, a sack dropped
+war3("loot", "combat", [0.3, 1.6], [800, 8000], [O("sine", 2637, 0.2, 0.001, 0.05, 0.05), O("sine", 3136, 0.2, 0.001, 0.05, 0.05, at=0.07), O("sine", 2349, 0.2, 0.001, 0.05, 0.05, at=0.13), O("sine", 3520, 0.18, 0.001, 0.06, 0.06, at=0.2), O("sine", 2794, 0.18, 0.001, 0.06, 0.08, at=0.27), N(0.4, 0.004, 0.1, 0.1, bp(700, 0.8), at=0.36)])
+# gallop: four hoof beats on earth
+war3("gallop", "combat", [0.3, 1.4], [150, 3000], [N(0.6, 0.001, 0.05, 0.04, bp(500, 1.0)), N(0.5, 0.001, 0.05, 0.04, bp(650, 1.0), at=0.11), N(0.6, 0.001, 0.05, 0.04, bp(450, 1.0), at=0.27), N(0.5, 0.001, 0.05, 0.05, bp(600, 1.0), at=0.38), O("sine", [90, 60, 0.05], 0.4, 0.001, 0.06, 0.04), O("sine", [90, 60, 0.05], 0.4, 0.001, 0.06, 0.04, at=0.27)])
+# champion: a bright rising call, the banner raised
+war3("champion", "combat", [0.5, 2.2], [300, 3500], [O("sawtooth", 392, 0.25, 0.02, 0.18, 0.05, flt=bp(1200, 2)), O("sawtooth", 523, 0.25, 0.02, 0.18, 0.05, at=0.2, flt=bp(1400, 2)), O("sawtooth", 659, 0.28, 0.02, 0.5, 0.3, at=0.4, flt=bp(1600, 2)), O("sine", 1318, 0.12, 0.02, 0.5, 0.3, at=0.4)], rev=0.35)
 def prov(name, cat, dur, cen, layers=None, variants=None, **k):
     h = sum(ord(c) for c in name) % 5  # a fixed, different spread for each sound
     lo, hi = (0.92 - 0.01 * h, 1.1 + 0.01 * h), (1.07 + 0.01 * h, 0.9 - 0.01 * h)

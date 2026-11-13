@@ -22,6 +22,14 @@
     S.prev = S.cur; S.cur = m; S.dur = Math.max(0.016, Math.min(0.25, now - S.lastAt)); S.lastAt = now; S.t0 = now; });
   Game.on('blds', m => { S.blds = m; S.bldFrames = null; });
   Game.on('boats', m => { S.boats = m.n ? m : null; });
+  Game.on('machines', m => { S.machines = m.n ? m : null; });
+  // siege machines (chantier B.4): move = wheels turning, attack = the phase sent by the simulation, wreck = one burnt frame
+  const MNAME = ['ram', 'catapult'], mpos = {};
+  S.drawMachines = function (G, vx0, vy0, vx1, vy1, t, far) { const m = S.machines; if (!m) return; const A = AL.Assets;
+    for (let k = 0; k < m.n; k++) { const id = m.id[k]; let p = mpos[id]; const tx = m.x[k], ty = m.y[k]; if (!p || Math.abs(p[0] - tx) + Math.abs(p[1] - ty) > 4) p = mpos[id] = [tx, ty]; else { p[0] += (tx - p[0]) * 0.2; p[1] += (ty - p[1]) * 0.2; }
+      const wx = p[0] * 8, wy = p[1] * 8 + 3; if (wx < vx0 || wx > vx1 || wy < vy0 || wy > vy1) continue; const st = m.st[k], an = st === 3 ? 'wreck' : st === 1 ? 'attack' : 'move', fs = A.anim('machine/' + MNAME[m.type[k]] + '/' + an + '/' + BDIR[m.dir[k]]); if (!fs.length) continue;
+      const fi = st === 1 ? Math.min(fs.length - 1, (m.ph[k] / 1000 * fs.length) | 0) : st === 0 ? ((t * 6) | 0) % fs.length : 0, team = S.teamOf(m.people[k], m.kd[k]);
+      if (far) G.spr(fs[fi], wx, wy, team, 0, 0, 1, Math.min(2, 0.75 / Game.cam.z), 0); else G.spr(fs[fi], wx, wy, team, 0, 0, 1, 1, 0); } };
   const BDIR = ['down', 'left', 'up', 'right'], BNAME = ['fishboat', 'ship'], bpos = {};
   // boats (chantier B.2): drawn between the buildings and the units, smoothed toward their simulated place; a wake while under way
   S.drawBoats = function (G, vx0, vy0, vx1, vy1, t, far) { const m = S.boats; if (!m) return; const fr = AL.Assets.frames;
@@ -71,6 +79,7 @@
         if (st === 1 && f.ex && f.ex.smoke && AL.Fx && AL.Fx.smoke) AL.Fx.smoke(b, wx + f.ex.smoke[0], wy + f.ex.smoke[1], T.name === 'forge'); } }
     S.nBlds = nb;
     S.drawBoats(G, vx0, vy0, vx1, vy1, Game.time, far);
+    S.drawMachines(G, vx0, vy0, vx1, vy1, Game.time, far);
     // units
     const m = S.cur; let nu = 0; S.selPos = null; if (!m) { S.nUnits = 0; return; }
     const pv = S.prev, now = performance.now() / 1000, al = Math.min(1, (now - S.t0) / S.dur), t = Game.time, np = AL.NPEOPLE, mk = far ? markUnit() : null;

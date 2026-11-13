@@ -124,6 +124,17 @@
       Fx.add(good ? 'holy' : 'dark', x, y + 24, { zb: -30, scale: 3 }); Fx.glow.push([x, y, 110, 1, good ? 5 : 3, 1.2]); },
     acidrun(x, y) { if (!Fx.vis(x, y)) return; Fx.add('acidpool', x, y + 4, { life: 9, zb: -40, fix: (Math.random() * 4) | 0 }); Fx.add('poison', x + rnd(-3, 3), y - 4, { vy: -8 }); if (Math.random() < 0.2) Fx.snd('acid', x, y, 0.5); },
     gate(x, y) { if (!Fx.vis(x, y, 40)) return; burst('ember', x, y - 8, 6, 8, { vy: -16, life: 0.9 }); Fx.add('dark', x, y + 8, { zb: -20 }); Fx.glow.push([x, y - 8, 50, 1.2, 1, 0.5]); Fx.snd('hellhound_growl', x, y, 0.7); },
+    // ---- war (chantier B.4)
+    wound(x, y) { if (!Fx.vis(x, y)) return; Fx.add('wound', x, y - 8, { life: 0.6 }); Fx.snd('wound', x, y, 0.6); },
+    rout(x, y) { if (!Fx.vis(x, y)) return; Fx.add('rout', x, y - 12, { life: 0.9, zb: 10 }); Fx.add('dust', x, y - 2); Fx.snd('rout', x, y, 0.6); },
+    loot(x, y) { if (!Fx.vis(x, y, 60)) return; for (let k = 0; k < 4; k++) Fx.add('loot', x + rnd(-18, 18), y + rnd(-12, 12), { life: 0.9, delay: k * 0.18 }); Fx.snd('loot', x, y, 0.8); },
+    ramhit(x, y) { if (!Fx.vis(x, y, 40)) return; Fx.add('impact', x, y - 4, { life: 0.5, zb: 20 }); Fx.snd('ram', x, y, 0.9); Fx.kick(0.9, 0, 0); },
+    catapult(x0, y0, x, y) { if (!Fx.vis(x0, y0, 300) && !Fx.vis(x, y, 100)) return; const dx = x - x0, dy = y - y0, T = 1.2 / Math.max(0.5, Game.effSpeed || Game.speed || 1); Fx.add('rock', x0, y0 - 14, { z: 20, vx: dx / T, vy: dy / T, vz: 170, g: 2 * 170 / T + 34, life: T, zb: 40 }); Fx.snd('catapult', x0, y0, 0.9); },
+    machine(x, y) { if (!Fx.vis(x, y, 40)) return; burst('dust', x, y, 4, 12); Fx.snd('built', x, y, 0.6); },
+    wreck(x, y) { if (!Fx.vis(x, y, 40)) return; Fx.add('impact', x, y - 4, { life: 0.6, zb: 20 }); burst('soot', x, y - 6, 4, 10, { vy: -8, life: 1.2 }); Fx.snd('collapse', x, y, 0.7); },
+    mount(x, y) { if (!Fx.vis(x, y)) return; Fx.add('dust', x - 3, y - 2); Fx.add('dust', x + 3, y - 2); Fx.snd('gallop', x, y, 0.6); },
+    tame(x, y) { if (!Fx.vis(x, y)) return; Fx.add('heal', x, y - 8, { life: 0.6 }); Fx.snd('gallop', x, y, 0.5); },
+    champion(x, y) { if (!Fx.vis(x, y, 40)) return; Fx.add('holy', x, y + 8, { zb: -20 }); Fx.snd('champion', x, y, 0.8); },
     care(x, y) { if (!Fx.vis(x, y)) return; burst('mend', x, y - 8, 2, 6, { life: 0.6 }); Fx.add('heal', x, y - 4, { life: 0.7 }); Fx.snd('care', x, y, 0.6); }, // a healer treats someone (chantier B.3)
     launch(x, y, big) { if (!Fx.vis(x, y, 40)) return; burst('splash', x, y + 2, big ? 5 : 3, big ? 12 : 8); Fx.add('ripple', x, y + 4, { zb: -20, life: 0.9 }); Fx.snd('launch', x, y, big ? 0.8 : 0.55); }, // a boat is put to sea (chantier B.2)
     landing(x, y) { if (!Fx.vis(x, y, 40)) return; burst('dust', x, y, 4, 10); burst('splash', x, y + 3, 3, 10, { delay: 0.1 }); Fx.snd('landing', x, y, 0.8); }, // settlers come ashore
@@ -136,7 +147,7 @@
     surface(x, y) { if (!Fx.vis(x, y, 80)) return; burst('splash', x, y, 8, 20); Fx.add('ripple', x, y + 8, { zb: -20, life: 0.9, scale: 2 }); Fx.snd('wave', x, y, 0.8); }
   });
   Fx.tsarT = -9;
-  const TILEEV = { care: 1, launch: 1, landing: 1, bridge: 1, tend: 1, delve: 1, spore: 1, dive: 1, hail: 1, shockwave: 1, smite: 1, mend: 1, might: 1, idea: 1, acidrun: 1, gate: 1, surface: 1, surge: 1, howl: 1, haunt: 1, steal: 1, arson: 1, snatch: 1, hit: 1, death: 1, chop: 1, mine: 1, hammer: 1, anvil: 1, built: 1, collapse: 1, splash: 1, love: 1, birth: 1, cub: 1, spawn: 1, rise: 1, risen: 1, stomp: 1, bolt: 1, boom: 1, nuke: 1, impact: 1, meteor: 1, quake: 1, flood: 1, siege: 1, trade: 1 };
+  const TILEEV = { wound: 1, rout: 1, loot: 1, ramhit: 1, machine: 1, wreck: 1, mount: 1, tame: 1, champion: 1, care: 1, launch: 1, landing: 1, bridge: 1, tend: 1, delve: 1, spore: 1, dive: 1, hail: 1, shockwave: 1, smite: 1, mend: 1, might: 1, idea: 1, acidrun: 1, gate: 1, surface: 1, surge: 1, howl: 1, haunt: 1, steal: 1, arson: 1, snatch: 1, hit: 1, death: 1, chop: 1, mine: 1, hammer: 1, anvil: 1, built: 1, collapse: 1, splash: 1, love: 1, birth: 1, cub: 1, spawn: 1, rise: 1, risen: 1, stomp: 1, bolt: 1, boom: 1, nuke: 1, impact: 1, meteor: 1, quake: 1, flood: 1, siege: 1, trade: 1 };
   Fx.event = function (e) { const t = e[0], h = EV[t]; Fx.counts['ev:' + t] = (Fx.counts['ev:' + t] || 0) + 1; if (!h) return;
     if (t === 'pw') h(e[1], e[2] * 8, e[3] * 8, e[4]); else if (t === 'arrow' || t === 'bomb' || t === 'teleport' || t === 'breath' || t === 'rock' || t === 'charge' || t === 'gaze' || t === 'chain') h(e[1] * 8, e[2] * 8, e[3] * 8 + (t === 'bomb' ? 4 : 0), e[4] * 8 + (t === 'bomb' ? 4 : 0)); else if (TILEEV[t]) h(e[1] * 8, e[2] * 8, e[3], e[4]); else h(e[1], e[2], e[3], e[4]); };
   // chimney smoke (called by the scene for each visible finished building with a chimney)
