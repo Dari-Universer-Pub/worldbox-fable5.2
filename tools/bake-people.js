@@ -5,7 +5,7 @@
 'use strict';
 const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
 const fs = require('fs'), path = require('path'), crypto = require('crypto');
-const { render, despeckle, stabilize, finish } = require('./lib/sdf'); const { Img } = require('./lib/img'); const { Atlas } = require('./lib/atlas'); const { mat, ix } = require('./lib/mats');
+const { render, despeckle, stabilize, settle, finish } = require('./lib/sdf'); const { Img } = require('./lib/img'); const { Atlas } = require('./lib/atlas'); const { mat, ix } = require('./lib/mats');
 const H = require('./art/rigs/humanoid'); const WAR = require('./art/rigs/humanoid-war'); const { PEOPLES, LOOKS, ANIMS } = require('./art/peoples'); // humanoid-war adds the war accessories and poses to the rig (chantier B.4)
 const YAW = { down: 0, left: -Math.PI / 2, up: Math.PI, right: Math.PI / 2 }, DIRS4 = ['down', 'left', 'up', 'right'], CELL = 24, OX = 12, OY = 21.2;
 function lookSpec(pid, lid) {
@@ -29,7 +29,7 @@ function bakeLook(pid, lid) {
         raws.push(render(scene, { w: CELL, h: CELL, ox: OX, oy: OY, yaw: YAW[dir], mats, decals: dd, ss: 4, raw: true })); }
       for (const r of raws) despeckle(r.img, r.matAt, r.protect);
       stabilize(raws, !/death|hit|attack|work/.test(name));
-      raws.forEach((r, i) => out.push({ key: `${pid}/${lid}/${name}/${dir}/${i}`, d: Buffer.from(finish(r).d) }));
+      const fin = raws.map(r => finish(r)); settle(fin, !/death|hit|attack|work/.test(name)); fin.forEach((im, i) => out.push({ key: `${pid}/${lid}/${name}/${dir}/${i}`, d: Buffer.from(im.d) }));
     }
   }
   return out;
@@ -50,9 +50,13 @@ else (async () => {
     const res = await Promise.all(parts.map(js => new Promise((ok, ko) => { const w = new Worker(__filename, { workerData: { jobs: js } }); w.on('message', ok); w.on('error', ko); })));
     for (const r of res.flat()) { const fr = r.frames.map(f => ({ key: f.key, d: Buffer.from(f.d) })); done[r.p + '/' + r.l] = fr; fs.writeFileSync(path.join(cacheDir, `people-${r.p}-${r.l}-${lookHash(r.p, r.l)}.json`), JSON.stringify(fr.map(f => ({ key: f.key, d: f.d.toString('base64') })))); } }
   const pf = path.join(__dirname, 'art/patches/people.json'), patches = fs.existsSync(pf) ? JSON.parse(fs.readFileSync(pf, 'utf8')) : {}; let np = 0;
+  // patch keys: an exact frame key, or a pattern with * (one path part) — "human/*/idle/down/*" touches every look and frame; an entry [x, y, v, from] only
+  // lands where the pixel still has the colour `from`, so a hand fix of the key pose follows the body wherever it has not moved
+  const pats = Object.keys(patches).filter(k => k.includes('*')).map(k => [new RegExp('^' + k.split('*').join('[^/]+') + '$'), patches[k]]);
+  const patchesFor = key => { const o = []; if (patches[key] && !key.includes('*')) o.push(patches[key]); for (const [re, pk] of pats) if (re.test(key)) o.push(pk); return o; };
   for (const p of peoples) { const at = new Atlas('people_' + p, { maxW: CELL * 40, meta: { cell: CELL, provisional: !!PEOPLES[p].provisional } });
     for (const k of Object.keys(done).filter(k => k.startsWith(p + '/')).sort()) for (const f of done[k]) { const im = new Img(CELL, CELL); im.d.set(f.d);
-      const pk = patches[f.key]; if (pk) for (const [x, y, v] of pk) { im.set(x, y, v); np++; } at.add(f.key, im, 12, 21); }
+      for (const pk of patchesFor(f.key)) for (const [x, y, v, from] of pk) { if (from != null && im.get(x, y) !== from) continue; im.set(x, y, v); np++; } at.add(f.key, im, 12, 21); }
     at.save(); console.log(`people_${p}: ${Object.keys(at.frames).length} frames, atlas ${at.img.w}x${at.img.h}`); }
   console.log(`baked ${jobs.length} looks in ${((Date.now() - t0) / 1000).toFixed(1)}s (cached ${Object.keys(done).length - jobs.length}), patch pixels applied ${np}`);
 })();

@@ -203,6 +203,20 @@ function stabilize(raws, loop = true) {
   }
   return fixed;
 }
+// last anti-flicker pass, on FINISHED frames (after despeckle and outline, chantier C.1): what stabilize() cannot see — the
+// outline, whose tone follows the material next to it, and two materials that share one palette ramp. A pixel that is opaque
+// in two successive frames, whose four neighbours keep the same coverage, and whose colour changes inside one ramp, keeps
+// the colour of the previous frame. A pixel that changes ramp is a limb moving and is left alone. When the previous frame's
+// colour would be a lone speck in the new frame (no neighbour of its colour) and the new colour fits the old frame, the old
+// frame is the one corrected: the pass does not copy isolated pixels into every frame.
+function settle(imgs, loop = true) { const n = imgs.length; if (n < 2) return 0; let fixed = 0; const M = require('./measure'), rampOf = v => v < 96 ? (v / 6) | 0 : v >= 128 && v < 134 ? 100 : v >= 144 && v < 156 ? 101 : 102;
+  const lone = (im, x, y, v) => { for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if ((dx || dy) && im.get(x + dx, y + dy) === v) return false; return true; };
+  for (let pass = 0; pass < 4; pass++) for (let f = (loop ? 0 : 1); f < n; f++) { const cur = imgs[f], prev = imgs[(f - 1 + n) % n]; if (cur === prev) continue; const sh = M.flicker(prev, cur), w = cur.w, h = cur.h;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const p = prev.get(x, y), X = x + sh.sx, Y = y + sh.sy; if (p === T || X < 0 || Y < 0 || X >= w || Y >= h) continue; const q = cur.get(X, Y); if (q === T || q === p || rampOf(p) !== rampOf(q)) continue;
+      if ((prev.get(x + 1, y) === T) !== (cur.get(X + 1, Y) === T) || (prev.get(x - 1, y) === T) !== (cur.get(X - 1, Y) === T) || (prev.get(x, y + 1) === T) !== (cur.get(X, Y + 1) === T) || (prev.get(x, y - 1) === T) !== (cur.get(X, Y - 1) === T)) continue;
+      // the direction that leaves no lone pixel wins: the new frame takes the old colour, unless that colour would stand alone there and the new one would not stand alone in the old frame
+      if (pass < 3 && lone(cur, X, Y, p) && !lone(prev, x, y, q)) prev.set(x, y, q); else cur.set(X, Y, p); fixed++; } }
+  return fixed; }
 // finish a raw render: despeckle + outline -> Img
 function finish(raw, opt = {}) { despeckle(raw.img, raw.matAt, raw.protect); if (opt.outline !== false) outline(raw.img, raw.matAt, opt); return raw.img; }
 // selective outline: outside the silhouette, colour = dark tone of the adjacent material's ramp;
@@ -221,4 +235,4 @@ function outline(img, matAt, opt = {}) {
   for (const [i, v] of add) if (v != null) img.d[i] = v;
   return img;
 }
-module.exports = { Scene, render, outline, despeckle, stabilize, finish, project, rotX, rotY, rotZ, mul, app, add, sub, scl, lerp, lerp3, transpose, PITCH, CP, SP, VIEW, UP, LIGHT };
+module.exports = { Scene, render, outline, despeckle, stabilize, settle, finish, project, rotX, rotY, rotZ, mul, app, add, sub, scl, lerp, lerp3, transpose, PITCH, CP, SP, VIEW, UP, LIGHT };
