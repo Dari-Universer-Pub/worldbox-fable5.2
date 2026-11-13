@@ -68,19 +68,19 @@
       else if (!f && AL.gCost[W.ground[t]] > 0 && !(W.flags[t] & 2) && ((X + Y) & 1) === 0) { if ((X + 1 < n && AL.gWater[W.ground[t + 1]] === 1) || (X > 0 && AL.gWater[W.ground[t - 1]] === 1) || (Y + 1 < n && AL.gWater[W.ground[t + n]] === 1) || (Y > 0 && AL.gWater[W.ground[t - n]] === 1)) town.shore.push(t); } }
     town.scanAt = sim.tick; };
   // ---------------------------------------------------------------- planner (every 40 ticks per town)
-  const ORDER = ['house', 'farm', 'warehouse', 'sawmill', 'mine', 'port', 'market', 'temple', 'barracks', 'forge', 'library', 'tavern', 'watchtower', 'hospital'];
+  const ORDER = ['house', 'farm', 'sporebed', 'tidehouse', 'grove', 'delve', 'warehouse', 'sawmill', 'mine', 'port', 'market', 'temple', 'barracks', 'forge', 'library', 'tavern', 'watchtower', 'hospital'];
   T.wantCount = function (town, bt) { const base = bt.max[0], per = bt.max[1]; return base + (per ? Math.floor(town.pop / per) : 0); };
   T.plan = function (sim, town) { const D = AL.DATA.buildings, B = sim.B, st = town.stock; const hungry = st[AL.RES.food] / Math.max(1, town.pop) < 5, lim = Math.min(7, 1 + Math.floor(town.adults / 10)); if (town.sites >= lim + (hungry ? 1 : 0)) return; const farmOnly = town.sites >= lim; // a hungry town may open a farm site on top of its other works
     let pick = null; const cv = town.cultureValues || AL.KINDS[town.people].culture;
     const nxt = AL.DATA.stages[town.stage + 1], ordered = nxt && nxt.need ? nxt.need.filter(nm => (town.count[D[nm].id] || 0) < 1).concat(ORDER) : ORDER;
-    for (const name of ordered) { const bt = D[name]; if (bt.stage > town.stage || bt.provisional) continue; if (farmOnly && name !== 'farm') continue; let want = T.wantCount(town, bt);
+    const Kp = AL.KINDS[town.people]; for (const name of ordered) { const bt = D[name]; if ((Kp.early && Kp.early[name] != null ? Kp.early[name] : bt.stage) > town.stage || bt.provisional || (bt.people && bt.people !== Kp.name)) continue; if (farmOnly && name !== 'farm') continue; let want = T.wantCount(town, bt);
       if (name === 'house') { want = Math.max(1, Math.ceil((town.pop * 1.35 + 6 - 4) / bt.cap)); if (town.popCap > town.pop * 1.3 + 5) continue; }
       if (name === 'farm') { const perCap = st[AL.RES.food] / Math.max(1, town.pop); want = Math.max(want, perCap < 3 ? (town.count[bt.id] || 0) + 1 : 0); want = Math.max(want, Math.ceil((town.pop - 6) / 10)); { const ft = st[AL.RES.food] / Math.max(1, town.pop) < 6; want = Math.min(want, (ft ? 2 : 1) + Math.floor(town.pop / (ft ? 4 : 7))); } if (AL.KINDS[town.people].diet === 'meat' && perCap >= 6) want = Math.ceil(want * 0.66); }
-      if (name === 'port' && (!town.shore || town.shore.length < 3)) continue;
+      if (bt.shore && (!town.shore || town.shore.length < 3)) continue;
       const wanted = (AL.DATA.stages[town.stage + 1] && AL.DATA.stages[town.stage + 1].need || []).indexOf(name) >= 0; // a building the next stage needs is never skipped for cultural reasons (a market that is never built would stop the town for ever)
       if (!wanted) { if (name === 'barracks' && cv.war < 0.25 && town.stage < 4 && !town.threat) continue; if (name === 'library' && cv.lore < 0.2) continue; if (name === 'market' && cv.trade < 0.15) continue; }
       if (name === 'watchtower') want = Math.min(4, Math.floor(want * (0.4 + cv.war)));
-      if ((town.count[bt.id] || 0) >= want) continue; let afford = true; for (const r in bt.cost) if (st[AL.RES[r]] < bt.cost[r]) afford = false; if (!afford) { if (name === 'house' || name === 'farm') return; continue; } pick = name; break; }
+      if ((town.count[bt.id] || 0) >= want) continue; let afford = true; for (const r in bt.cost) if (st[AL.RES[r]] < bt.cost[r]) afford = false; if (!afford) { if (name === 'house' || name === 'farm') return; continue; } if (name === 'sporebed') { const perCap = st[AL.RES.food] / Math.max(1, town.pop); if (perCap > 14 && (town.count[bt.id] || 0) >= 1) continue; } pick = name; break; }
     if (!pick) return; const bt = D[pick], rng = sim.rng, W = sim.world;
     // site search: random samples in rings of growing radius, keep the best-scored
     let best = null, bs = -1e9; const maxR = Math.min(44, 6 + Math.sqrt(town.pop) * 2.4 + town.blds.length * 0.5), tries = town.blds.length > 30 ? 160 : 70;
@@ -110,6 +110,8 @@
     want[J.lumberjack] = st[AL.RES.wood] < 30 + town.pop ? Math.max(1, Math.ceil(pop * 0.2)) : (st[AL.RES.wood] < 120 ? Math.ceil(pop * 0.08) : 0);
     want[J.miner] = town.stage >= 1 ? (st[AL.RES.stone] < 30 + town.pop * 0.5 ? Math.max(1, Math.ceil(pop * 0.12)) : (done(BT.mine) ? 1 : 0)) : 0;
     want[J.blacksmith] = done(BT.forge) ? Math.min(2, 1 + (pop > 60 ? 1 : 0)) : 0; want[J.merchant] = done(BT.market) ? 1 + (cv.trade > 0.6 && pop > 50 ? 1 : 0) : 0; want[J.priest] = done(BT.temple) ? 1 + (pop > 80 ? 1 : 0) : 0;
+    { const nG = done(BT.grove), nD = done(BT.delve), nS = done(BT.sporebed), nT = done(BT.tidehouse); if (nG && !crisis) want[J.warden] = tight ? 1 : Math.min(nG * 2, Math.max(1, Math.ceil(pop * 0.08))); if (nD) want[J.delver] = Math.min(nD * 3, Math.max(1, Math.ceil(pop * 0.15)));
+      if (nS) want[J.sporer] = Math.min(nS * 3, Math.max(1, Math.ceil(pop * (crisis ? 0.5 : tight ? 0.35 : foodPer > 14 ? 0.1 : 0.22)))); if (nT) want[J.diver] = Math.min(nT * 3, Math.max(1, Math.ceil(pop * (crisis ? 0.4 : tight ? 0.3 : foodPer > 14 ? 0.08 : 0.18)))); }
     want[J.scholar] = done(BT.library) ? 1 + (cv.lore > 0.6 ? 1 : 0) : 0; want[J.bard] = done(BT.tavern) ? 1 : 0; want[J.herder] = town.herd ? 1 : 0;
     // monsters near the town (zombies, skeletons, demons) call the militia out, war or no war
     { let mc = 0; const nq = E.query(town.cx, town.cy, 22); for (let k = 0; k < nq; k++) { const j = E.near[k]; if (!(E.flags[j] & 1) && E.kind[j] >= AL.NPEOPLE && AL.KINDS[E.kind[j]].cls === 2) mc++; } town.monsters = mc; town.threat = !!town.atWar || mc > 0; }
@@ -127,7 +129,7 @@
     for (let i = 0; i < E.hi; i++) { if (!E.alive[i] || E.town[i] !== town.id || (E.flags[i] & 1)) continue; town.pop++; if (E.flags[i] & 2) continue; town.adults++; const j = E.job[i]; if (j === J.ruler) { ruler = i; continue; } if (AL.JOBS[j].military) town.soldiers++;
       if (j === 0) idle.push(i); else if (have[j] >= want[j] && !(E.flags[i] & 4096) && !(AL.JOBS[j].military && town.atWar)) { E.job[i] = 0; E.work[i] = -1; T.setLook(E, i); idle.push(i); } else have[j]++; }
     // fill the most under-staffed jobs first
-    for (let guard = 0; guard < 64 && idle.length; guard++) { let bj = -1, br = 1; for (let j = 1; j < 21; j++) { if (want[j] <= have[j]) continue; const r = have[j] / want[j]; if (r < br) { br = r; bj = j; } } if (bj < 0) break; const i = idle.pop(); if (E.flags[i] & 4 && AL.JOBS[bj].military) { continue; } E.job[i] = bj; E.work[i] = -1; have[bj]++; T.setLook(E, i); if (E.act[i] !== 255 && E.act[i] !== 3) E.act[i] = 0; }
+    for (let guard = 0; guard < 64 && idle.length; guard++) { let bj = -1, br = 1; for (let j = 1; j < AL.JOBS.length; j++) { if (want[j] <= have[j]) continue; const r = have[j] / want[j]; if (r < br) { br = r; bj = j; } } if (bj < 0) break; const i = idle.pop(); if (E.flags[i] & 4 && AL.JOBS[bj].military) { continue; } E.job[i] = bj; E.work[i] = -1; have[bj]++; T.setLook(E, i); if (E.act[i] !== 255 && E.act[i] !== 3) E.act[i] = 0; }
     // a building site nobody builds (every adult already holds a food job) would stay open for ever: with food in store, one hunter or gatherer becomes the builder
     if (town.sites && want[J.builder] > 0 && have[J.builder] === 0 && st[AL.RES.food] > town.pop * 3) { for (const jb of [J.hunter, J.gatherer, J.lumberjack, J.herder, J.fisher]) { let done = false; for (let i = 0; i < E.hi && !done; i++) if (E.alive[i] && E.town[i] === town.id && E.job[i] === jb && !(E.flags[i] & (1 | 2 | 4 | 4096))) { E.job[i] = J.builder; E.work[i] = -1; have[J.builder]++; have[jb]--; T.setLook(E, i); if (E.act[i] !== 255 && E.act[i] !== 3) E.act[i] = 0; done = true; } if (done) break; } }
     town.idle = idle.length; };

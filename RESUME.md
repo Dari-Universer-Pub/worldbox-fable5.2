@@ -10,6 +10,13 @@
 
 ### Chantier — journal des tâches (le plus récent en haut)
 
+**A.8 — les 4 peuples : identité de jeu (EN COURS, pas encore coché).** Fait : 4 bâtiments propres (`grove` elfes, `delve` nains, `sporebed` myrrins, `tidehouse` okaris), 4 métiers (`warden`, `delver`, `sporer`, `diver`) avec leur tenue, comportements (`replant`, `early`/`craft`, `fearFire`, `fishMul`), effets client (`tend`, `delve`, `spore`, `dive`), textes EN/FR, `provisional` retiré des 4 peuples. `build`, `validate-data`, `check-provenance` OK.
+- Vu (une partie `solo-<peuple> 7 100` chacun) : elfes planted=121 tended=458 replanted=520, 265 habitants à l'an 100 ; nains delved=6234 delvedOre=2783 ; myrrins spored=720 sporeFood=54824 fireFled=263 ; okaris dived=4108 pearls=507. Planche couleur des bâtiments cuits regardée (`shots/a8-baked-own.png`).
+- Corrigé : les elfes s'éteignaient vers l'an 65 (gardiens pris sur les adultes nourriciers) → pas de gardien en famine, 1 seul si la nourriture est juste, 4 de nourriture par soin.
+- Non vérifié : planche silhouette des bâtiments cuits, planches des 4 tenues après cuisson complète, le jeu ouvert une fois (script jetable à relancer), un pixel flottant sur le chantier de `sporebed` stade 4.
+- Action suivante précise : regarder `shots/a8-baked-own-sil.png` et les tenues, ouvrir le jeu sur une ville de chaque peuple, corriger, puis cocher A.8, mettre à jour `INVENTAIRE.md` (19 types de bâtiments, 25 métiers) et `TOOLS.md` (7e argument de `building-sheet.js`).
+- À tester par Sonnet : scénarios de duel des 4 peuples contre humains et orcs et leurs cibles ; équilibrage des 4 métiers (rendements, part d'ouvriers) ; robots sur les nouveaux bâtiments.
+
 **À TESTER PAR SONNET (liste cumulée)**
 1. `node tests/run-all.js` complet (0.2). Dernier passage complet connu, fait pendant 0.1 avant le changement de rôles : 19/21 — `check-provenance` en échec parce que les icônes venaient d'être recuites sans reconstruction (repassé OK depuis), `tests/step8.js` en échec sur « ctl » (contrôle direct) mais OK relancé seul : sans doute sensible à la charge de la machine, à confirmer.
 2. Rognage (0.1) : tous les robots avec les images rognées ; une frame vide devient 1×1 ; les pixels de la page sont partagés entre images identiques (un robot qui lirait la taille d'une image dans `AL.Assets.frames` verrait la taille rognée).

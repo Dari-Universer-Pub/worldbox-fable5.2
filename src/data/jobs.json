@@ -130,5 +130,33 @@
   "look": "merchant",
   "task": "entertain",
   "needs": "tavern"
+ },
+ "warden": {
+  "id": 21,
+  "look": "warden",
+  "task": "tend",
+  "res": "food",
+  "needs": "grove"
+ },
+ "delver": {
+  "id": 22,
+  "look": "delver",
+  "task": "delve",
+  "res": "stone",
+  "needs": "delve"
+ },
+ "sporer": {
+  "id": 23,
+  "look": "sporer",
+  "task": "spore",
+  "res": "food",
+  "needs": "sporebed"
+ },
+ "diver": {
+  "id": 24,
+  "look": "diver",
+  "task": "dive",
+  "res": "food",
+  "needs": "tidehouse"
  }
 }

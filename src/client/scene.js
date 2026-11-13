@@ -54,7 +54,7 @@
     const B = S.blds; let nb = 0;
     if (B) { const fr = S.bldFrames || (S.bldFrames = new Array(B.n)); for (let b = 0; b < B.n; b++) { if (!B.alive[b]) continue; const T = AL.BTYPES[B.type[b]], w = T.fp[0], h = T.fp[1], wx = (B.x[b] + w / 2) * 8, wy = (B.y[b] + h) * 8; if (wx < vx0 - 30 || wx > vx1 + 30 || wy < vy0 || wy > vy1 + 20) continue;
         const st = B.state[b], pr = B.prog[b], v = st === 1 ? 0 : st === 3 ? 3 : pr < 12 ? -1 : pr < 58 ? 1 : 2, key = b * 8 + v + 1 + B.stage[b] * 100; let f = fr[b];
-        if (!f || f.key !== key) { const tp = B.town[b] >= 0 ? B.tp[B.town[b]] : 0, set = (AL.KINDS[tp] && AL.Assets.frames['bld/' + AL.KINDS[tp].buildSet + '/' + T.name + '/0/0']) ? AL.KINDS[tp].buildSet : 'human';
+        if (!f || f.key !== key) { const tp = B.town[b] >= 0 ? B.tp[B.town[b]] : 0, set = T.people || ((AL.KINDS[tp] && AL.Assets.frames['bld/' + AL.KINDS[tp].buildSet + '/' + T.name + '/0/0']) ? AL.KINDS[tp].buildSet : 'human'); // a people's own building keeps its people's look whoever holds the town
           f = v < 0 ? A.frames['bld/site/' + w + 'x' + h + '/0'] : A.frames['bld/' + set + '/' + T.name + '/' + B.stage[b] + '/' + v]; if (!f) f = A.frames['bld/human/house/0/0']; f = fr[b] = { f, key, ex: f[6] || null }; }
         const town = B.town[b], team = town >= 0 ? S.teamOf(B.tp[town], B.tk[town]) : 5, lit = night && st === 1 && (AL.hash2(b, 3, 1) < 0.8);
         G.spr(f.f, wx, wy, team, lit ? 0 : 64, 0, 1, 1, -2); nb++;

@@ -40,7 +40,7 @@ else (async () => {
   const srcHash = crypto.createHash('sha1').update(['lib/sdf.js', 'lib/mats.js', 'art/buildings.js', 'art/buildings2.js', 'art/palette.json', 'bake-buildings.js'].map(f => fs.readFileSync(path.join(__dirname, f))).join('')).digest('hex').slice(0, 12);
   const cf = path.join(cacheDir, `buildings-${srcHash}.json`); let res;
   if (!noCache && fs.existsSync(cf)) res = JSON.parse(fs.readFileSync(cf, 'utf8'));
-  else { const jobs = [], fps = {}; for (const set of Object.keys(BL.SETS)) for (const type of Object.keys(BL.D)) { fps[BL.D[type].fp.join('x')] = 1; for (let s = 0; s < 5; s++) for (let v = 0; v < 4; v++) jobs.push([set, type, s, v]); }
+  else { const jobs = [], fps = {}; for (const set of Object.keys(BL.SETS)) for (const type of Object.keys(BL.DSETS[set])) { fps[BL.DSETS[set][type].fp.join('x')] = 1; for (let s = 0; s < 5; s++) for (let v = 0; v < 4; v++) jobs.push([set, type, s, v]); }
     for (const f in fps) jobs.push(['site', f, 0, 0]);
     const NW = 4, parts = Array.from({ length: NW }, () => []); jobs.forEach((j, i) => parts[i % NW].push(j)); const t0 = Date.now();
     res = (await Promise.all(parts.map(js => new Promise((ok, ko) => { const w = new Worker(__filename, { workerData: { jobs: js } }); w.on('message', ok); w.on('error', ko); })))).flat();

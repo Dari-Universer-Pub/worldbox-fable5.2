@@ -325,5 +325,87 @@
   ],
   "wall": true,
   "gate": true
+ },
+ "grove": {
+  "id": 17,
+  "fp": [
+   3,
+   3
+  ],
+  "cost": {
+   "wood": 10
+  },
+  "hp": 220,
+  "stage": 1,
+  "max": [
+   1,
+   60
+  ],
+  "job": "warden",
+  "workers": 2,
+  "light": true,
+  "people": "elf"
+ },
+ "delve": {
+  "id": 18,
+  "fp": [
+   3,
+   2
+  ],
+  "cost": {
+   "wood": 20,
+   "stone": 8
+  },
+  "hp": 300,
+  "stage": 1,
+  "max": [
+   1,
+   50
+  ],
+  "job": "delver",
+  "workers": 3,
+  "store": true,
+  "light": true,
+  "people": "dwarf"
+ },
+ "sporebed": {
+  "id": 19,
+  "fp": [
+   3,
+   2
+  ],
+  "cost": {
+   "wood": 8
+  },
+  "hp": 110,
+  "stage": 0,
+  "max": [
+   1,
+   14
+  ],
+  "job": "sporer",
+  "workers": 3,
+  "people": "myrrin"
+ },
+ "tidehouse": {
+  "id": 20,
+  "fp": [
+   3,
+   2
+  ],
+  "cost": {
+   "wood": 14
+  },
+  "hp": 150,
+  "stage": 0,
+  "max": [
+   1,
+   28
+  ],
+  "job": "diver",
+  "workers": 3,
+  "shore": true,
+  "store": true,
+  "people": "okari"
  }
 }

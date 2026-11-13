@@ -71,7 +71,6 @@
   "id": 2,
   "team": "teal",
   "atlas": "people_elf",
-  "provisional": true,
   "devSpeed": 0.8,
   "strength": 0.8,
   "fertility": 0.5,
@@ -98,13 +97,13 @@
    "lore": 0.9,
    "faith": 0.6,
    "sea": 0.3
-  }
+  },
+  "replant": true
  },
  "dwarf": {
   "id": 3,
   "team": "fire",
   "atlas": "people_dwarf",
-  "provisional": true,
   "devSpeed": 0.9,
   "strength": 1.3,
   "fertility": 0.6,
@@ -132,13 +131,16 @@
    "lore": 0.6,
    "faith": 0.4,
    "sea": 0.05
-  }
+  },
+  "early": {
+   "forge": 1
+  },
+  "craft": 2
  },
  "myrrin": {
   "id": 4,
   "team": "magic",
   "atlas": "people_myrrin",
-  "provisional": true,
   "devSpeed": 0.9,
   "strength": 0.6,
   "fertility": 1.6,
@@ -167,13 +169,13 @@
    "lore": 0.5,
    "faith": 0.8,
    "sea": 0.2
-  }
+  },
+  "fearFire": true
  },
  "okari": {
   "id": 5,
   "team": "royal",
   "atlas": "people_okari",
-  "provisional": true,
   "devSpeed": 1.1,
   "strength": 0.7,
   "fertility": 0.8,
@@ -201,6 +203,7 @@
    "lore": 0.6,
    "faith": 0.4,
    "sea": 1.0
-  }
+  },
+  "fishMul": 1.5
  }
 }

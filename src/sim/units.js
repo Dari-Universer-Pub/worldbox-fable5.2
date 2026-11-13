@@ -67,6 +67,12 @@
   // a walkable tile next to t (to work on a blocked or occupied target)
   function standBy(sim, t, fx, fy) { const W = sim.world, n = W.n, x = t % n, y = (t / n) | 0; let best = -1, bd = 1e9; for (let d = 0; d < 4; d++) { const X = x + (d === 0 ? 1 : d === 1 ? -1 : 0), Y = y + (d === 2 ? 1 : d === 3 ? -1 : 0); if (!W.inb(X, Y)) continue; const j = Y * n + X; if (AL.gCost[W.ground[j]] <= 0 || (W.flags[j] & 2)) continue; const dd = Math.abs(X - fx) + Math.abs(Y - fy); if (dd < bd) { bd = dd; best = j; } } return best; }
   U.standBy = standBy;
+  // the bog folk cannot stand fire: a flame within 5 tiles and they drop everything and run from it
+  U.fearFire = function (sim, i) { const E = sim.E, W = sim.world, n = W.n, x = E.x[i] | 0, y = E.y[i] | 0, fire = W.fire; let fx = 0, fy = 0, c = 0;
+    for (let dy = -5; dy <= 5; dy++) { const Y = y + dy; if (Y < 0 || Y >= n) continue; for (let dx = -5; dx <= 5; dx++) { const X = x + dx; if (X < 0 || X >= n) continue; if (fire[Y * n + X] > 1) { fx += X; fy += Y; c++; } } }
+    if (!c) return false; fx = fx / c + 0.5; fy = fy / c + 0.5; let dx = E.x[i] - fx, dy = E.y[i] - fy; const l = Math.sqrt(dx * dx + dy * dy) || 1; dx /= l; dy /= l;
+    const t = U.randomNear(sim, AL.clamp(E.x[i] + dx * 9, 2, n - 3), AL.clamp(E.y[i] + dy * 9, 2, n - 3), 3); if (t < 0) return false; U.stop(E, i); E.carryN[i] = 0;
+    if (!begin(sim, i, ACT.FLEE, t % n, (t / n) | 0)) return false; E.mood[i] = Math.max(0, E.mood[i] - 4); sim.stats.fireFled = (sim.stats.fireFled || 0) + 1; return true; };
   U.startWork = function (sim, i, town) { const E = sim.E, W = sim.world, n = W.n, B = sim.B, job = AL.JOBS[E.job[i]], task = job.task, x = E.x[i] | 0, y = E.y[i] | 0; let t = -1;
     E.tB[i] = -1;
     if (task === 'chop') { t = pickTarget(sim, town.trees, x, y, t => AL.fKind[W.feature[t]] === 1 && W.fgrow[t] > 110); if (t < 0) { town.scanAt = Math.min(town.scanAt, sim.tick - 200); return false; } const s = standBy(sim, t, x, y); if (s < 0) return false; if (begin(sim, i, ACT.WORK, s % n, (s / n) | 0)) { E.tE[i] = t; return true; } return false; }
@@ -80,6 +86,15 @@
       t = town.berries && town.berries.length ? pickTarget(sim, town.berries, x, y, t => W.fgrow[t] > 200) : -1; if (t >= 0 && begin(sim, i, ACT.WORK, t % n, (t / n) | 0)) { E.tE[i] = t; return true; }
       const r = U.randomNear(sim, town.cx, town.cy, town.radius + 4); if (r >= 0 && AL.gFert[W.ground[r]] > 0.3 && begin(sim, i, ACT.WORK, r % n, (r / n) | 0)) { E.tE[i] = -2; return true; } return false; }
     if (task === 'fish') { if (!town.shore || !town.shore.length) return false; t = pickTarget(sim, town.shore, x, y, t => !(W.flags[t] & 2)); if (t >= 0 && begin(sim, i, ACT.WORK, t % n, (t / n) | 0)) { E.tE[i] = -3; return true; } return false; }
+    // ---- the four peoples' own trades (chantier A.8)
+    if (task === 'tend') { const gb = T.findType(sim, town, AL.BT.grove, x, y); if (gb < 0) return false; const full = town.trees.length > 70 + town.pop && sim.rng.int(5) > 0; // a warden plants a sapling on free ground near the grove, or tends a young tree when the wood is already thick
+      for (let k = 0; k < 14; k++) { const r = U.randomNear(sim, B.x[gb] + 1, B.y[gb] + 1, 10); if (r < 0) continue; const g = W.ground[r], f = W.feature[r], young = AL.fKind[f] === 1 && W.fgrow[r] < 250; if (W.flags[r] & 10) continue;
+        if (!(young || (!full && (!f || f === AL.F.stump) && W.road[r] < 20 && AL.gFert[g] > 0.3 && AL.floraByBiome[g].trees.length))) continue; const s = young ? standBy(sim, r, x, y) : r; if (s >= 0 && begin(sim, i, ACT.WORK, s % n, (s / n) | 0)) { E.tE[i] = r; return true; } } return false; }
+    if (task === 'delve') { const db = T.findType(sim, town, AL.BT.delve, x, y); if (db >= 0 && begin(sim, i, ACT.WORK, T.doorX(B, db), T.doorY(B, db))) { E.tE[i] = -4; E.tB[i] = db; return true; } return false; }
+    if (task === 'spore') { const sb = T.findType(sim, town, AL.BT.sporebed, x, y); if (sb < 0) return false; let best = -1, bv = -1; // a ripe mushroom first, then a growing one, then a free tile to seed
+      for (let k = 0; k < 14; k++) { const r = U.randomNear(sim, B.x[sb] + 1, B.y[sb] + 1, 6); if (r < 0 || (W.flags[r] & 10) || W.road[r] > 20) continue; const f = W.feature[r]; let v = -1; if (f === AL.F.mushroom) v = W.fgrow[r] > 200 ? 3 : 2; else if (!f && AL.gFert[W.ground[r]] > 0.2) v = 1; if (v > bv) { bv = v; best = r; } }
+      if (best >= 0 && begin(sim, i, ACT.WORK, best % n, (best / n) | 0)) { E.tE[i] = best; return true; } return false; }
+    if (task === 'dive') { if (!town.shore || !town.shore.length) return false; t = pickTarget(sim, town.shore, x, y, t => !(W.flags[t] & 2)); if (t >= 0 && begin(sim, i, ACT.WORK, t % n, (t / n) | 0)) { E.tE[i] = -3; return true; } return false; }
     // jobs done at a building: smith, study, preach, trade, entertain, heal
     const need = job.needs ? AL.BT[job.needs] : -1; if (task === 'guard' || task === 'siege') { if (AL.War && AL.War.unitDuty(sim, i, town)) return true; const r = U.randomNear(sim, town.cx, town.cy, town.radius * 0.8); if (r >= 0 && begin(sim, i, ACT.GUARD, r % n, (r / n) | 0)) return true; return false; }
     if (task === 'trade' && AL.Trade && AL.Trade.startTrip(sim, i, town)) return true;
@@ -87,7 +102,7 @@
     if (need >= 0) { const b = T.findType(sim, town, need, x, y); if (b >= 0 && begin(sim, i, ACT.WORK, T.doorX(B, b), T.doorY(B, b))) { E.tE[i] = -4; E.tB[i] = b; return true; } }
     return false; };
   // ------------------------------------------------------------ acting (called every tick when not travelling)
-  const WORKT = { chop: 50, mine: 60, farm: 34, gather: 40, hunt: 40, herd: 40, fish: 70, smith: 90, study: 80, preach: 80, trade: 60, entertain: 80, heal: 60 };
+  const WORKT = { chop: 50, mine: 60, farm: 34, gather: 40, hunt: 40, herd: 40, fish: 70, smith: 90, study: 80, preach: 80, trade: 60, entertain: 80, heal: 60, tend: 60, delve: 90, spore: 40, dive: 80 };
   U.act = function (sim, i) { const E = sim.E, W = sim.world, n = W.n, B = sim.B, a = E.act[i], town = sim.towns[E.town[i]], A = AL.ANIM, R = AL.RES;
     if (a === ACT.NONE) { E.anim[i] = A.idle; return; }
     if (E.phase[i] === 0) { E.phase[i] = 1; E.timer[i] = 0; }
@@ -110,17 +125,23 @@
         const need = (WORKT[task] || 60) / (E.workMul[i] * (town && town.stock[R.tools] > 0 ? 1.25 : 1));
         if (task === 'chop' && tm % 17 === 5) sim.emit('chop', E.x[i], E.y[i]); else if (task === 'mine' && tm % 20 === 5) sim.emit('mine', E.x[i], E.y[i]);
         if (tm < need) break; E.act[i] = ACT.NONE; if (!town) break;
-        if (task === 'chop') { if (tgt >= 0 && AL.fKind[W.feature[tgt]] === 1) { const f = AL.FLORA[W.feature[tgt]]; W.feature[tgt] = AL.F.stump; W.fgrow[tgt] = 0; W.mark(tgt % n, (tgt / n) | 0); E.carry[i] = R.wood; E.carryN[i] = Math.round(f.wood * E.mod(i, 'chop')); sim.emit('treefall', tgt % n, (tgt / n) | 0); } }
+        if (task === 'chop') { if (tgt >= 0 && AL.fKind[W.feature[tgt]] === 1) { const f = AL.FLORA[W.feature[tgt]]; if (AL.KINDS[town.people].replant) { W.fgrow[tgt] = 10; sim.stats.replanted = (sim.stats.replanted || 0) + 1; } else { W.feature[tgt] = AL.F.stump; W.fgrow[tgt] = 0; } W.mark(tgt % n, (tgt / n) | 0); E.carry[i] = R.wood; E.carryN[i] = Math.round(f.wood * E.mod(i, 'chop')); sim.emit('treefall', tgt % n, (tgt / n) | 0); } }
         else if (task === 'mine') { let ore = -1; if (tgt >= 0 && AL.fKind[W.feature[tgt]] === 4) { const f = AL.FLORA[W.feature[tgt]]; if (f.ore) ore = R[f.ore]; if (W.feature[tgt] !== AL.F.peak && W.feature[tgt] !== AL.F.snowpeak) { if (W.fgrow[tgt] <= 70) { W.feature[tgt] = 0; W.mark(tgt % n, (tgt / n) | 0); } else W.fgrow[tgt] -= 64; } }
           else if (sim.rng.chance(0.3)) ore = sim.rng.chance(0.55) ? R.iron : sim.rng.chance(0.75) ? R.copper : sim.rng.chance(0.85) ? R.gold : R.aetherite;
           if (ore >= 0 && sim.rng.chance(0.6)) { E.carry[i] = ore; E.carryN[i] = 1; town.stock[R.stone] += 1; } else { E.carry[i] = R.stone; E.carryN[i] = Math.round(3 * E.mod(i, 'mine')); } }
         else if (task === 'farm') { if (tgt >= 0 && (W.flags[tgt] & 8)) { if (W.feature[tgt] !== AL.F.wheat) { W.feature[tgt] = AL.F.wheat; W.fgrow[tgt] = 0; } else if (W.fgrow[tgt] >= 250) { W.fgrow[tgt] = 0; E.carry[i] = R.food; E.carryN[i] = Math.round(6 * E.mod(i, 'farm') * (sim.cropMul || 1)); } else W.fgrow[tgt] = Math.min(250, W.fgrow[tgt] + 40); W.mark(tgt % n, (tgt / n) | 0); } }
         else if (task === 'gather' || task === 'hunt' || task === 'herd' || task === 'idle') { if (tgt >= 0 && W.fgrow[tgt] > 200) { W.fgrow[tgt] = 20; W.mark(tgt % n, (tgt / n) | 0); E.carry[i] = R.food; E.carryN[i] = 3; } else if (tgt === -2 && sim.rng.chance(0.7)) { E.carry[i] = R.food; E.carryN[i] = 2; } }
-        else if (task === 'fish') { E.carry[i] = R.food; E.carryN[i] = Math.round(3 * E.mod(i, 'fish')); sim.emit('splash', E.x[i], E.y[i]); }
-        else if (task === 'smith') { const st = town.stock; const ore = st[R.iron] >= 1 ? R.iron : st[R.copper] >= 1 ? R.copper : -1; if (ore >= 0 && st[R.wood] >= 1) { st[ore] -= 1; st[R.wood] -= 1; const k = st[R.tools] < town.pop * 0.3 ? R.tools : st[R.weapons] <= st[R.armor] ? R.weapons : R.armor; st[k] += ore === R.iron ? 2 : 1; sim.emit('anvil', E.x[i], E.y[i]); } }
+        else if (task === 'fish') { E.carry[i] = R.food; E.carryN[i] = Math.round(3 * E.mod(i, 'fish') * (AL.KINDS[E.kind[i]].fishMul || 1)); sim.emit('splash', E.x[i], E.y[i]); }
+        else if (task === 'smith') { const st = town.stock; const ore = st[R.iron] >= 1 ? R.iron : st[R.copper] >= 1 ? R.copper : -1; if (ore >= 0 && st[R.wood] >= 1) { st[ore] -= 1; st[R.wood] -= 1; const k = st[R.tools] < town.pop * 0.3 ? R.tools : st[R.weapons] <= st[R.armor] ? R.weapons : R.armor; st[k] += (ore === R.iron ? 2 : 1) * (AL.KINDS[town.people].craft || 1); sim.emit('anvil', E.x[i], E.y[i]); } }
         else if (task === 'study') { town.knowledge += 1 * E.mod(i, 'learn') * (AL.Faith ? AL.Faith.m(sim, E.religion[i], 'learn') : 1); }
         else if (task === 'preach') { if (AL.Faith) AL.Faith.preach(sim, i, town); }
         else if (task === 'entertain') { town.cheer = (town.cheer || 0) + 1; }
+        else if (task === 'tend') { const S = sim.stats; if (tgt >= 0 && !(W.flags[tgt] & 10)) { const f = W.feature[tgt], g = W.ground[tgt]; if (AL.fKind[f] === 1) { W.fgrow[tgt] = Math.min(255, W.fgrow[tgt] + 90); S.tended = (S.tended || 0) + 1; } else if (!f || f === AL.F.stump) { const tr = AL.floraByBiome[g].trees; if (tr.length) { W.feature[tgt] = tr[sim.rng.int(tr.length)]; W.fgrow[tgt] = 12; S.planted = (S.planted || 0) + 1; } }
+            W.mark(tgt % n, (tgt / n) | 0); sim.emit('tend', tgt % n + 0.5, ((tgt / n) | 0) + 0.5); } E.carry[i] = R.food; E.carryN[i] = 4; } // fruit and nuts of the wood
+        else if (task === 'delve') { const S = sim.stats, rng = sim.rng; S.delved = (S.delved || 0) + 1; if (rng.chance(0.45)) { E.carry[i] = rng.chance(0.5) ? R.iron : rng.chance(0.6) ? R.copper : rng.chance(0.75) ? R.gold : R.aetherite; E.carryN[i] = 1; town.stock[R.stone] += 2; S.delvedOre = (S.delvedOre || 0) + 1; } else { E.carry[i] = R.stone; E.carryN[i] = Math.round(4 * E.mod(i, 'mine')); } sim.emit('delve', E.x[i], E.y[i]); }
+        else if (task === 'spore') { const S = sim.stats; if (tgt >= 0 && !(W.flags[tgt] & 10)) { const f = W.feature[tgt]; if (f === AL.F.mushroom) { if (W.fgrow[tgt] > 200) { W.fgrow[tgt] = 30; E.carry[i] = R.food; E.carryN[i] = Math.round(5 * E.mod(i, 'farm')); S.sporeFood = (S.sporeFood || 0) + E.carryN[i]; } else W.fgrow[tgt] = Math.min(255, W.fgrow[tgt] + 115); }
+            else if (!f) { W.feature[tgt] = AL.F.mushroom; W.fgrow[tgt] = 40; S.spored = (S.spored || 0) + 1; } W.mark(tgt % n, (tgt / n) | 0); sim.emit('spore', tgt % n + 0.5, ((tgt / n) | 0) + 0.5); } }
+        else if (task === 'dive') { const S = sim.stats; E.carry[i] = R.food; E.carryN[i] = Math.round(5 * E.mod(i, 'fish')); S.dived = (S.dived || 0) + 1; if (sim.rng.chance(0.12)) { town.stock[R.gold] += 1; S.pearls = (S.pearls || 0) + 1; } sim.emit('dive', E.x[i], E.y[i]); }
         break; }
       default: if (AL.UnitsExtra && AL.UnitsExtra(sim, i, a, tm)) break; E.act[i] = ACT.NONE;
     }
@@ -180,6 +201,7 @@
         else if (U.moving(E, i)) { if (U.move(sim, i)) { /* arrived: act next tick */ } else if (!U.moving(E, i) && E.act[i] !== ACT.NONE && E.phase[i] === 0) { // path lost before arriving
             if ((E.x[i] | 0) !== E.tx[i] || (E.y[i] | 0) !== E.ty[i]) { const r = U.goTo(sim, i, E.tx[i], E.ty[i]); if (r === 0) { E.act[i] = ACT.NONE; E.cool[i] = 16; } } } }
         else if (E.act[i] !== ACT.NONE) U.act(sim, i);
+        if (((i + tk) & 15) === 0 && AL.KINDS[E.kind[i]].fearFire && E.act[i] !== ACT.FLEE && E.act[i] !== 255 && !(E.flags[i] & F.DEAD)) U.fearFire(sim, i);
         if (((i + tk) & 7) === 0 && E.act[i] === ACT.NONE && !(E.flags[i] & F.DEAD)) U.think(sim, i);
         else if (((i + tk) & 31) === 0 && AL.Creatures && E.act[i] !== ACT.FIGHT && E.act[i] !== ACT.FLEE && E.act[i] !== 255 && !(E.flags[i] & F.ASLEEP && false) && AL.Creatures.near(sim, i)) { U.stop(E, i); E.flags[i] &= ~F.ASLEEP; E.act[i] = ACT.NONE; E.cool[i] = 0; U.think(sim, i); }
         else if (((i + tk) & 31) === 0 && E.hunger[i] > 80 && (E.act[i] === ACT.WANDER || E.act[i] === ACT.SOCIAL || E.act[i] === ACT.GUARD || E.act[i] === ACT.WORK && E.phase[i] === 0)) { U.stop(E, i); E.act[i] = ACT.NONE; }

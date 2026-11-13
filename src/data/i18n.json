@@ -628,7 +628,19 @@
   "log.hellgate": "A gate of hell opens",
   "log.tsar": "The World-ender falls",
   "log.might": "{0} is made a champion by the god",
-  "log.genius": "{0} is touched by genius"
+  "log.genius": "{0} is touched by genius",
+  "bld.grove": "Heartgrove",
+  "bld.delve": "Delve",
+  "bld.sporebed": "Spore bed",
+  "bld.tidehouse": "Tide house",
+  "bldd.grove": "Elves only. Wardens plant saplings around it, tend young trees and bring back the fruit of the wood. Elven woodcutters replant what they fell.",
+  "bldd.delve": "Dwarves only. Delvers go down the shaft and bring up stone and ore without any rock on the surface. Dwarves forge early and their smiths make twice as much.",
+  "bldd.sporebed": "Myrrin only. Sporers sow mushrooms on the ground around it, tend them and harvest them. The bog folk flee from any fire.",
+  "bldd.tidehouse": "Okari only, on a shore, from the first day. Divers bring back fish and sometimes a pearl worth gold. Okari fishers catch half as much again.",
+  "job.warden": "Grove warden",
+  "job.delver": "Delver",
+  "job.sporer": "Sporer",
+  "job.diver": "Pearl diver"
  },
  "fr": {
   "cat.world": "Monde",
@@ -1259,6 +1271,18 @@
   "log.hellgate": "Une porte de l'enfer s'ouvre",
   "log.tsar": "La Fin du monde tombe",
   "log.might": "{0} est fait champion par le dieu",
-  "log.genius": "{0} est touché par le génie"
+  "log.genius": "{0} est touché par le génie",
+  "bld.grove": "Bosquet-cœur",
+  "bld.delve": "Galerie profonde",
+  "bld.sporebed": "Lit de spores",
+  "bld.tidehouse": "Maison des marées",
+  "bldd.grove": "Elfes seulement. Les gardiens y plantent de jeunes arbres, soignent les pousses et rapportent les fruits du bois. Les bûcherons elfes replantent ce qu'ils abattent.",
+  "bldd.delve": "Nains seulement. Les fouilleurs descendent dans le puits et remontent pierre et minerai sans rocher en surface. Les nains forgent tôt et leurs forgerons produisent le double.",
+  "bldd.sporebed": "Myrrins seulement. Les sporeurs sèment des champignons autour, les soignent et les récoltent. Le peuple des marais fuit tout feu.",
+  "bldd.tidehouse": "Okaris seulement, sur un rivage, dès le premier jour. Les plongeurs rapportent du poisson et parfois une perle qui vaut de l'or. Les pêcheurs okaris prennent moitié plus.",
+  "job.warden": "Gardien du bosquet",
+  "job.delver": "Fouilleur",
+  "job.sporer": "Sporeur",
+  "job.diver": "Plongeur de perles"
  }
 }

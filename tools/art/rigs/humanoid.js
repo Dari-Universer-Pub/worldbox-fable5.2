@@ -181,6 +181,26 @@ const ACC = {
   mushcap(sc, b, a) { const hr = b.hr, k = b.k, R = a.r || 1.6; sc.ell(b.HL([0, -0.1 * k, hr[2] * 0.25]), [hr[0] * R * 0.86, hr[1] * R * 0.86, 0.55 * k], a.gill || 'gill', { rot: b.headR, pri: 3 });
     sc.ell(b.HL([0, -0.1 * k, hr[2] * 0.42]), [hr[0] * R, hr[1] * R, hr[2] * 0.95], a.mat || 'cap', { rot: b.headR, pri: 4 });
     for (const [x, y, z, r] of [[-0.55, 0.35, 1.02, 0.62], [0.6, -0.1, 1.12, 0.7], [0.05, 0.75, 0.72, 0.5], [-0.2, -0.75, 0.95, 0.6]]) sc.ell(b.HL([x * hr[0] * R * 0.8, y * hr[1] * R * 0.8, hr[2] * 0.42 + z * hr[2] * 0.82]), [r * k, r * k, 0.5 * k], a.spot || 'spot', { rot: b.headR, pri: 5 }); },
+  // ---- chantier A.8: the four peoples' own trades
+  // warden of the grove (elves): a living staff, leaves and one blossom at its head; a mantle of leaves on the shoulders
+  leafstaff(sc, b, a) { const h = b.hands.R, k = b.k, d = toolAxis(b, 'R', -0.3), top = add(h.pos, scl(d, 5.2 * k)), n = [0, -d[2], d[1]];
+    sc.cap(b.U(add(h.pos, scl(d, -3.6 * k))), b.U(top), 0.4 * k, 0.34 * k, 'wood2', { pri: 2 }); sc.cap(b.U(top), b.U(add(top, scl(n, -1.3 * k))), 0.34 * k, 0.3 * k, 'wood2', { pri: 2 });
+    sc.ell(b.U(add(top, scl(d, 0.9 * k))), [1.25 * k, 1.1 * k, 1.0 * k], 'leaf', { pri: 4 }); sc.ell(b.U(add(add(top, scl(d, 0.2 * k)), scl(n, -1.7 * k))), [0.85 * k, 0.8 * k, 0.75 * k], 'leafL', { pri: 4 }); sc.ell(b.U(add(add(top, scl(d, 1.5 * k)), scl(n, 0.7 * k))), [0.5 * k, 0.5 * k, 0.5 * k], 'bloom', { pri: 6 }); },
+  mantle(sc, b, a) { const k = b.k, sp = b.sp; sc.ell(b.U([0, -0.5 * k, b.tH * 0.9]), [sp.shoulderW * k * 1.25, sp.torsoR[1] * k * 1.35, 1.25 * k], 'leaf', { rot: b.upR, pri: 4 }); sc.cap(b.U([0, -1.3 * k, b.tH * 0.8]), b.U([0, -1.8 * k, b.tH * 0.15]), 1.5 * k, 1.9 * k, 'leaf', { pri: 2 });
+    for (const s of [-1, 1]) sc.ell(b.U([s * sp.shoulderW * k * 1.05, 0.3 * k, b.tH * 1.0]), [0.9 * k, 0.9 * k, 0.6 * k], 'leafL', { pri: 5 }); },
+  // delver (dwarves): a lamp on the iron cap, a hod of ore on the back
+  lamp(sc, b, a) { const hr = b.hr, k = b.k; sc.box(b.HL([0, hr[1] * 0.78, hr[2] * 0.72]), [0.65 * k, 0.5 * k, 0.65 * k], 'gold', { rot: b.headR, round: 0.2, pri: 6 }); sc.ell(b.HL([0, hr[1] * 1.02, hr[2] * 0.72]), [0.5 * k, 0.4 * k, 0.5 * k], 'lampl', { pri: 7 }); },
+  orepack(sc, b, a) { const k = b.k; sc.box(b.U([0, -2.0 * k, b.tH * 0.5]), [1.7 * k, 1.1 * k, 1.6 * k], 'leather', { rot: b.upR, round: 0.3, pri: 2 }); sc.ell(b.U([-0.7 * k, -2.0 * k, b.tH * 0.5 + 1.8 * k]), [0.95 * k, 0.85 * k, 0.8 * k], 'orem', { pri: 3 }); sc.ell(b.U([0.7 * k, -2.1 * k, b.tH * 0.5 + 1.6 * k]), [0.85 * k, 0.8 * k, 0.7 * k], 'steel', { pri: 3 }); },
+  // sporer (myrrin): a short sickle, a wicker basket where small caps poke out
+  sickle(sc, b, a) { const h = b.hands.R, d = toolAxis(b, 'R'), k = b.k, tip = add(h.pos, scl(d, 2.6 * k)), n = [0, -d[2], d[1]];
+    sc.cap(b.U(add(h.pos, scl(d, -0.6 * k))), b.U(tip), 0.42 * k, 0.42 * k, 'wood', { pri: 2 }); sc.cap(b.U(tip), b.U(add(add(tip, scl(d, 2.0 * k)), scl(n, 1.2 * k))), 0.55 * k, 0.45 * k, 'blade', { pri: 7 }); sc.cap(b.U(add(add(tip, scl(d, 2.0 * k)), scl(n, 1.2 * k))), b.U(add(add(tip, scl(d, 1.4 * k)), scl(n, 3.2 * k))), 0.45 * k, 0.22 * k, 'blade', { pri: 7 }); },
+  basket(sc, b, a) { const k = b.k, h = b.hands.L, c = add(h.pos, [-0.5 * k, 0.5 * k, -0.9 * k]); sc.cap(b.U(add(c, [0, 0, -0.7 * k])), b.U(add(c, [0, 0, 0.5 * k])), 0.85 * k, 1.15 * k, 'wood2', { pri: 6 });
+    sc.ell(b.U(add(c, [-0.35 * k, 0.1 * k, 1.0 * k])), [0.8 * k, 0.75 * k, 0.6 * k], 'capT', { pri: 7 }); sc.ell(b.U(add(c, [0.55 * k, -0.1 * k, 0.8 * k])), [0.6 * k, 0.6 * k, 0.5 * k], 'gill', { pri: 7 }); },
+  // diver (okari): a three-pronged fish spear, a net bag at the hip with a glass float
+  trident(sc, b, a) { const h = b.hands.R, d = toolAxis(b, 'R', -0.25), k = b.k, tip = add(h.pos, scl(d, 5.0 * k)), n = [0, -d[2], d[1]];
+    sc.cap(b.U(add(h.pos, scl(d, -2.8 * k))), b.U(tip), 0.34 * k, 0.34 * k, 'wood', { pri: 2 }); sc.cap(b.U(add(tip, scl(n, -1.3 * k))), b.U(add(tip, scl(n, 1.3 * k))), 0.32 * k, 0.32 * k, 'blade', { pri: 5 });
+    for (const s of [-1.3, 0, 1.3]) sc.cap(b.U(add(tip, scl(n, s * k))), b.U(add(add(tip, scl(n, s * k)), scl(d, (s ? 1.5 : 2.0) * k))), 0.34 * k, 0.14 * k, 'blade', { pri: 6 }); },
+  netbag(sc, b, a) { const k = b.k; sc.ell(b.U([-1.7 * k, 0.4 * k, b.tH * 0.12]), [1.15 * k, 1.0 * k, 1.3 * k], 'net', { pri: 5 }); sc.ell(b.U([-1.9 * k, 0.9 * k, b.tH * 0.12 + 1.1 * k]), [0.6 * k, 0.6 * k, 0.6 * k], 'float', { pri: 6 }); sc.cap(b.U([-1.2 * k, 0, b.tH * 0.75]), b.U([-1.7 * k, 0.3 * k, b.tH * 0.3]), 0.22 * k, 0.22 * k, 'leather', { pri: 4 }); },
   sack(sc, b, a) { const k = b.k; sc.ell(b.U([0.6 * k, -1.7 * k, b.tH * 0.9]), [1.7 * k, 1.5 * k, 1.8 * k], a.mat || 'straw', { pri: 3 }); },
 };
 module.exports = { build, ANIMS, DEF, ACC };
