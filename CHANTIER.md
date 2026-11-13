@@ -22,7 +22,7 @@ Règles qui restent valables (voir `CLAUDE.md`) : aucun asset validé sans planc
 - [x] **A.7 Pouvoirs : 56 variantes → vrais pouvoirs.** *(fait : 56 gestes distincts dans `src/sim/powers2.js`, 56 icônes, 57 effets, 43 sons ; `node tools/power-proof.js 7` = « ALL 56 POWERS FIRED » ; détail dans `RESUME.md`)* Pour chacun : icône propre, effet visuel, son, effet réel sur le monde (le test dans `tests/powers-run.js` sera étendu par Sonnet). Remplacer les simples variantes de rayon par des pouvoirs distincts quand elles font doublon.
 - [x] **A.8 Les 4 peuples : identité de jeu.** Un bâtiment et un métier ou un comportement propre à chacun (elfes : forêt ; nains : mine et forge ; myrrins : marais, peur du feu ; okaris : pêche et mer), retirer `provisional` ; les scénarios de duel dans le robot (contre humains et orques) et leurs cibles seront faits par Sonnet.
 - [x] **A.9 Bâtiments des 4 peuples** : une coque propre par métier pour les types principaux (aujourd'hui une coque + accessoires), comme chez les humains.
-- [ ] **A.10 Sons et musiques provisoires** : revoir les 44 sons et les 5 pistes (écriture plus longue, variantes) ; brancher les pistes de climat et de catastrophe sans l'option ; **à juger à l'oreille par Julien** (impossible ici).
+- [x] **A.10 Sons et musiques provisoires** : revoir les 44 sons et les 5 pistes (écriture plus longue, variantes) ; brancher les pistes de climat et de catastrophe sans l'option ; **à juger à l'oreille par Julien** (impossible ici).
 - [ ] **A.11 Option « Contenu provisoire »** : la retirer quand plus rien n'est provisoire ; d'ici là regarder la barre d'outils avec l'option activée.
 
 ## B. Systèmes absents

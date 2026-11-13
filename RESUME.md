@@ -6,9 +6,17 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — A.9 done; next task: **A.10 review the 44 provisional sounds and the 5 tracks, wire climate and disaster tracks**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — A.10 done; next task: **A.11 remove the “Provisional content” option**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**A.10 — sons et musiques provisoires (fait, à juger à l'oreille par Julien).** Plus aucun son ni aucune piste n'est `provisional`.
+- Sons : les 44 (animaux, monstres, magie, catastrophes) ont chacun trois prises (`vary` dans `tools/art/sounds.py` : la prise écrite, une plus grave et plus lente, une plus aiguë et plus courte) et 16 d'entre eux une couche de plus (`EXTRA` : souffle de la vache, troisième hululement, réponse de la grenouille, pierres du golem, etc.). `level-audio` puis `measure-audio` : AUDIO OK, 163 sons.
+- Musiques : `tools/art/music-scores.py` (nouvelle source) réécrit `menu` (5 sections, 67 s), `disaster` (6 sections, 48 s), `frost` (5 sections, 89 s), `dunes` (6 sections, 60 s), `tide` (5 sections, 60 s) : sections neuves (A2, pont C), 7 ou 8 parties par piste (contre-chant de cordes, cloches, percussions, couches `tension`/`rhythm`).
+- Mixeur (`src/client/mixer.js`) : les pistes de climat (`frost` sur neige/glace/toundra, `dunes` sur désert/savane, `tide` sur mer/sable) et la piste `disaster` jouent désormais sans l'option ; un climat ne prend la main qu'après 6 s sous le centre de l'écran (pas de bascule pendant un déplacement de caméra) ; mélange de couches propre à `disaster`.
+- Vu : `measure-audio --music` AUDIO OK (163 sons, 8 pistes, pas de saturation) ; dans le navigateur, caméra sur neige → piste `frost`, sur désert → `dunes`, séisme + tornade → `disaster`.
+- Non vérifié : **rien n'a été écouté** (pas d'oreilles ici) ; piste `tide` non vue dans le navigateur (la nuit est tombée pendant l'essai, piste `night`) ; le correctif « climat suivi aussi la nuit » n'a pas été rejoué.
+- À tester par Sonnet : `tests/step11.js` (compte ou noms de pistes, option provisoire) ; niveaux relatifs des pistes en jeu.
 
 **A.9 — bâtiments des 4 peuples : une coque par métier (fait).** Avant, chaque peuple n'avait qu'une coque (celle de la maison) habillée d'accessoires. Chaque peuple a maintenant six coques de métier en cinq stades, dans `tools/art/buildings2.js` (`A.<peuple>.trade`) : `long` (entrepôt, caserne), `tower` (tour de guet), `sacred` (temple), `work` (forge, scierie, port), `lodge` (taverne, hôpital avec un auvent d'atelier accolé), `study` (bibliothèque). La maison et la grande salle gardent la coque du peuple.
 - Elfes : tronc couché creux puis longue salle pâle à tourelles ; nid de guet sur un tronc nu puis aiguille à balcon ; cercle de piliers vivants autour d'un cœur de lumière puis colonnade sous couronne ; auvent de feuilles sur fourches ; maison-souche puis pavillon rond ; tronc à deux étages de feuillage puis tour à deux couronnes.
@@ -146,4 +154,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **A.10** — read the task line, list the provisional sounds and tracks in `tools/art/sounds.py` / `src/data/sounds.json` / music data, rework them, run `measure-audio`, wire the climate and disaster tracks in `src/client/mixer.js`.
+First unticked line of `CHANTIER.md`: **A.11** — check what is still `provisional` in `src/data` (animals, monsters, stages, languages), look at the toolbar with the option on, remove the option from `src/client/ui.js` when nothing is provisional any more (otherwise mark `[~]` and say what remains).

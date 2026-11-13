@@ -18,7 +18,7 @@
 | Flore | 31 | 25 | complet |
 | Sols / biomes | 18 | 14 | complet |
 | Ressources | 10 | 4 minerais dont 1 rare | cuivre, fer, or, aéthérite : complet (7 icônes de ressources non dessinées) |
-| Sons / musiques | 163 (119 + 44 provisoires) / 8 pistes (3 + 5 provisoires) | 120 / 8 | jamais écoutés |
+| Sons / musiques | 163 sons (plus aucun provisoire ; les 44 derniers ont trois prises chacun) / 8 pistes (48 à 89 s, 5 à 8 parties) | 120 / 8 | mesurés (`measure-audio --music` OK), **jamais écoutés : à juger à l'oreille par Julien** |
 
 Ces comptes sont vérifiés par `node tools/validate-data.js` (tableau « vision / données / provisoire »).
 

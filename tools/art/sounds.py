@@ -103,9 +103,51 @@ snd("bell", "crowd", [0.8, 3.5], [300, 3500], [O("sine", 523, 0.4, 0.002, 1.6, 0
 snd("coins", "crowd", [0.1, 0.8], [2500, 10000], [O("sine", 5200, 0.18, 0.001, 0.1, 0.08, fm=[1.4, 1, 0.08, 0.05]), O("sine", 6100, 0.18, 0.001, 0.1, 0.08, at=0.06), O("sine", 4700, 0.16, 0.001, 0.12, 0.1, at=0.13), O("sine", 5600, 0.14, 0.001, 0.12, 0.1, at=0.21)])
 snd("footstep", "crowd", [0.02, 0.25], [80, 2500], variants=[[N(0.3, 0.002, 0.04, 0.03, lp(1200)), O("sine", [120, 70, 0.04], 0.25, 0.002, 0.05, 0.03)], [N(0.3, 0.002, 0.045, 0.03, lp(1500)), O("sine", [110, 65, 0.04], 0.25, 0.002, 0.05, 0.03)], [N(0.28, 0.002, 0.04, 0.03, lp(1000)), O("sine", [130, 75, 0.04], 0.25, 0.002, 0.05, 0.03)]])
 snd("drum_war", "crowd", [0.15, 1.0], [50, 600], variants=[[O("sine", [110, 55, 0.15], 0.8, 0.002, 0.3, 0.2), N(0.15, 0.001, 0.03, 0.03, lp(1200))], [O("sine", [100, 50, 0.15], 0.8, 0.002, 0.3, 0.2), N(0.15, 0.001, 0.03, 0.03, lp(1000))]])
-# ---------------- PROVISIONAL sounds (data skeleton of the final vision, 76 -> 120): real patches written for each subject, measured
-# like the others (levels, clicks, duration, centroid) but never tuned one by one nor listened to. Flagged "provisional".
-def prov(name, cat, dur, cen, layers=None, variants=None, **k): snd(name, cat, dur, cen, layers, variants, provisional=True, **k)
+# ---------------- the 44 sounds of the final vision (animals, monsters, magic, disasters), reviewed in chantier A.10: each one
+# now has three takes (the patch as written for its subject, a lower slower take and a higher shorter one, plus the extra
+# layers written below for the thin ones), so that the same cry is never heard twice in a row. Measured like the others
+# (levels, clicks, duration, centroid); not listened to (no ears here) -> to be judged by Julien.
+import copy
+def vary(layers, pitch=1.0, time=1.0):
+    """a second take of a patch: every frequency x pitch, every time x time (the shape of the sound is kept)"""
+    def fq(f):
+        if isinstance(f, list): return [round(f[0] * pitch, 1), round(f[1] * pitch, 1), round(f[2] * time, 4)] + f[3:]
+        return round(f * pitch, 1)
+    out = []
+    for L in copy.deepcopy(layers):
+        if "f" in L: L["f"] = fq(L["f"])
+        for key in ("a", "d", "dur", "r", "at"):
+            if key in L: L[key] = round(L[key] * time, 4)
+        if "flt" in L:
+            L["flt"][1] = round(L["flt"][1] * pitch, 1)
+            if len(L["flt"]) > 3: L["flt"][3] = [[round(t * time, 4), round(f * pitch, 1)] for t, f in L["flt"][3]]
+        out.append(L)
+    return out
+def prov(name, cat, dur, cen, layers=None, variants=None, **k):
+    h = sum(ord(c) for c in name) % 5  # a fixed, different spread for each sound
+    lo, hi = (0.92 - 0.01 * h, 1.1 + 0.01 * h), (1.07 + 0.01 * h, 0.9 - 0.01 * h)
+    if variants: variants = variants + [vary(variants[0], *hi)] + ([] if len(variants) > 2 else [vary(variants[-1], *lo)])
+    else: variants = [layers, vary(layers, *lo), vary(layers, *hi)]
+    if name in EXTRA: variants[0] = variants[0] + EXTRA[name]; variants[1] = variants[1] + vary(EXTRA[name], lo[0], lo[1])
+    snd(name, cat, dur, cen, None, variants, **k)
+EXTRA = {
+    "cow_moo": [N(0.08, 0.1, 0.5, 0.3, bp(900, 1.2), nc="pink", at=0.7)],                         # the breath at the end of the call
+    "owl_hoot": [O("sine", [366, 322, 0.4], 0.3, 0.05, 0.42, 0.2, at=1.05)],                    # a third, falling hoot
+    "frog_croak": [O("sawtooth", [230, 290, 0.16], 0.25, 0.02, 0.17, 0.06, flt=bp(850, 4), trem=[40, 0.9], at=0.32)],  # the answer
+    "rat_squeak": [N(0.05, 0.002, 0.03, 0.02, hp(6000), at=0.02)],                               # the scratch of claws
+    "troll_grunt": [N(0.2, 0.02, 0.2, 0.12, bp(380, 1.5), nc="brown")],                          # the chest under the voice
+    "giant_shout": [N(0.2, 0.06, 0.7, 0.4, bp(520, 1.2), nc="brown", trem=[9, 0.4])],            # air in a huge chest
+    "golem_grind": [N(0.3, 0.002, 0.05, 0.04, bp(900, 2), at=0.25), N(0.3, 0.002, 0.05, 0.04, bp(760, 2), at=0.62)],  # stones knocking
+    "whale_song": [O("sine", [260, 520, 0.8], 0.22, 0.3, 0.9, 0.8, at=2.0, vib=[3.4, 0.02, 0.5])],  # a third, rising phrase
+    "rhino_snort": [N(0.25, 0.02, 0.18, 0.12, bp(900, 1.2), nc="pink", at=0.34)],                 # the second, shorter puff
+    "camel_groan": [N(0.1, 0.1, 0.6, 0.3, bp(1100, 1.5), nc="pink", at=0.2)],                     # the gurgle
+    "spirit_wail": [O("sine", [1400, 1050, 1.0], 0.08, 0.5, 1.2, 0.9, vib=[5.6, 0.04, 0.4], at=0.9)],  # a falling echo of the wail
+    "colossus_step": [N(0.2, 0.01, 0.35, 0.4, bp(700, 0.8), nc="pink", at=0.5)],                  # rubble settling after the step
+    "sanctuary": [P(1175, 0.1, 0.9, 0.7, at=1.1)],                                                # one bell over the chord
+    "hex": [N(0.08, 0.1, 0.6, 0.4, bp(2800, 5, (0.6, 900)), at=0.2)],                             # a hiss sliding down
+    "tremor": [N(0.25, 0.002, 0.06, 0.05, bp(500, 1.5), at=0.3), N(0.25, 0.002, 0.06, 0.05, bp(420, 1.5), at=0.7)],  # stones jumping
+    "blizzard": [N(0.12, 0.9, 0.9, 0.8, bp(3600, 6, (1.0, 4600), (2.0, 3000)), dur=1.8, nc="white")],  # the whistle in the gusts
+}
 def voice(f0, f1, d, g=0.3, wave="sawtooth", bf=900, q=2.5, vib=None, trem=None, a=0.03, at=0):
     L = O(wave, [f0, f1, d], g, a, d, d * 0.3, flt=bp(bf, q))
     if vib: L["vib"] = vib
@@ -135,7 +177,7 @@ prov("rhino_snort", "animal", [0.15, 1.2], [100, 1800], [N(0.5, 0.02, 0.3, 0.2, 
 prov("whale_song", "animal", [1.0, 4.5], [120, 1500], [O("sine", [180, 420, 1.2], 0.35, 0.3, 1.3, 0.7, vib=[3, 0.02, 0.6]), O("sine", [420, 260, 1.0], 0.3, 0.3, 1.0, 0.8, at=1.1)], rev=0.7)
 # monsters
 prov("dragon_roar", "animal", [1.0, 4.5], [50, 1000], [voice(110, 48, 1.8, g=0.55, bf=480, q=1.4, trem=[23, 0.5], a=0.1), voice(117, 52, 1.8, g=0.4, bf=520, q=1.4, a=0.1), N(0.4, 0.1, 1.6, 0.7, bp(700, 0.8, (1.6, 350)), nc="brown", trem=[23, 0.4])], rev=0.45)
-prov("hellhound_growl", "animal", [0.4, 2.2], [90, 1300], [voice(150, 100, 0.8, g=0.45, bf=700, q=2, trem=[44, 0.65], a=0.05), N(0.2, 0.05, 0.6, 0.3, bp(1800, 1), trem=[44, 0.5])])
+prov("hellhound_growl", "animal", [0.4, 2.2], [90, 1500], [voice(150, 100, 0.8, g=0.45, bf=700, q=2, trem=[44, 0.65], a=0.05), N(0.2, 0.05, 0.6, 0.3, bp(1800, 1), trem=[44, 0.5])])
 prov("giant_shout", "animal", [0.5, 2.5], [70, 900], [voice(98, 74, 1.0, g=0.5, bf=420, q=2.2, vib=[5, 0.02, 0.4], a=0.08), voice(147, 110, 1.0, g=0.25, bf=560, q=2.2, a=0.08)], rev=0.4)
 prov("golem_grind", "animal", [0.5, 2.5], [40, 700], [N(0.7, 0.1, 1.0, 0.5, lp(380, 1), nc="brown", trem=[11, 0.6]), O("sine", [58, 44, 1.0], 0.6, 0.1, 1.0, 0.5, trem=[11, 0.4])])
 prov("troll_grunt", "animal", [0.15, 1.2], [80, 1100], variants=[[voice(118, 84, 0.3, g=0.5, bf=480, q=3, trem=[33, 0.5], a=0.02)], [voice(104, 76, 0.34, g=0.5, bf=440, q=3, trem=[30, 0.5], a=0.02)]])
@@ -157,7 +199,7 @@ prov("sanctuary", "magic", [1.0, 4.0], [300, 3500], [O("sine", 392, 0.22, 0.3, 1
 prov("hail", "disaster", [0.6, 3.0], [1500, 9000], [N(0.3, 0.2, 1.0, 0.6, bp(4200, 0.8), nc="pink", trem=[27, 0.8], dur=1.3)] + [O("triangle", 1900 + 260 * (i % 4), 0.14, 0.001, 0.03, 0.03, at=0.11 * i + 0.05) for i in range(9)])
 prov("blizzard", "disaster", [1.2, 4.8], [300, 4000], [N(0.5, 0.7, 1.3, 1.1, bp(900, 3, (1.0, 2200), (2.2, 1100)), dur=2.0, nc="pink"), N(0.2, 0.8, 1.2, 1.0, bp(2200, 5, (1.2, 3200), (2.2, 1800)), dur=1.9, nc="pink"), N(0.5, 0.5, 1.2, 1.0, lp(700, 0.7), dur=1.8, nc="brown")])
 prov("tsunami", "disaster", [1.5, 5.5], [60, 1500], [N(0.8, 1.0, 1.6, 1.4, lp(300, 0.8, (1.4, 1500), (3.0, 250)), dur=2.6, nc="brown"), O("sine", [50, 34, 2.5], 0.5, 0.8, 1.8, 1.2, dur=2.6), N(0.25, 1.4, 0.9, 1.0, bp(2200, 0.8), at=0.9)], rev=0.3)
-prov("comet", "disaster", [1.0, 4.5], [150, 3500], [N(0.4, 0.9, 0.5, 0.1, bp(4200, 2, (1.4, 400)), dur=1.4), O("sawtooth", [2000, 150, 1.4], 0.16, 0.8, 0.5, 0.1, dur=1.4, flt=lp(2600)), O("sine", [90, 30, 0.7], 0.9, 0.003, 0.9, 0.6, at=1.4), N(0.8, 0.003, 0.8, 0.7, lp(900, 0.6, (0.9, 160)), nc="brown", at=1.4)], rev=0.4)
+prov("comet", "disaster", [1.0, 4.5], [120, 3500], [N(0.4, 0.9, 0.5, 0.1, bp(4200, 2, (1.4, 400)), dur=1.4), O("sawtooth", [2000, 150, 1.4], 0.16, 0.8, 0.5, 0.1, dur=1.4, flt=lp(2600)), O("sine", [90, 30, 0.7], 0.9, 0.003, 0.9, 0.6, at=1.4), N(0.8, 0.003, 0.8, 0.7, lp(900, 0.6, (0.9, 160)), nc="brown", at=1.4)], rev=0.4)
 prov("tremor", "disaster", [0.6, 3.0], [25, 500], [N(0.8, 0.15, 0.9, 0.6, lp(260, 0.8), nc="brown", trem=[17, 0.6], dur=1.1), O("sine", [52, 36, 1.0], 0.7, 0.15, 0.9, 0.5, trem=[12, 0.4], dur=1.1)])
 prov("wildfire", "disaster", [1.0, 4.0], [300, 4500], [N(0.6, 0.4, 1.2, 0.8, lp(1800, 0.8, (1.0, 2800)), nc="pink", trem=[13, 0.5], dur=1.7), N(0.35, 0.4, 1.2, 0.8, bp(500, 0.8), nc="brown", trem=[7, 0.5], dur=1.7)] + [N(0.25, 0.001, 0.02, 0.02, bp(2600 + 300 * (i % 3), 1), at=0.2 + 0.23 * i) for i in range(6)])
 # ---------------- chantier A.7: one sound per power (43 new patches; the power id is the sound id). Written one by one for
