@@ -137,6 +137,19 @@ def vary(layers, pitch=1.0, time=1.0):
 # ---- war (chantier B.4)
 def war3(name, cat, dur, cen, layers, **k):
     snd(name, cat, dur, cen, variants=[layers, vary(layers, 1.09, 0.93), vary(layers, 0.92, 1.08)], **k)
+# ---- seasons (chantier B.8)
+# spring: a bird's trill of quick rising notes over a soft breath of air
+war3("season_spring", "disaster", [0.5, 2.5], [1500, 7000], [O("sine", [2600, 3300, 0.07], 0.25, 0.005, 0.07, 0.04), O("sine", [2900, 3600, 0.07], 0.25, 0.005, 0.07, 0.04, at=0.11), O("sine", [3200, 3900, 0.07], 0.25, 0.005, 0.07, 0.04, at=0.22), O("sine", [3500, 2800, 0.25], 0.22, 0.005, 0.25, 0.15, at=0.36), N(0.08, 0.2, 0.6, 0.4, bp(2500, 1.0))], rev=0.3)
+# summer: cicadas — a dry fast rattle that swells and falls, a warm low hum under it
+war3("season_summer", "disaster", [0.6, 2.5], [1500, 9000], [N(0.45, 0.25, 0.7, 0.4, bp(5200, 6.0), trem=[38, 0.9]), N(0.2, 0.3, 0.6, 0.4, bp(7400, 8.0), trem=[44, 0.9]), O("sine", 220, 0.08, 0.3, 0.7, 0.4)])
+# autumn: a gust in dry leaves, two low wooden knocks
+war3("season_autumn", "disaster", [0.6, 2.5], [300, 4000], [N(0.5, 0.3, 0.7, 0.5, bp(1800, 1.0, (0.5, 3200), (1.0, 1200))), N(0.25, 0.3, 0.6, 0.5, bp(600, 1.0)), O("triangle", [392, 380, 0.1], 0.25, 0.002, 0.14, 0.1, at=0.5), O("triangle", [294, 285, 0.1], 0.25, 0.002, 0.18, 0.12, at=0.72)], rev=0.3)
+# winter: a thin cold wind and three glassy notes falling
+war3("season_winter", "disaster", [0.6, 3.0], [600, 7000], [N(0.3, 0.4, 0.9, 0.6, bp(2600, 3.0, (0.5, 3400), (1.0, 2200))), O("sine", 2093, 0.2, 0.002, 0.5, 0.4, at=0.2), O("sine", 1568, 0.2, 0.002, 0.5, 0.4, at=0.45), O("sine", 1319, 0.2, 0.002, 0.7, 0.5, at=0.7), O("sine", 3951, 0.05, 0.002, 0.3, 0.2, at=0.7)], rev=0.5)
+# feast: a quick jig of four notes on a reed, mugs knocked together
+war3("feast", "crowd", [0.5, 2.2], [300, 4000], [O("sawtooth", 587, 0.22, 0.01, 0.1, 0.04, flt=bp(1600, 2)), O("sawtooth", 740, 0.22, 0.01, 0.1, 0.04, at=0.13, flt=bp(1800, 2)), O("sawtooth", 880, 0.22, 0.01, 0.1, 0.04, at=0.26, flt=bp(2000, 2)), O("sawtooth", 740, 0.24, 0.01, 0.25, 0.12, at=0.39, flt=bp(1800, 2)), O("triangle", [520, 480, 0.05], 0.3, 0.001, 0.06, 0.05, at=0.62), N(0.3, 0.001, 0.05, 0.04, bp(2400, 1.0), at=0.62)], rev=0.25)
+# shiver: a short breath through the teeth and a brittle tick of ice
+war3("shiver", "crowd", [0.2, 1.4], [800, 8000], [N(0.4, 0.05, 0.25, 0.15, bp(3800, 2.0), trem=[17, 0.7]), O("sine", 4186, 0.12, 0.001, 0.06, 0.05, at=0.3), O("sine", 3520, 0.1, 0.001, 0.08, 0.06, at=0.36)])
 # ---- individuals (chantier B.7)
 # friend: two short warm notes of laughter, the second a third above
 war3("friend", "crowd", [0.2, 1.2], [400, 4000], [O("triangle", [392, 440, 0.08], 0.3, 0.01, 0.1, 0.06), O("sine", 784, 0.1, 0.01, 0.1, 0.06), O("triangle", [494, 554, 0.08], 0.3, 0.01, 0.14, 0.1, at=0.14), O("sine", 988, 0.1, 0.01, 0.14, 0.1, at=0.14)], rev=0.2)

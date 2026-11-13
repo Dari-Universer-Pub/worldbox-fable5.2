@@ -6,9 +6,17 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and B.1 to B.7 done; next task: **B.8 seasons**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and B.1 to B.8 done; next task: **B.9 livestock and migrations**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**B.8 — saisons (fait ; décision « oui » écrite dans `DECISIONS.md`, D-B8).** Nouveau module `src/sim/seasons.js` (`AL.Seasons`) : quatre saisons de 300 tics (une journée chacune), `sim.season`.
+- **Effets (empilés sur ceux de l'âge) :** pousse sauvage ×1,3 / 1,1 / 1,0 / 0,6 ; cultures (pousse et rendement) ×1,15 / 1,1 / 1,15 / 0,6 ; reproduction des animaux ×1,7 / 1,0 / 0,8 / 0,5 ; pluie ×1,25 / 0,8 / 1,15 / 0,9, et en hiver 85 % des pluies tombent en neige (sauf monde chaud). *Automne* : fête des récoltes dans les villes qui ont 4 vivres par habitant (moral +12, compagnie +20). *Hiver* : chaque ville brûle 1 bois pour 12 habitants ; sans bois elle a froid (moral −12, repos −10).
+- **Rendu :** le shader du terrain pose des plaques de deux tons de la palette selon le sol (neige en hiver, feuilles mortes en automne), la lumière est teintée par saison (fondu sur 15 % de la saison), les arbres tempérés sont dessinés un ton plus clair en hiver, pétales au printemps, feuilles en automne, flocons en hiver ; icône de saison dans la barre du haut (4 icônes dessinées, info-bulle EN/FR).
+- **Effets et sons :** `feast` (chope levée), `shiver` (souffle de froid et cristal) ; 6 sons à 3 prises (`season_spring`, `season_summer`, `season_autumn`, `season_winter`, `feast`, `shiver`).
+- Vu : `solo-human 3 100` → 100 passages de chaque saison, `hearthWood=5394`, `coldWinters=6`, `feasts=327`, `winterSnow=15`, naissances d'animaux printemps 3 187 / été 1 752 / automne 1 493 / hiver 997, 1 428 habitants ; les quatre saisons regardées au même endroit dans le vrai jeu (`shots/b8-season-0..3.png`) : icône, teinte, feuilles mortes, neige et arbres givrés ; planches `shots/b8-icons.png`, `shots/b8-fx.png` ; plaques de neige agrandies après la première capture (elles faisaient du bruit) ; `measure-audio` AUDIO OK (185 sons) ; `validate-data`, `check-provenance` OK.
+- Non vérifié : les effets `feast` et `shiver` dans le jeu ; les plaques de neige restent carrées de près ; la neige vue de loin (zoom < 0,74) ; un monde chaud ; l'infobulle de saison ; la capture d'été et de printemps n'a été lue que par ses valeurs (`amt=0`), pas ouverte.
+- À tester par Sonnet : `feasts=327` en 100 ans (presque toutes les villes chaque automne : seuil trop bas ?) et seulement 6 hivers froids ; effet des saisons sur les cibles de `BALANCE.md` (famines d'hiver, faune) ; performance du shader avec la couverture ; sauvegarde/chargement (`sim.season`, `town.cold`).
 
 **B.7 — individus (fait).** Nouveau module `src/sim/bonds.js` (`AL.Bonds`) ; quatre colonnes de plus par unité (`friend`, `rival`, `lover`, `bondT`).
 - **Liens :** deux villageois qui se rencontrent (action SOCIAL) peuvent devenir *meilleurs amis* ou *rivaux* selon leur entente (`B.affinity` : traits communs ou opposés, même métier, même clan, foi ou culture différentes, plus un tirage fixe pour la paire). *L'amour vient avant le mariage* : deux célibataires tombent amoureux (35 % à la rencontre, comme avant) et se marient un jour plus tard (`B.WED_AFTER` = 300 tics) ; qui s'éprend de quelqu'un déjà aimé « aime en vain » et devient le rival de l'élu ; un amour sans retour s'éteint avec le temps. Les amis se remontent le moral (+4, compagnie +10), les rivaux se disputent (moral −6), la mort d'un ami ou d'un amour est pleurée (moral −20 / −25).
@@ -211,4 +219,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **B.8** — seasons: write the decision in `DECISIONS.md` (seasons add to the gameplay: yes or no, with what they change), then, if yes, the season cycle in the simulation (year = 1200 ticks, four seasons of 300), its effects (crops, temperature, snow, animals) and its look (terrain tint, weather), a season name in the top bar. Proof: one `solo-human 3 100` game with per-season counters, screenshots of the four seasons.
+First unticked line of `CHANTIER.md`: **B.9** — livestock and migrations: pens (a drawn building or fence around the herder's animals), herded animals (sheep, cow, goat, horse, camel, yak follow their herder and stay in the pen, give food without being killed), seasonal migrations of the wild herds (north/south or high/low with `sim.season`, in `src/sim/creatures.js`). Proof: one `solo-human 3 100` game with counters (penned, milked/shorn, migrations), sheet of the pen, screenshot.

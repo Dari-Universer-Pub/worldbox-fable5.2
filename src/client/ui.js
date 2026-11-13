@@ -127,7 +127,7 @@
   const SPEEDS = [0.5, 1, 2, 5, 10, 50];
   function topBar() { panel(0, 0, W, 15); const h = Game.hud, yr = 1 + Math.floor((Game.tick || 0) / AL.YEAR); let x = 4;
     if (h) { if (!AL.ERAS) { AL.ERAS = []; for (const q in AL.DATA.eras) { const e = AL.DATA.eras[q]; e.name = q; AL.ERAS[e.id] = e; } } const era = AL.ERAS[h.era];
-      x = UI.text(AL.tn(era), x, 2, C.accent) + 6; x = UI.text(t('ui.year') + ' ' + yr, x, 2, C.text) + 6;
+      x = UI.text(AL.tn(era), x, 2, C.accent) + 6; x = UI.text(t('ui.year') + ' ' + yr, x, 2, C.text) + 6; if (h.season != null) { const sn = ['spring', 'summer', 'autumn', 'winter'][h.season], si = icon('season_' + sn); if (si) { g.drawImage(si, x - 2, -1); if (inR(x - 2, 0, 16, 14)) { hotNow = 'season'; tip = { tip: t('season.' + h.season) }; } x += 16; } }
       const wi = icon(S.night > 0.5 && !h.wx ? 'moon' : ['sun', 'rain', 'storm', 'snow', 'fog'][h.wx] || 'sun'); if (wi) { g.drawImage(wi, x, -1); if (inR(x, 0, 16, 14)) { hotNow = 'wx'; tip = { tip: t('wx.' + h.wx) }; } x += 18; }
       const pi = icon('pop'); if (pi) g.drawImage(pi, x, -1); x = UI.text(S.towns ? String(S.towns.reduce((s, tw) => s + (tw ? tw[7] || 0 : 0), 0)) : '0', x + 17, 2, C.text) + 6; const ti = icon('town'); if (ti) g.drawImage(ti, x, -1); x = UI.text(S.towns ? String(S.towns.filter(Boolean).length) : '0', x + 17, 2, C.text) + 6;
       if (S.layer) UI.text(t('layer.' + S.layer), x + 4, 2, C.blue); }

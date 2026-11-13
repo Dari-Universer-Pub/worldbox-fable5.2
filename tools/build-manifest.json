@@ -19,7 +19,8 @@
   "src/sim/monsters.js",
   "src/sim/culture.js",
   "src/sim/powers2.js",
-  "src/sim/save.js"
+  "src/sim/seasons.js",
+    "src/sim/save.js"
  ],
  "client": [
   "src/client/assets.js",

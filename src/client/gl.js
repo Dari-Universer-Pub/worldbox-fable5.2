@@ -2,7 +2,7 @@
 // Passes: terrain (one quad) -> shadows -> sprites (instanced, y-sorted) -> lights (additive) -> composite (lighting, vignette, fade).
 (function (AL) {
   'use strict';
-  const G = AL.Gfx = { W: 640, H: 360, maxSprites: 24000, layerOn: 0, shake: 0, fade: 0 };
+  const G = AL.Gfx = { W: 640, H: 360, maxSprites: 24000, layerOn: 0, shake: 0, fade: 0, seasAmt: 0, seasA: 0, seasB: 0, seasW: new Int32Array(32) };
   let gl, progT, progS, progL, progC, vaoQ, vaoS, vaoL, instBuf, lightBuf, texA, texB, texC, texTer, texMask, texPal, texPage, texLayerPal, fboScene, fboLight, texScene, texLight;
   const FL = 12; // floats per sprite instance
   const inst = new Float32Array(G.maxSprites * FL), keys = new Float64Array(G.maxSprites), sorted = new Float32Array(G.maxSprites * FL);
@@ -12,7 +12,7 @@ in vec2 a; out vec2 uv; void main(){ uv=a*.5+.5; gl_Position=vec4(a,0.,1.); }`;
   const FS_T = `#version 300 es
 precision highp float; precision highp int; precision highp usampler2D;
 in vec2 uv; out vec4 o;
-uniform sampler2D uA,uB,uC,uTer,uMask,uPal,uLPal; uniform vec2 uCam,uRes; uniform float uZoom,uMapN,uTime; uniform int uFrame,uLayer; uniform int uFlat[32]; uniform int uRank[32];
+uniform sampler2D uA,uB,uC,uTer,uMask,uPal,uLPal; uniform vec2 uCam,uRes; uniform float uZoom,uMapN,uTime; uniform int uFrame,uLayer; uniform int uFlat[32]; uniform int uRank[32]; uniform float uSeasAmt; uniform ivec2 uSeasIdx; uniform int uSeasW[32];
 int tex8(sampler2D s, ivec2 p){ return int(texelFetch(s,p,0).r*255.+.5); }
 float h21(vec2 p){ p=fract(p*vec2(123.34,456.21)); p+=dot(p,p+45.32); return fract(p.x*p.y); }
 int toneShift(int idx,int d){ int r=idx/6, t=idx-r*6; t=clamp(t+d,0,5); return r*6+t; }
@@ -45,6 +45,8 @@ void main(){
   if((fl&4)!=0 && !water && !lava){ float cs=uZoom<.74?2.:1.; float sn=h21(floor(vec2(ip)/(8.*cs))+.7)*.65+h21(floor(vec2(ip)/(4.*cs))+3.1)*.35; if(sn<.5) idx = sn<.25? 30 : 31; } // scorched ground: clean dark masses (4 px and 2 px cells), the ground shows through in clumps
   // far-view canopy marks for trees
   if(lod>0 && uZoom<0.74){ vec2 c=vec2(sub)-vec2(3.5,3.0); if(dot(c,c)<9.5){ idx=lod-1; if(c.x+c.y<-1.5) idx=toneShift(idx,1); else if(c.x+c.y>2.5) idx=toneShift(idx,-1);} }
+  // season cover (chantier B.8): snow in winter, fallen leaves in autumn — clean clumps of two palette tones, more or less of them by ground
+  if(uSeasAmt>0. && !water && !lava && (fl&4)==0){ int sw=uSeasW[mat]; if(sw>0){ float cs=uZoom<.74?2.:1.; float sn=h21(floor(vec2(ip)/(8.*cs))+11.3)*.65+h21(floor(vec2(ip)/(4.*cs))+5.9)*.35; float th=uSeasAmt*float(sw)*.01; if(sn<th) idx = sn<th*.55 ? uSeasIdx.x : uSeasIdx.y; } }
   vec3 col=texelFetch(uPal,ivec2(idx,0),0).rgb; float em = lava ? 1. : 0.;
   if(uLayer>0){ int id=int(texelFetch(uC,tc,0).r*255.+.5); if(id>0){ vec4 lc=texelFetch(uLPal,ivec2(id,0),0); col=mix(col,lc.rgb,lc.a*.42);
       bool edge=false; ivec2 mx=ivec2(int(uMapN)-1);
@@ -124,7 +126,7 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=texture(uScene,q); vec3 l=texture(uLi
     texPal = tex(256, 1, 'rgba', As.palBytes); { const mx = gl.getParameter(gl.MAX_TEXTURE_SIZE); if (mx < As.pageH) throw new Error('This device cannot hold the sprite page (' + As.pageH + ' px, limit ' + mx + ')'); } texPage = tex(As.PAGE, As.pageH, 'r8', As.page);
     const T = As.raw.terrain, Mk = As.raw.tmask; texTer = tex(T.w, T.h, 'r8', T.d); texMask = tex(Mk.w, Mk.h, 'r8', Mk.d);
     texLayerPal = tex(256, 1, 'rgba', new Uint8Array(1024));
-    G.flat = new Int32Array(32); G.rank = new Int32Array(32); AL.GROUND.forEach((g, i) => { G.flat[i] = As.ix(g.flat[0], g.flat[1]); G.rank[i] = g.rank; });
+    G.flat = new Int32Array(32); G.rank = new Int32Array(32); G.seasW = new Int32Array(32); AL.GROUND.forEach((g, i) => { G.flat[i] = As.ix(g.flat[0], g.flat[1]); G.rank[i] = g.rank; });
     G.resize(640, 360);
   };
   G.resize = function (w, h) { G.W = w; G.H = h; G.canvas.width = w; G.canvas.height = h; if (texScene) { gl.deleteTexture(texScene); gl.deleteTexture(texLight); gl.deleteFramebuffer(fboScene); gl.deleteFramebuffer(fboLight); }
@@ -176,7 +178,7 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=texture(uScene,q); vec3 l=texture(uLi
     let p = progT; gl.useProgram(p); gl.bindVertexArray(vaoQ);
     const bind = (unit, t, loc) => { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t); gl.uniform1i(loc, unit); };
     bind(0, texA, p.u.uA); bind(1, texB, p.u.uB); bind(2, texC, p.u.uC); bind(3, texTer, p.u.uTer); bind(4, texMask, p.u.uMask); bind(5, texPal, p.u.uPal); bind(6, texLayerPal, p.u.uLPal);
-    gl.uniform2f(p.u.uCam, cam.x, cam.y); gl.uniform2f(p.u.uRes, W, H); gl.uniform1f(p.u.uZoom, cam.z); gl.uniform1f(p.u.uMapN, G.n); gl.uniform1f(p.u.uTime, env.time); gl.uniform1i(p.u.uFrame, env.frame & 3); gl.uniform1i(p.u.uLayer, G.layerOn); gl.uniform1iv(p.u.uFlat, G.flat);
+    gl.uniform2f(p.u.uCam, cam.x, cam.y); gl.uniform2f(p.u.uRes, W, H); gl.uniform1f(p.u.uZoom, cam.z); gl.uniform1f(p.u.uMapN, G.n); gl.uniform1f(p.u.uTime, env.time); gl.uniform1i(p.u.uFrame, env.frame & 3); gl.uniform1i(p.u.uLayer, G.layerOn); gl.uniform1iv(p.u.uFlat, G.flat); gl.uniform1f(p.u.uSeasAmt, G.seasAmt || 0); gl.uniform2i(p.u.uSeasIdx, G.seasA | 0, G.seasB | 0); gl.uniform1iv(p.u.uSeasW, G.seasW);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     // sort sprites by y
     if (nSpr) { const ks = keys.subarray(0, nSpr); ks.sort(); for (let i = 0; i < nSpr; i++) { const s = (ks[i] % 32768) * FL, d = i * FL; for (let k = 0; k < FL; k++) sorted[d + k] = inst[s + k]; }

@@ -47,17 +47,18 @@
   let floraFrames = null;
   function buildFlora() { const A = AL.Assets; floraFrames = []; AL.FLORA.forEach((f, id) => { if (!f) return; const v = []; for (let k = 0; k < 4; k++) { const fr = A.anim(f.sprite + '/' + k); if (!fr.length) break; v.push(fr); } floraFrames[id] = v; }); floraFrames.sapling = A.anim('sapling/0'); }
   Game._drawFlora = function () { drawFlora(Game.env); };
+  const WARMF = [];
   function drawFlora(env) {
     const M = Game.map, n = M.n, c = Game.cam, G = AL.Gfx, z = c.z; if (z < 0.74) return; // far view: canopy marks are drawn by the terrain shader
     const x0 = Math.max(0, Math.floor(c.x / 8) - 2), y0 = Math.max(0, Math.floor(c.y / 8) - 1), x1 = Math.min(n - 1, Math.ceil((c.x + G.W / z) / 8) + 2), y1 = Math.min(n - 1, Math.ceil((c.y + G.H / z) / 8) + 5);
-    const ft = M.feature, gw = M.fgrow, wind = env.wind || 0.35, t = Game.time;
+    const ft = M.feature, gw = M.fgrow, wind = env.wind || 0.35, t = Game.time; const frost = AL.Scene && AL.Scene.frost; if (!WARMF.done) { WARMF.done = 1; for (const k of ['palm', 'jungletree', 'acacia', 'cactus', 'deadtree']) if (AL.F[k] != null) WARMF[AL.F[k]] = 1; }
     for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const i = y * n + x, f = ft[i]; if (!f) continue; const vs = floraFrames[f]; if (!vs || !vs.length) continue;
       const h = AL.hash2(x, y, 7), kind = AL.fKind[f]; let fr;
       if (kind === 1 && gw[i] < 70) fr = floraFrames.sapling; else if (kind === 5) fr = vs[Math.min(vs.length - 1, gw[i] >> 6)]; else fr = vs[(h * vs.length) | 0];
       // sway: a gust travels across the map; each plant has its own phase
       const gust = Math.sin(t * 0.7 + x * 0.21 + y * 0.13) * 0.5 + 0.5, ph = (t * (1.2 + wind * 2.2) + h * 4 + x * 0.3) % 4; const fi = (gust < 1 - wind * 1.4) ? 0 : (ph | 0) % fr.length;
       const jx = kind === 1 ? ((h * 5) | 0) - 2 : ((h * 7) | 0) - 3, jy = kind === 1 ? 0 : ((AL.hash2(x, y, 8) * 5) | 0) - 2;
-      G.spr(fr[fi], x * 8 + 4 + jx, y * 8 + 7 + jy, 0, (kind === 3 || kind === 5) ? 32 : 0, 0, 1, 1, kind === 3 ? -6 : 0);
+      G.spr(fr[fi], x * 8 + 4 + jx, y * 8 + 7 + jy, 0, (kind === 3 || kind === 5) ? 32 : 0, frost && kind === 1 && !WARMF[f] ? 1 : 0, 1, 1, kind === 3 ? -6 : 0);
       if (M.fire[i]) { /* fire sprites are added by AL.Fx */ } }
   }
   // ---------------- frame

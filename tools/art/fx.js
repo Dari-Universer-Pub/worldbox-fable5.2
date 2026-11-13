@@ -135,6 +135,22 @@ E['loot'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), SK = R('s
   if (!open) { im.set(7, 8, SK[0]); im.set(8, 8, SK[0]); im.set(7, 7, SK[1]); im.set(8, 7, SK[2]); } else for (let x = 5; x < 11; x++) im.set(x, 9, G[1 + (x & 1)]);
   if (open) for (let k = 0; k < 6; k++) { const a = -Math.PI * (0.18 + 0.64 * (k + 0.5) / 6), sp = 5 + (k * 37 % 5) * 0.7, x = Math.round(7.5 + Math.cos(a) * sp * t), y = Math.round(9 + Math.sin(a) * sp * 1.5 * t + 11 * t * t); if (y > 15 || y < 0 || x < 0 || x > 15) continue; im.set(x, y, G[3 - (f % 2 === k % 2 ? 1 : 0)]); if (y + 1 < 16) im.set(x, y + 1, G[1]); if (f < 3 && x + 1 < 16) im.set(x + 1, y, G[2]); }
   return im; }, pivot: [8, 15] };
+// ---- seasons (chantier B.8)
+// particles of the season: an autumn leaf, a spring petal
+E['p/aleaf'] = { w: 2, h: 2, n: 1, pivot: [0, 0], fn: () => { const im = new Img(2, 2); im.set(0, 0, ix('fire', 3)); im.set(1, 0, ix('fire', 2)); im.set(1, 1, ix('earth', 3)); return im; } };
+E['p/petal'] = { w: 2, h: 1, n: 1, pivot: [0, 0], fn: () => { const im = new Img(2, 1); im.set(0, 0, ix('pink', 5)); im.set(1, 0, ix('pink', 4)); return im; } };
+// feast: a full mug is raised, foam spills, sparks of joy around it
+E['feast'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), WD = R('earth', [1, 3, 4]), FO = R('sand', [5, 4]), G = R('fire', [3, 5]), up = [0, 2, 4, 5, 4, 5][f], tilt = [0, 0, 1, 0, -1, 0][f];
+  const by = 9 - up; for (let j = 0; j < 6; j++) for (let k = 0; k < 6; k++) { const x = 5 + k + Math.round(tilt * (5 - j) / 5), y = by + j; im.set(x, y, j === 2 || j === 4 ? WD[0] : k === 0 ? WD[2] : k === 5 ? WD[0] : WD[1]); }
+  for (let j = 1; j < 5; j++) { im.set(11 + tilt, by + j, j === 1 || j === 4 ? WD[0] : 0 || WD[0]); if (j === 1 || j === 4) im.set(12 + tilt, by + j, WD[0]); else im.set(13 + tilt, by + j, WD[0]); }
+  for (let k = 0; k < 6; k++) { im.set(5 + k + tilt, by - 1, FO[k % 3 === 1 ? 1 : 0]); if (f >= 2 && (k === 1 || k === 4)) im.set(5 + k + tilt, by - 2, FO[0]); } if (f >= 3) { im.set(4 + tilt, by, FO[0]); im.set(4 + tilt, by + 1 + (f & 1), FO[1]); }
+  if (f >= 2) { const SP = [[2, 3], [13, 2], [1, 8], [14, 6], [8, 0]]; for (let k = 0; k < SP.length; k++) if ((k + f) % 2 === 0) { im.set(SP[k][0], SP[k][1], G[1]); if (f < 5) { im.set(SP[k][0], SP[k][1] + 1, G[0]); } } }
+  return im; }, pivot: [8, 15] };
+// shiver: a breath of cold — a pale puff that swells and drifts up, a snow crystal turning beside it
+E['shiver'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), IC = R('ice', [3, 4, 5]), W = ix('ice', 5), r = [1.5, 2.5, 3.2, 3.6, 3.2, 2.4][f], cy = 11 - f * 1.3, cx = 6 + f * 0.4;
+  for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) { const dx = x + 0.5 - cx, dy = (y + 0.5 - cy) * 1.25, d = Math.hypot(dx, dy) + (nz(x * 0.6 + f, y * 0.6, 3) - 0.5) * 1.2; if (d < r && !(f === 5 && ((x + y) & 1))) im.set(x, y, d > r - 1 ? IC[0] : dx + dy < -0.5 ? IC[2] : IC[1]); }
+  const sx = 12, sy = 5 + (f >> 1); im.set(sx, sy, W); if (f & 1) { im.set(sx - 1, sy, IC[1]); im.set(sx + 1, sy, IC[1]); im.set(sx, sy - 1, IC[1]); im.set(sx, sy + 1, IC[1]); } else { im.set(sx - 1, sy - 1, IC[1]); im.set(sx + 1, sy + 1, IC[1]); im.set(sx + 1, sy - 1, IC[1]); im.set(sx - 1, sy + 1, IC[1]); }
+  return im; }, pivot: [8, 15] };
 // ---- individuals (chantier B.7)
 // friend: two little notes of laughter rise side by side and lean toward each other, a warm spark between them
 E['friend'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), A = R('fire', [3, 5]), Bc = R('pink', [3, 5]), W = ix('sand', 5), up = [0, 1, 3, 4, 6, 7][f], lean = f >= 2 ? 1 : 0;

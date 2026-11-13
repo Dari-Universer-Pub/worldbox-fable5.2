@@ -59,3 +59,19 @@ Alternatives: (a) per-unit A* on the tile grid for every trip; (b) shared flow f
 
 ## D11. Saves
 Whole state serialised by the worker into one binary buffer (typed arrays + JSON header), stored in IndexedDB (slots + autosave) with a localStorage index; export/import as a `.aeon` file. Identity test: save → load → save must give byte-identical buffers, and the reloaded world must then evolve identically for 500 ticks.
+
+
+## D-B8. Seasons (chantier B.8): yes
+Question: do seasons add to the game, or only to the picture? Alternatives weighed:
+- **No seasons** (state before B.8): the year (1,200 ticks = 4 days) was only a counter; nothing told one part of the year from another. Cost 0; nothing to play with.
+- **Cosmetic seasons** (tint and particles only): pretty, but a god game player learns nothing from them and has no reason to wait or to hurry.
+- **Seasons with effects** (chosen): four seasons of 300 ticks (30 s at ×1, 0.6 s at ×50), each with a measurable effect stacked on the age (era) multipliers.
+
+| Season | Wild growth | Crops (growth and yield) | Animal breeding | Rain | Other |
+|---|---|---|---|---|---|
+| Spring | ×1.3 | ×1.15 | ×1.7 | ×1.25 | petals in the air |
+| Summer | ×1.1 | ×1.1 | ×1.0 | ×0.8 | — |
+| Autumn | ×1.0 | ×1.15 | ×0.8 | ×1.15 | harvest feast in towns with 4 food per head (mood +12, company +20, costs 0.25 food per head); fallen leaves |
+| Winter | ×0.6 | ×0.6 | ×0.5 | ×0.9, 85 % of it as snow | each town burns 1 wood per 12 inhabitants; a town without wood is cold (mood −12, rest −10); snow cover, frosted trees |
+
+The yearly means stay close to 1 (growth 1.0, crops 1.0, breeding 1.0) so the balance targets of `BALANCE.md` are not moved on purpose; the fine tuning is left to the balance pass. Why yes: the seasons give the herds a reason to move (B.9 seasonal migrations), give wood a use beyond building, give the player a rhythm to read on the map (a snowed-in land, a feast), and the day already equals a quarter of the year (D10), so a season is exactly one day and night. Hot worlds (`climate: hot`) get no winter snow. Look: the terrain shader lays clumps of two palette tones on the ground by ground type (ice 5/4 in winter, sand 3 / earth 4 leaves in autumn), the light is tinted per season, temperate trees are drawn one tone lighter in winter; top bar icon per season.

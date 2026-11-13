@@ -33,7 +33,7 @@ Règles qui restent valables (voir `CLAUDE.md`) : aucun asset validé sans planc
 - [x] **B.5 Lecture de la guerre** : couche « guerres » avec fronts et armées en marche ; icônes et marqueurs dessinés un à un (armée, front, siège, ville capturée), lisibles à tous les zooms.
 - [x] **B.6 Diplomatie** : fusion de royaumes, guerre civile, chef d'alliance ; mariage royal, rébellion et capture (aujourd'hui codés, jamais vus : Sonnet les fera observer par des tests).
 - [x] **B.7 Individus** : amitiés, rivalités, amours visibles dans la fiche ; ce que porte un villageois visible sur le sprite.
-- [ ] **B.8 Saisons** : seulement si elles apportent au jeu (récoltes, migrations, neige) ; décision écrite dans `DECISIONS.md`.
+- [x] **B.8 Saisons** : seulement si elles apportent au jeu (récoltes, migrations, neige) ; décision écrite dans `DECISIONS.md`.
 - [ ] **B.9 Élevage et migrations** : enclos, bétail gardé (mouton, vache, chèvre, cheval, chameau, yak), migrations saisonnières.
 
 ## C. Finitions

@@ -60,8 +60,8 @@
   const B_x = (sim, b) => AL.clamp(sim.B.x[b] - 1, 0, sim.world.n - 1), B_y = (sim, b) => sim.B.y[b] + sim.B.h[b] - 1;
   // ------------------------------------------------------------ weather and eras
   function weatherTick(sim) { const rng = sim.rng, era = AL.ERAS[sim.era];
-    if (sim.tick >= sim.wxUntil) { const r = rng.f(), cold = era.temp < 0 || sim.world.cfg.climate === 'cold', rainW = 0.2 * (era.rain || 1), stormW = 0.06 * era.storm;
-      sim.wx = r < rainW ? (cold && rng.chance(0.6) ? WX.snow : WX.rain) : r < rainW + stormW ? WX.storm : r < rainW + stormW + 0.07 ? WX.fog : WX.clear; sim.wxUntil = sim.tick + 250 + rng.int(sim.wx === WX.clear ? 900 : 450);
+    if (sim.tick >= sim.wxUntil) { const r = rng.f(), winter = !!sim.seasonCold && sim.world.cfg.climate !== 'hot', cold = era.temp < 0 || sim.world.cfg.climate === 'cold' || winter, rainW = 0.2 * (era.rain || 1) * (sim.seasonRain || 1), stormW = 0.06 * era.storm;
+      sim.wx = r < rainW ? (cold && rng.chance(winter ? 0.85 : 0.6) ? WX.snow : WX.rain) : r < rainW + stormW ? WX.storm : r < rainW + stormW + 0.07 ? WX.fog : WX.clear; sim.wxUntil = sim.tick + 250 + rng.int(sim.wx === WX.clear ? 900 : 450);
       const a = rng.range(0, 6.283), s = sim.wx === WX.storm ? 1 : rng.range(0.15, 0.7); sim.windX = Math.cos(a) * s; sim.windY = Math.sin(a) * s; sim.emit('weather', sim.wx); }
     sim.rainBonus = sim.wx === WX.rain || sim.wx === WX.storm ? 1.25 : 1;
     // lightning: world storms strike at random, storm zones strike inside

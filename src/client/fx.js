@@ -134,6 +134,10 @@
     wreck(x, y) { if (!Fx.vis(x, y, 40)) return; Fx.add('impact', x, y - 4, { life: 0.6, zb: 20 }); burst('soot', x, y - 6, 4, 10, { vy: -8, life: 1.2 }); Fx.snd('collapse', x, y, 0.7); },
     mount(x, y) { if (!Fx.vis(x, y)) return; Fx.add('dust', x - 3, y - 2); Fx.add('dust', x + 3, y - 2); Fx.snd('gallop', x, y, 0.6); },
     tame(x, y) { if (!Fx.vis(x, y)) return; Fx.add('heal', x, y - 8, { life: 0.6 }); Fx.snd('gallop', x, y, 0.5); },
+    // seasons (chantier B.8)
+    season(s) { const A = AL.Audio; if (A && A.play) A.play('season_' + ['spring', 'summer', 'autumn', 'winter'][s | 0], { vol: 0.7 }); },
+    feast(x, y) { if (Fx.vis(x, y, 60)) { Fx.add('feast', x, y - 20, { life: 1.2, zb: 30 }); Fx.add('feast', x - 15, y - 6, { life: 1.2, delay: 0.3, zb: 30 }); Fx.add('feast', x + 14, y - 8, { life: 1.2, delay: 0.55, zb: 30 }); } Fx.snd('feast', x, y, 0.8); },
+    coldtown(x, y) { if (Fx.vis(x, y, 60)) { Fx.add('shiver', x, y - 18, { life: 1.1, zb: 30 }); Fx.add('shiver', x - 13, y - 6, { life: 1.1, delay: 0.3, zb: 30 }); Fx.add('shiver', x + 12, y - 9, { life: 1.1, delay: 0.5, zb: 30 }); } Fx.snd('shiver', x, y, 0.7); },
     // individuals (chantier B.7): only seen and heard from close by
     friend(x, y) { if (!Fx.vis(x, y) || Game.cam.z < 1.5) return; Fx.add('friend', x, y - 22, { life: 0.9, zb: 30 }); Fx.snd('friend', x, y, 0.45); },
     quarrel(x, y) { if (!Fx.vis(x, y) || Game.cam.z < 1.5) return; Fx.add('quarrel', x, y - 22, { life: 0.7, zb: 30 }); Fx.snd('quarrel', x, y, 0.5); },
@@ -155,7 +159,7 @@
     surface(x, y) { if (!Fx.vis(x, y, 80)) return; burst('splash', x, y, 8, 20); Fx.add('ripple', x, y + 8, { zb: -20, life: 0.9, scale: 2 }); Fx.snd('wave', x, y, 0.8); }
   });
   Fx.tsarT = -9;
-  const TILEEV = { friend: 1, quarrel: 1, wedding: 1, revolt: 1, union: 1, league: 1, wound: 1, rout: 1, loot: 1, ramhit: 1, machine: 1, wreck: 1, mount: 1, tame: 1, champion: 1, care: 1, launch: 1, landing: 1, bridge: 1, tend: 1, delve: 1, spore: 1, dive: 1, hail: 1, shockwave: 1, smite: 1, mend: 1, might: 1, idea: 1, acidrun: 1, gate: 1, surface: 1, surge: 1, howl: 1, haunt: 1, steal: 1, arson: 1, snatch: 1, hit: 1, death: 1, chop: 1, mine: 1, hammer: 1, anvil: 1, built: 1, collapse: 1, splash: 1, love: 1, birth: 1, cub: 1, spawn: 1, rise: 1, risen: 1, stomp: 1, bolt: 1, boom: 1, nuke: 1, impact: 1, meteor: 1, quake: 1, flood: 1, siege: 1, trade: 1 };
+  const TILEEV = { feast: 1, coldtown: 1, friend: 1, quarrel: 1, wedding: 1, revolt: 1, union: 1, league: 1, wound: 1, rout: 1, loot: 1, ramhit: 1, machine: 1, wreck: 1, mount: 1, tame: 1, champion: 1, care: 1, launch: 1, landing: 1, bridge: 1, tend: 1, delve: 1, spore: 1, dive: 1, hail: 1, shockwave: 1, smite: 1, mend: 1, might: 1, idea: 1, acidrun: 1, gate: 1, surface: 1, surge: 1, howl: 1, haunt: 1, steal: 1, arson: 1, snatch: 1, hit: 1, death: 1, chop: 1, mine: 1, hammer: 1, anvil: 1, built: 1, collapse: 1, splash: 1, love: 1, birth: 1, cub: 1, spawn: 1, rise: 1, risen: 1, stomp: 1, bolt: 1, boom: 1, nuke: 1, impact: 1, meteor: 1, quake: 1, flood: 1, siege: 1, trade: 1 };
   Fx.event = function (e) { const t = e[0], h = EV[t]; Fx.counts['ev:' + t] = (Fx.counts['ev:' + t] || 0) + 1; if (!h) return;
     if (t === 'pw') h(e[1], e[2] * 8, e[3] * 8, e[4]); else if (t === 'arrow' || t === 'bomb' || t === 'teleport' || t === 'breath' || t === 'rock' || t === 'charge' || t === 'gaze' || t === 'chain') h(e[1] * 8, e[2] * 8, e[3] * 8 + (t === 'bomb' ? 4 : 0), e[4] * 8 + (t === 'bomb' ? 4 : 0)); else if (TILEEV[t]) h(e[1] * 8, e[2] * 8, e[3], e[4]); else h(e[1], e[2], e[3], e[4]); };
   // chimney smoke (called by the scene for each visible finished building with a chimney)
@@ -218,6 +222,8 @@
         else if (kd === 'rift') { if (!Fx.vis(px, py, 90)) continue; const rf = an('rift'); G.spr(rf[((t * 9) | 0) % rf.length], px, py + 10, 0, 40, 0, 1, far ? 2 : 1, 40); G.light(px, py - 20, 70 + Math.sin(t * 4) * 6, 0.9, 3); if (!far && Fx.n < CAP - 200 && Math.random() < dt * 9) { const a = Math.random() * 6.283, d = 30 + Math.random() * 30; Fx.add('magic', px + Math.cos(a) * d, py + Math.sin(a) * d * 0.7 - 14, { vx: -Math.cos(a) * d * 1.6, vy: -Math.sin(a) * d * 1.1, life: 0.6, zb: 30, scale: 0.5 }); } }
         else if (kd === 'flood') { const R = p[3] * 8; if (R < 4 || !Fx.vis(px, py, R + 40)) continue; const nw = Math.min(40, (p[3] * 1.6) | 0); for (let d = 0; d < nw; d++) { const a = d / nw * 6.283 + AL.hash2(d, q, 31); G.spr(wv[((t * 7 + d) | 0) % wv.length], px + Math.cos(a) * R, py + Math.sin(a) * R * 0.9 + 6, 0, 32 | (Math.cos(a) < 0 ? 1 : 0), 0, 1, 1, 2); } } } }
     // --- global weather
+    // the season in the air (chantier B.8): petals in spring, leaves in autumn, a few flakes in winter even under a clear sky
+    { const se = hud && hud.season != null ? hud.season : 1, ed = S.seasonEdge == null ? 1 : S.seasonEdge; if (ed > 0.3 && wx !== 2) { if (se === 0) precip('p/petal', 16, 26, 1.4 + Math.sin(t * 0.5) * 0.6, 0.9, c, z, t); else if (se === 2) precip('p/aleaf', 22, 34, 1.2 + Math.sin(t * 0.4) * 0.8, 0.95, c, z, t); else if (se === 3 && wx !== 3) precip('p/snow', 22, 30, 0.6 + Math.sin(t * 0.6) * 0.4, 0.8, c, z, t); } }
     if (wx === 1) precip('p/rain', 170, 520, 0.18, 0.9, c, z, t); else if (wx === 2) { precip('p/rain2', 260, 640, 0.3, 1, c, z, t); precip('p/rain', 140, 560, 0.3, 0.9, c, z, t); } else if (wx === 3) precip('p/snow', 90, 46, 0.5 + Math.sin(t * 0.6) * 0.4, 0.95, c, z, t); else if (wx === 4) precip('p/fog', 16, 5, 3, 0.3, c, z, t);
     if (era && era.id === 5) precip('p/ash', 30, 26, 0.6, 0.8, c, z, t); else if (era && era.id === 4) precip('p/ember', 14, -22, 0.4, 0.9, c, z, t);
     // --- state icons above units, halo of prophets
