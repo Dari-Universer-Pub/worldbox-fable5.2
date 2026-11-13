@@ -6,9 +6,19 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — A.8 done; next task: **A.9 buildings of the 4 peoples: one shell per trade**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — A.9 done; next task: **A.10 review the 44 provisional sounds and the 5 tracks, wire climate and disaster tracks**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**A.9 — bâtiments des 4 peuples : une coque par métier (fait).** Avant, chaque peuple n'avait qu'une coque (celle de la maison) habillée d'accessoires. Chaque peuple a maintenant six coques de métier en cinq stades, dans `tools/art/buildings2.js` (`A.<peuple>.trade`) : `long` (entrepôt, caserne), `tower` (tour de guet), `sacred` (temple), `work` (forge, scierie, port), `lodge` (taverne, hôpital avec un auvent d'atelier accolé), `study` (bibliothèque). La maison et la grande salle gardent la coque du peuple.
+- Elfes : tronc couché creux puis longue salle pâle à tourelles ; nid de guet sur un tronc nu puis aiguille à balcon ; cercle de piliers vivants autour d'un cœur de lumière puis colonnade sous couronne ; auvent de feuilles sur fourches ; maison-souche puis pavillon rond ; tronc à deux étages de feuillage puis tour à deux couronnes.
+- Nains : tertre sous dalles puis halle voûtée de cuivre à contreforts ; cairn puis donjon carré à fanal ; pierres levées puis sanctuaire à piliers sur socle ; âtre sous dalle puis baie de forge à grande cheminée ; rotonde à dôme ; maison haute à pignon et grande fenêtre runique.
+- Myrrins : tronc couché à rangée de chapeaux puis longue maison sous un chapeau en arche ; fine tige à collerettes ; ronde de petits chapeaux autour d'une vesse lumineuse ; souche creuse à consoles ; vesse trapue coiffée ; morille.
+- Okaris : coque retournée sur pilotis puis hangar à trois pignons ; trépied à nid-de-pie puis phare blanc ; pont ouvert à grande coquille sous cône de roseau ; cale sous voile tendue puis toit de roseau ; hutte ronde à large chapeau ; maison étroite à étages.
+- Vu : planches en couleur aux 5 stades (`shots/a9-elf.png`, `-dwarf`, `-myrrin`, `-okari`) et en silhouette (`shots/a9-*-sil.png`) ; corrigés après regard : toits à deux pans rendus en rectangle plat (elfes, okaris), tronc elfe « sur pattes », coquille du sanctuaire okari trop grosse.
+- Vu aussi : atlas cuit (2125 images, aucun nouvel avertissement de bord), états chantier et ruine (`shots/a9-baked-states.png`), `build`/`validate-data`/`check-provenance` OK, jeu ouvert à l'an 89 sur une ville naine et une ville myrrine où les coques se distinguent (`shots/a9-game-dwarf.png`, `-myrrin.png`, `-elf.png`).
+- Non vérifié : retouche au pixel (aucune) ; la caserne partage la coque `long` de l'entrepôt (ses accessoires et son emprise la distinguent) ; les stades 1 à 3 de certaines coques (atelier elfe, nain) changent peu.
+- À tester par Sonnet : rien de neuf côté simulation (tâche d'art) ; `tests/step5.js`/`step13.js` si elles comptent des images de bâtiments.
 
 **A.8 — les 4 peuples : identité de jeu (fait).** Chaque peuple a un bâtiment, un métier et un comportement à lui ; plus aucun peuple n'est `provisional`.
 - Elfes : `grove` (bosquet sacré) et `warden` (plante des arbres près du bosquet, soigne les jeunes arbres, rapporte fruits et noix) ; tout arbre abattu est replanté (`replant`).
@@ -136,4 +146,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **A.9** — in `tools/art/buildings2.js`, give the main building types of the elves, dwarves, myrrin and okari their own shell per trade (today one shell plus accessories), look at the sheets with `node tools/building-sheet.js`, bake, build, open the game once.
+First unticked line of `CHANTIER.md`: **A.10** — read the task line, list the provisional sounds and tracks in `tools/art/sounds.py` / `src/data/sounds.json` / music data, rework them, run `measure-audio`, wire the climate and disaster tracks in `src/client/mixer.js`.
