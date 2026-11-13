@@ -10,7 +10,7 @@
 | Animaux | 40 (8 soignés + 32 provisoires) | 40 | les provisoires n'apparaissent jamais seuls (densité 0), seulement posés par le joueur |
 | Monstres | 20 (3 soignés + 17 provisoires) | 20 | dont dragon, géant, golem, esprit, néantin, léviathan, colosse 64×64 ; comportement générique |
 | Pouvoirs | 100 (tous de vrais pouvoirs depuis A.7) | 100 | chacun a son icône, son effet, son son et son geste propre ; équilibrage non réglé |
-| Métiers | 25 (dont 4 propres à un peuple : gardien, puisatier, sporier, plongeur) | 20 | **3 ne servent à rien** : marin, ingénieur, guérisseur (chantier B.3) |
+| Métiers | 25 (dont 4 propres à un peuple : gardien, puisatier, sporier, plongeur) | 20 | **2 ne servent à rien** : ingénieur, guérisseur (chantier B.3) ; le marin mène les barques (B.2) |
 | Bâtiments | 17 types × 5 stades dessinés × 6 peuples + 4 bâtiments propres (bosquet, puits, champignonnière, maison des marées) | 15 types × 5 stades | fait (chantiers A.6 et A.8) |
 | Ères | 10 | 10 | complet |
 | Dogmes | 12 | 12 | complet |
@@ -34,15 +34,15 @@ Ces comptes sont vérifiés par `node tools/validate-data.js` (tableau « vision
 
 ## Ce qui manque ou n'est pas actif (recherche dans le code, rien trouvé)
 
-- **Mer :** pas de bateaux ni de colonisation par la mer (une île reste fermée ; départ sur une île de 1 200 tuiles : plafond d'environ 140 habitants).
-- **Ponts :** aucun.
+- **Mer :** fait (B.2) : barques de pêche au large, navires de colons vers une autre terre (une île de départ atteint 2 310 habitants en 100 ans). Manquent : commerce par mer, combat naval, chantier naval distinct du port.
+- **Ponts :** fait (B.1) : les villes jettent des ponts de planches sur les eaux peu profondes ; pas de garde-corps ni de piles.
 - **Saisons :** aucune.
 - **Cavalerie et machines de siège :** introuvables dans le code (les sièges se font à la main).
 - **Fusion de royaumes :** non trouvée. Rébellions et indépendance existent, pas de fusion ni de guerre civile à proprement parler.
 - **Pillage et réfugiés :** absents.
 - **Moral :** seulement un trait, pas de vraie fuite sur le champ de bataille (non vérifié en détail).
 - **Dragon avec nid et trésor, capacités du colosse :** absents (le dragon et le colosse existent comme monstres provisoires au comportement générique ; le pouvoir « contrôle » marche sur eux comme sur toute créature, non vérifié en jeu).
-- **Métiers inutilisés :** marin, ingénieur, guérisseur (définis, jamais affectés par le code).
+- **Métiers inutilisés :** ingénieur, guérisseur (définis, jamais affectés par le code).
 
 ## Non vérifié
 

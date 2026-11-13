@@ -21,6 +21,14 @@
   Game.on('ents', m => { if (!m.n) { S.cur = null; S.prev = null; return; } if (S.cur && m.tick === S.cur.tick) return; const now = performance.now() / 1000;
     S.prev = S.cur; S.cur = m; S.dur = Math.max(0.016, Math.min(0.25, now - S.lastAt)); S.lastAt = now; S.t0 = now; });
   Game.on('blds', m => { S.blds = m; S.bldFrames = null; });
+  Game.on('boats', m => { S.boats = m.n ? m : null; });
+  const BDIR = ['down', 'left', 'up', 'right'], BNAME = ['fishboat', 'ship'], bpos = {};
+  // boats (chantier B.2): drawn between the buildings and the units, smoothed toward their simulated place; a wake while under way
+  S.drawBoats = function (G, vx0, vy0, vx1, vy1, t, far) { const m = S.boats; if (!m) return; const fr = AL.Assets.frames;
+    for (let k = 0; k < m.n; k++) { const id = m.id[k]; let p = bpos[id]; const tx = m.x[k], ty = m.y[k]; if (!p || Math.abs(p[0] - tx) + Math.abs(p[1] - ty) > 4) p = bpos[id] = [tx, ty, 0]; else { p[0] += (tx - p[0]) * 0.18; p[1] += (ty - p[1]) * 0.18; }
+      const wx = p[0] * 8, wy = p[1] * 8 + 2; if (wx < vx0 || wx > vx1 || wy < vy0 || wy > vy1) continue; const st = m.st[k], moving = st === 0 || st === 2 || st === 4, f = fr['boat/' + BNAME[m.type[k]] + '/' + BDIR[m.dir[k]] + '/' + (((t * (moving ? 5 : 2.5) + id * 1.7) | 0) & 3)]; if (!f) continue;
+      const team = S.teamOf(m.people[k], m.kd[k]); if (far) { G.spr(f, wx, wy, team, 0, 0, 1, Math.min(2.2, 0.75 / Game.cam.z), 0); continue; } G.spr(f, wx, wy, team, 0, 0, 1, 1, 0);
+      if (moving && AL.Fx && t - p[2] > (m.type[k] ? 0.28 : 0.4)) { p[2] = t; AL.Fx.add('ripple', wx, wy + 3, { zb: -20, life: 0.7 }); } } };
   Game.on('owner', m => { if (!Game.map) return; Game.map.owner.set(m.owner); S.towns = m.towns; S.kw = m.kw || []; S.ka = m.ka || []; S.kn = m.kn || []; Game.kingdomRamp = m.kr || []; if (S.blds) { S.blds.tk = m.towns.map(t => t ? t[0] : -1); } if (S.layer) S.applyLayer(); });
   // ---- kingdoms layer: territory tint and borders
   // map layers: 1 kingdoms, 2 wars, 3 alliances, 4 religions, 5 cultures, 6 resources, 7 population. One id per group, one colour per id.
@@ -62,6 +70,7 @@
         if (st === 1 && f.ex && f.ex.light && (T.name === 'forge' || T.name === 'temple') && !lit) G.light(wx + f.ex.light[0], wy + f.ex.light[1] + 2, 12, 0.25, 1);
         if (st === 1 && f.ex && f.ex.smoke && AL.Fx && AL.Fx.smoke) AL.Fx.smoke(b, wx + f.ex.smoke[0], wy + f.ex.smoke[1], T.name === 'forge'); } }
     S.nBlds = nb;
+    S.drawBoats(G, vx0, vy0, vx1, vy1, Game.time, far);
     // units
     const m = S.cur; let nu = 0; S.selPos = null; if (!m) { S.nUnits = 0; return; }
     const pv = S.prev, now = performance.now() / 1000, al = Math.min(1, (now - S.t0) / S.dur), t = Game.time, np = AL.NPEOPLE, mk = far ? markUnit() : null;

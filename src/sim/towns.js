@@ -119,6 +119,7 @@
     const cap = 40 + town.pop * 12 + (cnt[BT.warehouse] || 0) * 150; if (st[AL.RES.food] > cap) st[AL.RES.food] -= (st[AL.RES.food] - cap) * 0.02;
     want[J.hunter] = Math.ceil(pop * (meat ? 0.22 : crisis ? 0.15 : tight ? 0.1 : 0.06)) + (farms ? 0 : 1);
     want[J.gatherer] = farms ? (crisis ? Math.ceil(pop * 0.3) : tight ? Math.ceil(pop * 0.15) : 0) : Math.ceil(pop * 0.35);
+    want[J.sailor] = done(BT.port) && !crisis ? Math.min(town.boats || 0, Math.ceil(pop * 0.06)) : 0;
     want[J.fisher] = done(BT.port) ? Math.min(Math.max(4, Math.ceil(pop * (crisis ? 0.2 : 0.06))), Math.ceil(pop * (crisis ? 0.25 : 0.1))) : 0;
     want[J.lumberjack] = st[AL.RES.wood] < 30 + town.pop ? Math.max(1, Math.ceil(pop * 0.2)) : (st[AL.RES.wood] < 120 ? Math.ceil(pop * 0.08) : 0);
     want[J.miner] = town.stage >= 1 ? (st[AL.RES.stone] < 30 + town.pop * 0.5 ? Math.max(1, Math.ceil(pop * 0.12)) : (done(BT.mine) ? 1 : 0)) : 0;

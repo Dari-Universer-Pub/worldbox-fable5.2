@@ -68,6 +68,7 @@
     t.kingdom = -1; const kd = R.create(sim, t, leader); for (let i = 0; i < E.hi; i++) if (E.alive[i] && E.town[i] === t.id) E.kingdom[i] = kd.id; t.loyalty = 80; kd.rel[a.id] = a.rel[kd.id] = -45; R.log(sim, 'rebellion', ['log.rebellion', t.name, a.name, kd.name], t.cx, t.cy, kd.id, a.id); if (sim.rng.chance(0.5)) R.declare(sim, a, kd, 'the rebellion'); };
   R.colonize = function (sim, a, t) { const W = sim.world, n = W.n, rng = sim.rng, E = sim.E, reg = W.region[t.cy * n + t.cx]; let best = -1, bq = 0.6;
     for (let k = 0; k < 40; k++) { const an = rng.f() * 6.283, r = 34 + rng.f() * 40, x = Math.round(t.cx + Math.cos(an) * r), y = Math.round(t.cy + Math.sin(an) * r); if (!W.inb(x, y) || x < 10 || y < 10 || x > n - 10 || y > n - 10) continue; const j = y * n + x; if (W.region[j] !== reg || W.owner[j]) continue; let far = true; for (const o of sim.towns) if (o.alive && Math.abs(o.cx - x) + Math.abs(o.cy - y) < 32) far = false; if (!far) continue; const q = U.siteQuality(sim, x, y) + rng.f() * 0.05; if (q > bq) { bq = q; best = j; } }
+    let trip = null; if (best < 0 && AL.Sea && t.count[AL.BT.port] && t.stock[AL.RES.wood] >= 40) { trip = AL.Sea.findColony(sim, t); if (trip) best = trip.site; } // no room on this land: look across the water
     if (best < 0) { a.lastColony = sim.tick - 1200; return; }
     // settlers: married couples first (a colony needs a fertile pair), then volunteers up to 6; no fertile man and woman, no colony
     const young = i => (sim.tick - E.born[i]) < E.life[i] * 0.6, cand = [];
@@ -78,6 +79,7 @@
     for (const i of cand) { if (chosen.length >= 6) break; if (!taken(i) && young(i) && rng.chance(0.5)) chosen.push(i); }
     let sent = 0; for (const i of chosen) {
       const h = E.home[i]; if (h >= 0 && sim.B.occ[h] > 0) sim.B.occ[h]--; const w = E.work[i]; if (w >= 0 && sim.B.workers[w] > 0) sim.B.workers[w]--; E.town[i] = -1; E.home[i] = -1; E.work[i] = -1; E.job[i] = 0; E.flags[i] |= F.SETTLER; E.flags[i] &= ~F.ASLEEP; U.stop(E, i); E.act[i] = ACT.NONE; E.tx[i] = best % n; E.ty[i] = (best / n) | 0; E.hunger[i] = 0; E.stuck[i] = 0; T.setLook(E, i); t.pop--; sent++; }
+    if (sent && trip) { t.stock[AL.RES.wood] -= 40; AL.Sea.embark(sim, t, chosen, trip); a.lastColony = sim.tick; t.stock[AL.RES.food] -= Math.min(t.stock[AL.RES.food], sent * 6); R.log(sim, 'colony', ['log.sail', t.name, a.name], t.cx, t.cy, a.id); return; }
     if (sent) { a.lastColony = sim.tick; t.stock[AL.RES.food] -= Math.min(t.stock[AL.RES.food], sent * 4); R.log(sim, 'colony', ['log.colony', t.name, a.name], t.cx, t.cy, a.id); } };
   // ------------------------------------------------------------ war
   War.atWar = (sim, ka, kb) => ka >= 0 && kb >= 0 && ka !== kb && sim.kingdoms[ka] && sim.kingdoms[ka].wars[kb] != null;
