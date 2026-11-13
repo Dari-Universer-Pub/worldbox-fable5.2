@@ -137,6 +137,11 @@ def vary(layers, pitch=1.0, time=1.0):
 # ---- war (chantier B.4)
 def war3(name, cat, dur, cen, layers, **k):
     snd(name, cat, dur, cen, variants=[layers, vary(layers, 1.09, 0.93), vary(layers, 0.92, 1.08)], **k)
+# ---- own trades of humans and orcs (chantier C.0)
+# envoy: a herald's short call, two bright notes a fifth apart, the second held
+war3("envoy", "crowd", [0.4, 1.8], [400, 3500], [O("sawtooth", 523, 0.22, 0.02, 0.16, 0.08, flt=bp(1400, 2)), O("sawtooth", 784, 0.24, 0.02, 0.4, 0.25, at=0.2, flt=bp(1800, 2)), O("sine", 392, 0.1, 0.02, 0.5, 0.25, at=0.2)], rev=0.25)
+# raid: a low war horn swells and falls over two blows on a hide drum
+war3("raid", "combat", [0.6, 2.6], [60, 1800], [O("sawtooth", [104, 98, 0.9], 0.3, 0.15, 0.7, 0.4, flt=bp(420, 1.5)), O("sawtooth", [156, 147, 0.9], 0.14, 0.2, 0.6, 0.4, flt=bp(600, 2)), N(0.6, 0.004, 0.16, 0.12, bp(150, 1.2)), N(0.6, 0.004, 0.18, 0.12, bp(130, 1.2), at=0.42)], rev=0.3)
 # ---- livestock and migrations (chantier B.9)
 # milk: two jets ring in a wooden pail
 war3("milk", "work", [0.2, 1.2], [600, 6000], [N(0.5, 0.005, 0.1, 0.06, bp(2600, 2.5, (0.1, 1500))), O("sine", [900, 620, 0.1], 0.12, 0.005, 0.1, 0.06), N(0.5, 0.005, 0.12, 0.08, bp(2100, 2.5, (0.12, 1200)), at=0.26), O("sine", [760, 520, 0.12], 0.12, 0.005, 0.12, 0.08, at=0.26)])

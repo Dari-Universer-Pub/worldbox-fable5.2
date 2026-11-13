@@ -143,6 +143,18 @@ E['milk'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), WD = R('e
   if (f < 4) { for (let y = 1 + f; y < 9; y++) if ((y + f) % 3) im.set(7 + ((y + f) & 1), y, M[0]); } if (f >= 3) { im.set(4 - (f - 3), 7 - (f === 4 ? 2 : f === 5 ? 1 : 0), M[0]); im.set(11 + (f - 3), 6 - (f === 4 ? 2 : f === 5 ? 0 : 0), M[1]); }
   im.set(3, 8, IR); im.set(2, 9, IR); im.set(12, 8, IR); im.set(13, 9, IR); im.set(4, 7, f < 3 ? IR : 255);
   return im; }, pivot: [8, 15] };
+// ---- own trades of humans and orcs (chantier C.0)
+// envoy: a white messenger dove rises, a sealed letter in its claws (wings up, wings down)
+E['envoy'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), Wt = R('ice', [5, 4, 3]), G = ix('fire', 4), Rd = ix('red', 3), y = 12 - Math.round(f * 1.5), up = f % 2 === 0;
+  for (let k = -2; k <= 2; k++) im.set(8 + k, y, Wt[k < -1 ? 1 : 0]); im.set(7, y + 1, Wt[1]); im.set(8, y + 1, Wt[1]); im.set(11, y - 1, Wt[0]); im.set(10, y - 1, Wt[0]); im.set(12, y - 1, G); im.set(5, y, Wt[1]); im.set(4, y + 1, Wt[2]); im.set(4, y, Wt[1]);
+  if (up) { for (let j = 1; j <= 3; j++) { im.set(8, y - j, Wt[0]); im.set(7, y - j, Wt[j === 3 ? 1 : 0]); } im.set(6, y - 3, Wt[1]); im.set(6, y - 2, Wt[1]); im.set(9, y - 1, Wt[1]); }
+  else { for (let j = 2; j <= 3; j++) { im.set(7, y + j, Wt[1]); im.set(6, y + j, Wt[2]); } im.set(6, y + 1, Wt[1]); }
+  im.set(9, y + 1, Wt[0]); im.set(10, y + 1, Wt[0]); im.set(10, y + 2, Rd); im.set(9, y + 2, Wt[1]); return im; }, pivot: [8, 15] };
+// raid: the loot sack bursts open and the gold flies
+E['raid'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), S = R('sand', [4, 3, 2]), D = ix('earth', 1), G = R('fire', [5, 4, 3]);
+  for (let j = 0; j < 5; j++) { const w = [2, 3, 3, 3, 2][j]; for (let k = -w; k <= w; k++) im.set(8 + k, 10 + j, k <= -w + 1 ? S[0] : k >= w ? S[2] : S[1]); } for (let k = -1; k <= 1; k++) im.set(8 + k, 9, D); im.set(7, 8, S[0]); im.set(8, 8, S[1]); im.set(9, 8, S[2]); if (f < 2) im.set(8, 7, S[1]);
+  const C = [[-3, -1], [3, -2], [-1, -3], [2, -4], [-4, -3], [4, -1], [0, -4]]; for (let c = 0; c < C.length; c++) { const t = f - (c % 3); if (t < 0 || t > 3) continue; const x = 8 + Math.round(C[c][0] * (0.4 + t * 0.3)), y = 8 + Math.round(C[c][1] * (0.5 + t * 0.35)) + (t === 3 ? 2 : 0); im.set(x, y, G[t < 2 ? 0 : t === 2 ? 1 : 2]); if (t < 2) im.set(x + 1, y, G[1]); }
+  return im; }, pivot: [8, 15] };
 // ---- seasons (chantier B.8)
 // particles of the season: an autumn leaf, a spring petal
 E['p/aleaf'] = { w: 2, h: 2, n: 1, pivot: [0, 0], fn: () => { const im = new Img(2, 2); im.set(0, 0, ix('fire', 3)); im.set(1, 0, ix('fire', 2)); im.set(1, 1, ix('earth', 3)); return im; } };

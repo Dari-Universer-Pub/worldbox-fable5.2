@@ -48,7 +48,7 @@
   function buildModel() { const P = AL.DATA.powers; UI.items = CATS.map(() => []);
     for (const id in P) { const d = P[id], ci = CATS.indexOf(d.cat); if (ci < 0 || d.kind === 'spawn' || d.provisional) continue; UI.items[ci].push({ id, icon: d.icon || id, name: 'pw.' + id, desc: 'pwd.' + id }); }
     UI.items[6].unshift({ id: 'none', icon: 'select', name: 'pw.none', desc: 'pwd.none' });
-    AL.KINDS.forEach((Kd, kd) => { if (!Kd) return; const ci = Kd.cls === 0 ? 1 : 2; if (Kd.provisional) return; UI.items[ci].push({ id: 'spawn:' + Kd.name, kind: kd, name: 'kind.' + Kd.name, desc: 'pwd.spawn' }); });
+    AL.KINDS.forEach((Kd, kd) => { if (!Kd) return; const ci = Kd.cls === 0 ? 1 : 2; if (Kd.provisional) return; UI.items[ci].push({ id: 'spawn:' + Kd.name, kind: kd, name: 'kind.' + Kd.name, desc: Kd.cls === 0 && kd < AL.NPEOPLE ? 'kindd.' + Kd.name : 'pwd.spawn' }); });
     UI.grounds = AL.GROUND.filter(gd => gd && gd.name !== 'road' && gd.name !== 'soil').map(gd => gd.name); }
   UI.setTool = function (id) { const cur = Game.tool, P = AL.DATA.powers[id.split(':')[0]]; Game.tool = { id, size: cur.size || 5, shape: cur.shape || 'round', count: UI.spawnCount }; if (id === 'ground') Game.tool.id = 'ground:' + (UI.ground || 'grass'); if (Game.hud && Game.hud.ctl >= 0 && id !== 'control') AL.Tools.release(); };
   const toolKey = () => { const id = Game.tool.id; return id.startsWith('ground:') ? 'ground' : id; };

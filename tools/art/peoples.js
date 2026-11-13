@@ -56,6 +56,9 @@ const LOOKS = {
   delver: { only: 'dwarf', acc: [{ kind: 'pick' }, { kind: 'lamp' }, { kind: 'orepack' }], work: 'chop' },
   sporer: { only: 'myrrin', acc: [{ kind: 'sickle' }, { kind: 'basket' }], work: 'dig' },
   diver: { only: 'okari', acc: [{ kind: 'trident' }, { kind: 'netbag' }], work: 'dig' },
+  // one trade of their own for the two first peoples too (chantier C.0); accessories in tools/art/rigs/humanoid-war.js
+  envoy: { only: 'human', war: true, acc: [{ kind: 'envoyhat' }, { kind: 'sash' }, { kind: 'letter' }, { kind: 'heraldstaff' }], spec: { sleeves: 'long' }, work: 'joy' },
+  reaver: { only: 'orc', war: true, acc: [{ kind: 'raidaxe' }, { kind: 'torch' }, { kind: 'skullhelm' }, { kind: 'lootsack' }], work: 'attack' },
   // ---- war (chantier B.4): accessories and poses in tools/art/rigs/humanoid-war.js
   healer: { war: true, acc: [{ kind: 'coif' }, { kind: 'whiteapron' }, { kind: 'satchel' }, { kind: 'bowl' }], spec: { sleeves: 'long' }, work: 'tend' },
   engineer: { war: true, acc: [{ kind: 'maul' }, { kind: 'plan' }, { kind: 'brimcap' }, { kind: 'toolbelt' }], work: 'chop' },

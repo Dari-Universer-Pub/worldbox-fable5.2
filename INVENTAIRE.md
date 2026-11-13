@@ -10,8 +10,8 @@
 | Animaux | 40 (8 soignés + 32 provisoires) | 40 | les provisoires n'apparaissent jamais seuls (densité 0), seulement posés par le joueur |
 | Monstres | 20 (3 soignés + 17 provisoires) | 20 | dont dragon, géant, golem, esprit, néantin, léviathan, colosse 64×64 ; comportement générique |
 | Pouvoirs | 100 (tous de vrais pouvoirs depuis A.7) | 100 | chacun a son icône, son effet, son son et son geste propre ; équilibrage non réglé |
-| Métiers | 25 (dont 4 propres à un peuple : gardien, puisatier, sporier, plongeur) | 20 | tous affectés : le marin mène les barques (B.2), l'ingénieur pose les ponts et répare, le guérisseur soigne (B.3) |
-| Bâtiments | 18 types × 5 stades dessinés × 6 peuples (dont l'enclos, chantier B.9) + 4 bâtiments propres (bosquet, puits, champignonnière, maison des marées) | 15 types × 5 stades | fait (chantiers A.6 et A.8) |
+| Métiers | 27 (dont 6 propres à un peuple : émissaire, pillard, gardien, puisatier, sporier, plongeur) | 20 | tous affectés : le marin mène les barques (B.2), l'ingénieur pose les ponts et répare, le guérisseur soigne (B.3) |
+| Bâtiments | 18 types × 5 stades dessinés × 6 peuples (dont l'enclos, chantier B.9) + 6 bâtiments propres, un par peuple (chancellerie, camp de guerre, bosquet, puits, champignonnière, maison des marées) | 15 types × 5 stades | fait (chantiers A.6 et A.8) |
 | Ères | 10 | 10 | complet |
 | Dogmes | 12 | 12 | complet |
 | Traits | 60 | 60 | complet |

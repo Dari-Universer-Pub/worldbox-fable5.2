@@ -21,6 +21,7 @@
   "src/sim/powers2.js",
   "src/sim/seasons.js",
     "src/sim/herds.js",
+    "src/sim/envoys.js",
     "src/sim/save.js"
  ],
  "client": [

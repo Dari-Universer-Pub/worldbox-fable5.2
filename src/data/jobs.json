@@ -155,5 +155,18 @@
   "task": "dive",
   "res": "food",
   "needs": "tidehouse"
+ },
+ "envoy": {
+  "id": 25,
+  "look": "envoy",
+  "task": "envoy",
+  "needs": "chancery"
+ },
+ "reaver": {
+  "id": 26,
+  "look": "reaver",
+  "task": "raid",
+  "res": "food",
+  "needs": "warcamp"
  }
 }

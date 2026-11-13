@@ -676,7 +676,22 @@
   "job.warden": "Grove warden",
   "job.delver": "Delver",
   "job.sporer": "Sporer",
-  "job.diver": "Pearl diver"
+  "job.diver": "Pearl diver",
+  "bld.chancery": "Chancery",
+  "bldd.chancery": "Humans only. Envoys leave from it for the towns of other kingdoms: each visit warms the two crowns, leaves a gift, and a long war may end at their word.",
+  "bld.warcamp": "War camp",
+  "bldd.warcamp": "Orcs only. Reavers leave from it in a band to plunder the stores of the nearest foreign town, and sometimes set a roof alight. Towers and soldiers drive them off.",
+  "job.envoy": "Envoy",
+  "job.reaver": "Reaver",
+  "log.envoy": "An envoy of {0} is received in {2}, among the people of {1}",
+  "log.raid": "Reavers of {0} plunder {1} and carry off its {2}",
+  "how.envoy": "an envoy's word",
+  "kindd.human": "Builders and talkers. Their chancery sends envoys who warm foreign crowns and can end long wars. Click to drop them on the map.",
+  "kindd.orc": "Meat eaters, quick to war. Their war camp sends bands of reavers to plunder the neighbours. Click to drop them on the map.",
+  "kindd.elf": "Long-lived people of the woods. Their wardens plant and tend trees; they replant what they fell. Click to drop them on the map.",
+  "kindd.dwarf": "Sturdy people of the hills. Their delvers bring up stone and ore; they forge early and well. Click to drop them on the map.",
+  "kindd.myrrin": "Small mushroom folk, many and short-lived. They grow spore beds and dread fire. Click to drop them on the map.",
+  "kindd.okari": "Bird people of the shores. Their divers bring up pearls and their nets fill half as fast again. Click to drop them on the map."
  },
  "fr": {
   "cat.world": "Monde",
@@ -1355,6 +1370,21 @@
   "job.warden": "Gardien du bosquet",
   "job.delver": "Fouilleur",
   "job.sporer": "Sporeur",
-  "job.diver": "Plongeur de perles"
+  "job.diver": "Plongeur de perles",
+  "bld.chancery": "Chancellerie",
+  "bldd.chancery": "Humains seulement. Les émissaires en partent vers les villes des autres royaumes : chaque visite rapproche les deux couronnes, laisse un présent, et une longue guerre peut finir sur leur parole.",
+  "bld.warcamp": "Camp de guerre",
+  "bldd.warcamp": "Orques seulement. Les pillards en partent en bande pour vider les réserves de la ville étrangère la plus proche, et mettent parfois le feu à un toit. Les tours et les soldats les repoussent.",
+  "job.envoy": "Émissaire",
+  "job.reaver": "Pillard",
+  "log.envoy": "Un émissaire de {0} est reçu à {2}, chez le peuple de {1}",
+  "log.raid": "Des pillards de {0} mettent {1} à sac et emportent : {2}",
+  "how.envoy": "la parole d'un émissaire",
+  "kindd.human": "Bâtisseurs et beaux parleurs. Leur chancellerie envoie des émissaires qui rapprochent les couronnes et peuvent finir une longue guerre. Cliquez pour les déposer sur la carte.",
+  "kindd.orc": "Mangeurs de viande, prompts à la guerre. Leur camp de guerre envoie des bandes de pillards chez les voisins. Cliquez pour les déposer sur la carte.",
+  "kindd.elf": "Peuple des bois à la longue vie. Leurs gardiens plantent et soignent les arbres ; ils replantent ce qu'ils abattent. Cliquez pour les déposer sur la carte.",
+  "kindd.dwarf": "Peuple robuste des collines. Leurs fouilleurs remontent pierre et minerai ; ils forgent tôt et bien. Cliquez pour les déposer sur la carte.",
+  "kindd.myrrin": "Petit peuple champignon, nombreux et à la vie brève. Ils cultivent des champignonnières et craignent le feu. Cliquez pour les déposer sur la carte.",
+  "kindd.okari": "Peuple oiseau des rivages. Leurs plongeurs remontent des perles et leurs filets se remplissent moitié plus vite. Cliquez pour les déposer sur la carte."
  }
 }

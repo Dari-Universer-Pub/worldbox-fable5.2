@@ -3,12 +3,12 @@
   "id": 0,
   "team": "red",
   "atlas": "people_human",
-  "devSpeed": 1.0,
-  "strength": 1.0,
+  "devSpeed": 1,
+  "strength": 1,
   "fertility": 1.1,
   "lifespan": 70,
   "maturity": 10,
-  "speed": 1.0,
+  "speed": 1,
   "courage": 0.6,
   "hp": 105,
   "likes": [
@@ -31,7 +31,8 @@
    "lore": 0.5,
    "faith": 0.5,
    "sea": 0.4
-  }
+  },
+  "diplomacy": 1.5
  },
  "orc": {
   "id": 1,
@@ -39,7 +40,7 @@
   "atlas": "people_orc",
   "devSpeed": 0.75,
   "strength": 1.15,
-  "fertility": 1.0,
+  "fertility": 1,
   "lifespan": 50,
   "maturity": 10,
   "speed": 1.05,
@@ -65,7 +66,8 @@
    "lore": 0.15,
    "faith": 0.5,
    "sea": 0.2
-  }
+  },
+  "lootMul": 1.5
  },
  "elf": {
   "id": 2,
@@ -202,7 +204,7 @@
    "land": 0.3,
    "lore": 0.6,
    "faith": 0.4,
-   "sea": 1.0
+   "sea": 1
   },
   "fishMul": 1.5
  }

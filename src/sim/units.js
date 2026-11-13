@@ -109,11 +109,12 @@
     // jobs done at a building: smith, study, preach, trade, entertain, heal
     const need = job.needs ? AL.BT[job.needs] : -1; if (task === 'guard' || task === 'siege') { if (AL.War && AL.War.unitDuty(sim, i, town)) return true; const r = U.randomNear(sim, town.cx, town.cy, town.radius * 0.8); if (r >= 0 && begin(sim, i, ACT.GUARD, r % n, (r / n) | 0)) return true; return false; }
     if (task === 'trade' && AL.Trade && AL.Trade.startTrip(sim, i, town)) return true;
+    if (task === 'envoy' && AL.Envoys && AL.Envoys.startEnvoy(sim, i, town)) return true; if (task === 'raid' && AL.Envoys && AL.Envoys.startRaid(sim, i, town)) return true; // chantier C.0: otherwise they wait at their building
     if (task === 'rule') { const r = U.randomNear(sim, town.cx, town.cy, 4); if (r >= 0 && begin(sim, i, ACT.WANDER, r % n, (r / n) | 0)) return true; return false; }
     if (need >= 0) { const b = T.findType(sim, town, need, x, y); if (b >= 0 && begin(sim, i, ACT.WORK, T.doorX(B, b), T.doorY(B, b))) { E.tE[i] = -4; E.tB[i] = b; return true; } }
     return false; };
   // ------------------------------------------------------------ acting (called every tick when not travelling)
-  const WORKT = { chop: 50, mine: 60, farm: 34, gather: 40, hunt: 40, herd: 40, fish: 70, smith: 90, study: 80, preach: 80, trade: 60, entertain: 80, heal: 40, tend: 60, delve: 90, sail: 220, engineer: 50, spore: 40, dive: 80 };
+  const WORKT = { envoy: 90, raid: 70, chop: 50, mine: 60, farm: 34, gather: 40, hunt: 40, herd: 40, fish: 70, smith: 90, study: 80, preach: 80, trade: 60, entertain: 80, heal: 40, tend: 60, delve: 90, sail: 220, engineer: 50, spore: 40, dive: 80 };
   U.act = function (sim, i) { const E = sim.E, W = sim.world, n = W.n, B = sim.B, a = E.act[i], town = sim.towns[E.town[i]], A = AL.ANIM, R = AL.RES;
     if (a === ACT.NONE) { E.anim[i] = A.idle; return; }
     if (E.phase[i] === 0) { E.phase[i] = 1; E.timer[i] = 0; }
