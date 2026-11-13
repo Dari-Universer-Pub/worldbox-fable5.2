@@ -28,7 +28,7 @@ Ces comptes sont vérifiés par `node tools/validate-data.js` (tableau « vision
 - Économie : récolte, stocks, famines, commerce, routes qui se forment.
 - Bâtiments : chantiers visibles, ruines, effondrement.
 - Royaumes : capitale, succession, dynasties, alliances, traités, mariages royaux, vassalité, rébellions et indépendance.
-- Guerre : mobilisation (levée de 30 à 55 % des adultes), sièges avec dégâts aux bâtiments, paix par lassitude de guerre.
+- Guerre : mobilisation (levée de 30 à 55 % des adultes), sièges avec dégâts aux bâtiments, paix par lassitude de guerre ; depuis B.4 : cavalerie (chevaux apprivoisés), armes selon le stade, héros et champions, moral et fuite, blessures et soins, béliers et catapultes, pillage, réfugiés (`src/sim/war.js`).
 - Culture, langues, religions (prophètes, schismes), chronique, histoire.
 - Nature : monde sauvage stable, feu, météo (pluie, orage, neige, brouillard), catastrophes, jour et nuit.
 
@@ -37,7 +37,7 @@ Ces comptes sont vérifiés par `node tools/validate-data.js` (tableau « vision
 - **Mer :** fait (B.2) : barques de pêche au large, navires de colons vers une autre terre (une île de départ atteint 2 310 habitants en 100 ans). Manquent : commerce par mer, combat naval, chantier naval distinct du port.
 - **Ponts :** fait (B.1) : les villes jettent des ponts de planches sur les eaux peu profondes ; pas de garde-corps ni de piles.
 - **Saisons :** aucune.
-- **Cavalerie et machines de siège :** introuvables dans le code (les sièges se font à la main).
+- **Cavalerie et machines de siège :** faites en B.4 (atlas `cavalry` 32×32, atlas `machines` 48×48, `src/sim/war.js`) ; équilibrage à faire par Sonnet.
 - **Fusion de royaumes :** non trouvée. Rébellions et indépendance existent, pas de fusion ni de guerre civile à proprement parler.
 - **Pillage et réfugiés :** absents.
 - **Moral :** seulement un trait, pas de vraie fuite sur le champ de bataille (non vérifié en détail).
