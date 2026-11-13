@@ -62,7 +62,7 @@
     AL.JOB = {}; AL.JOBS = []; for (const k in D.jobs) { const j = D.jobs[k]; j.name = k; AL.JOB[k] = j.id; AL.JOBS[j.id] = j; }
     AL.BT = {}; AL.BTYPES = []; for (const k in D.buildings) { const b = D.buildings[k]; b.name = k; AL.BT[k] = b.id; AL.BTYPES[b.id] = b; }
     AL.TRAIT = {}; AL.TRAITS = []; for (const k in D.traits) { const t = D.traits[k]; t.name = k; AL.TRAIT[k] = t.id; AL.TRAITS[t.id] = t; }
-    AL.LOOKS = ['villager', 'lumberjack', 'miner', 'farmer', 'builder', 'hunter', 'fisher', 'herder', 'blacksmith', 'merchant', 'soldier', 'archer', 'knight', 'priest', 'scholar', 'ruler', 'child', 'elder', 'warden', 'delver', 'sporer', 'diver'];
+    AL.LOOKS = ['villager', 'lumberjack', 'miner', 'farmer', 'builder', 'hunter', 'fisher', 'herder', 'blacksmith', 'merchant', 'soldier', 'archer', 'knight', 'priest', 'scholar', 'ruler', 'child', 'elder', 'warden', 'delver', 'sporer', 'diver', 'healer', 'engineer', 'hero', 'champion', 'refugee', 'warrior', 'halberdier', 'rider'];
     AL.LOOK = {}; AL.LOOKS.forEach((l, i) => AL.LOOK[l] = i);
     AL.ANIM = { idle: 0, walk: 1, work: 2, attack: 3, hit: 4, pray: 5, joy: 6, death: 7, sleep: 8, run: 9, eat: 10, fly: 11, swim: 12, special: 13, inside: 14 };
     AL.ANIMN = Object.keys(AL.ANIM);

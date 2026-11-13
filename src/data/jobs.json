@@ -101,7 +101,7 @@
  },
  "healer": {
   "id": 16,
-  "look": "priest",
+  "look": "healer",
   "task": "heal",
   "needs": "hospital"
  },
@@ -119,7 +119,7 @@
  },
  "engineer": {
   "id": 19,
-  "look": "builder",
+  "look": "engineer",
   "task": "engineer"
  },
  "bard": {

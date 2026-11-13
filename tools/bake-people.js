@@ -6,7 +6,7 @@
 const { Worker, isMainThread, parentPort, workerData } = require('worker_threads');
 const fs = require('fs'), path = require('path'), crypto = require('crypto');
 const { render, despeckle, stabilize, finish } = require('./lib/sdf'); const { Img } = require('./lib/img'); const { Atlas } = require('./lib/atlas'); const { mat, ix } = require('./lib/mats');
-const H = require('./art/rigs/humanoid'); const { PEOPLES, LOOKS, ANIMS } = require('./art/peoples');
+const H = require('./art/rigs/humanoid'); const WAR = require('./art/rigs/humanoid-war'); const { PEOPLES, LOOKS, ANIMS } = require('./art/peoples'); // humanoid-war adds the war accessories and poses to the rig (chantier B.4)
 const YAW = { down: 0, left: -Math.PI / 2, up: Math.PI, right: Math.PI / 2 }, DIRS4 = ['down', 'left', 'up', 'right'], CELL = 24, OX = 12, OY = 21.2;
 function lookSpec(pid, lid) {
   const P = PEOPLES[pid], L = LOOKS[lid], spec = Object.assign({}, P.spec, L.spec || {}), mats = P.mats();
@@ -21,7 +21,7 @@ function lookSpec(pid, lid) {
 function bakeLook(pid, lid) {
   const { spec, mats, P, L } = lookSpec(pid, lid), out = [];
   for (const [name, src, nd] of ANIMS) {
-    const anim = src || L.work, A = H.ANIMS[name === 'attack' && L.attack ? L.attack : anim], dirs = nd === 4 ? DIRS4 : ['left', 'right'];
+    const anim = src || L.work, A = H.ANIMS[name === 'attack' && L.attack ? L.attack : (L.anims && L.anims[name]) || anim], dirs = nd === 4 ? DIRS4 : ['left', 'right'];
     for (const dir of dirs) {
       const raws = [];
       for (let i = 0; i < A.n; i++) { const { scene, decals } = H.build(spec, A.f(i));
@@ -38,14 +38,17 @@ if (!isMainThread) { const res = []; for (const [p, l] of workerData.jobs) res.p
 else (async () => {
   const args = process.argv.slice(2), wantP = args.filter(a => !a.startsWith('--') && PEOPLES[a]), looksArg = args.includes('--looks') ? args[args.indexOf('--looks') + 1].split(',') : null, noCache = args.includes('--no-cache');
   const peoples = wantP.length ? wantP : Object.keys(PEOPLES), cacheDir = path.join(__dirname, '.cache'); fs.mkdirSync(cacheDir, { recursive: true });
-  const srcHash = crypto.createHash('sha1').update(['lib/sdf.js', 'lib/mats.js', 'art/rigs/humanoid.js', 'art/peoples.js', 'art/palette.json', 'bake-people.js', 'lib/measure.js'].map(f => fs.readFileSync(path.join(__dirname, f))).join('')).digest('hex').slice(0, 12);
+  // cache key per look: the shared sources, then this people's and this look's own definition (adding a look or an accessory file no longer re-bakes everything)
+  const rd = f => fs.readFileSync(path.join(__dirname, f)), sha = t => crypto.createHash('sha1').update(t).digest('hex').slice(0, 12);
+  const baseHash = sha(['lib/sdf.js', 'lib/mats.js', 'art/rigs/humanoid.js', 'art/palette.json', 'lib/measure.js'].map(rd).join('')), warHash = sha(rd('art/rigs/humanoid-war.js'));
+  const lookHash = (p, l) => { const P = PEOPLES[p], L = LOOKS[l]; return sha(baseHash + JSON.stringify([P.spec, P.mats(), P.eye, P.tusk, P.swap || 0, L, ANIMS]) + (L.war ? warHash : '')); };
   const jobs = [], done = {};
-  for (const p of peoples) for (const l of (looksArg || (PEOPLES[p].monster ? ['villager'] : Object.keys(LOOKS).filter(l => !LOOKS[l].only || LOOKS[l].only === p)))) { const cf = path.join(cacheDir, `people-${p}-${l}-${srcHash}.json`);
+  for (const p of peoples) for (const l of (looksArg || (PEOPLES[p].monster ? ['villager'] : Object.keys(LOOKS).filter(l => !LOOKS[l].only || LOOKS[l].only === p)))) { const cf = path.join(cacheDir, `people-${p}-${l}-${lookHash(p, l)}.json`);
     if (!noCache && fs.existsSync(cf)) done[p + '/' + l] = JSON.parse(fs.readFileSync(cf, 'utf8')).map(f => ({ key: f.key, d: Buffer.from(f.d, 'base64') })); else jobs.push([p, l]); }
   const t0 = Date.now(), NW = Math.min(4, jobs.length);
   if (jobs.length) { const parts = Array.from({ length: NW }, () => []); jobs.forEach((j, i) => parts[i % NW].push(j));
     const res = await Promise.all(parts.map(js => new Promise((ok, ko) => { const w = new Worker(__filename, { workerData: { jobs: js } }); w.on('message', ok); w.on('error', ko); })));
-    for (const r of res.flat()) { const fr = r.frames.map(f => ({ key: f.key, d: Buffer.from(f.d) })); done[r.p + '/' + r.l] = fr; fs.writeFileSync(path.join(cacheDir, `people-${r.p}-${r.l}-${srcHash}.json`), JSON.stringify(fr.map(f => ({ key: f.key, d: f.d.toString('base64') })))); } }
+    for (const r of res.flat()) { const fr = r.frames.map(f => ({ key: f.key, d: Buffer.from(f.d) })); done[r.p + '/' + r.l] = fr; fs.writeFileSync(path.join(cacheDir, `people-${r.p}-${r.l}-${lookHash(r.p, r.l)}.json`), JSON.stringify(fr.map(f => ({ key: f.key, d: f.d.toString('base64') })))); } }
   const pf = path.join(__dirname, 'art/patches/people.json'), patches = fs.existsSync(pf) ? JSON.parse(fs.readFileSync(pf, 'utf8')) : {}; let np = 0;
   for (const p of peoples) { const at = new Atlas('people_' + p, { maxW: CELL * 40, meta: { cell: CELL, provisional: !!PEOPLES[p].provisional } });
     for (const k of Object.keys(done).filter(k => k.startsWith(p + '/')).sort()) for (const f of done[k]) { const im = new Img(CELL, CELL); im.d.set(f.d);

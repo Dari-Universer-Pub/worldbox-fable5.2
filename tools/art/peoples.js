@@ -56,6 +56,14 @@ const LOOKS = {
   delver: { only: 'dwarf', acc: [{ kind: 'pick' }, { kind: 'lamp' }, { kind: 'orepack' }], work: 'chop' },
   sporer: { only: 'myrrin', acc: [{ kind: 'sickle' }, { kind: 'basket' }], work: 'dig' },
   diver: { only: 'okari', acc: [{ kind: 'trident' }, { kind: 'netbag' }], work: 'dig' },
+  // ---- war (chantier B.4): accessories and poses in tools/art/rigs/humanoid-war.js
+  healer: { war: true, acc: [{ kind: 'coif' }, { kind: 'whiteapron' }, { kind: 'satchel' }, { kind: 'bowl' }], spec: { sleeves: 'long' }, work: 'tend' },
+  engineer: { war: true, acc: [{ kind: 'maul' }, { kind: 'plan' }, { kind: 'brimcap' }, { kind: 'toolbelt' }], work: 'chop' },
+  hero: { war: true, acc: [{ kind: 'greatsword' }, { kind: 'cloak' }, { kind: 'helmet', mat: 'gold' }, { kind: 'plume' }, { kind: 'pauldrons', mat: 'gold' }], spec: { scaleMul: 1.06 }, work: 'chop', attack: 'chop', anims: { joy: 'rally' } },
+  champion: { war: true, acc: [{ kind: 'spear' }, { kind: 'towershield' }, { kind: 'greathelm' }, { kind: 'banner' }, { kind: 'pauldrons' }], spec: { scaleMul: 1.04 }, work: 'thrust', attack: 'thrust' },
+  refugee: { war: true, acc: [{ kind: 'shawl' }, { kind: 'bundle' }, { kind: 'stick' }], spec: { hunch: 0.22 }, work: 'dig', anims: { walk: 'trudge' } },
+  warrior: { war: true, acc: [{ kind: 'warclub' }, { kind: 'hideshield' }, { kind: 'headband' }], work: 'attack' },
+  halberdier: { war: true, acc: [{ kind: 'halberd' }, { kind: 'plate' }, { kind: 'helmet', crest: 'cloth' }, { kind: 'pauldrons' }], work: 'thrust', attack: 'thrust' },
 };
 const ANIMS = [['idle', 'idle', 4], ['walk', 'walk', 4], ['work', null, 4], ['attack', 'attack', 4], ['hit', 'hit', 4], ['pray', 'pray', 4], ['joy', 'joy', 4], ['death', 'death', 2], ['sleep', 'sleep', 2]];
 module.exports = { PEOPLES, LOOKS, ANIMS };
