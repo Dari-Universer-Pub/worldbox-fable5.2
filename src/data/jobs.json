@@ -120,10 +120,7 @@
  "engineer": {
   "id": 19,
   "look": "builder",
-  "task": "siege",
-  "needs": "barracks",
-  "military": true,
-  "minStage": 4
+  "task": "engineer"
  },
  "bard": {
   "id": 20,

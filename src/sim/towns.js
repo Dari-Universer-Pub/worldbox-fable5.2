@@ -94,9 +94,12 @@
   // ---------------------------------------------------------------- jobs (every 20 ticks per town)
   // ---- bridges (chantier B.1): where a narrow water cuts the town from land it wants (another shore, or a long way round), the
   // town lays a deck of planks, one tile at a time, straight across (pathfinding only joins tiles side by side). 3 wood a plank.
+  // lay the next plank of the town's bridge (3 wood); the last one opens the crossing. Returns true when a plank was laid.
+  T.bridgeLay = function (sim, town) { const W = sim.world, n = W.n, G = AL.G, st = town.stock, WOOD = AL.RES.wood, S = sim.stats, pj = town.bridge; if (!pj || st[WOOD] < 3) return false; const i = pj.tiles[pj.at]; let laid = false; pj.last = sim.tick;
+    if (AL.gWater[W.ground[i]]) { st[WOOD] -= 3; W.feature[i] = 0; W.road[i] = 220; W.setGround(i, G.bridge); S.bridgeTiles = (S.bridgeTiles || 0) + 1; sim.emit('bridge', i % n + 0.5, ((i / n) | 0) + 0.5); laid = true; }
+    if (++pj.at >= pj.tiles.length) { town.bridge = null; town.bridges = (town.bridges || 0) + 1; S.bridges = (S.bridges || 0) + 1; W.regionsDirty = true; if (AL.Realm && sim.chron) AL.Realm.log(sim, 'bridge', ['log.bridge', town.name], pj.tiles[0] % n, (pj.tiles[0] / n) | 0, town.kingdom); } return laid; };
   T.bridge = function (sim, town) { const W = sim.world, n = W.n, G = AL.G, st = town.stock, WOOD = AL.RES.wood, S = sim.stats, pj = town.bridge;
-    if (pj) { if (st[WOOD] < 3) return; const i = pj.tiles[pj.at]; if (AL.gWater[W.ground[i]]) { st[WOOD] -= 3; W.feature[i] = 0; W.road[i] = 220; W.setGround(i, G.bridge); S.bridgeTiles = (S.bridgeTiles || 0) + 1; sim.emit('bridge', i % n + 0.5, ((i / n) | 0) + 0.5); }
-      if (++pj.at >= pj.tiles.length) { town.bridge = null; town.bridges = (town.bridges || 0) + 1; S.bridges = (S.bridges || 0) + 1; W.regionsDirty = true; if (AL.Realm && sim.chron) AL.Realm.log(sim, 'bridge', ['log.bridge', town.name], pj.tiles[0] % n, (pj.tiles[0] / n) | 0, town.kingdom); } return; }
+    if (pj) { if (!(town.have[AL.JOB.engineer] > 0) || sim.tick - (pj.last || 0) > 4000) T.bridgeLay(sim, town); return; } // the engineer lays the planks (units.js); without one for a long time the townsfolk do it slowly
     if (town.stage < 1 || town.pop < 14 || st[WOOD] < 40 || (town.bridges || 0) >= 5 || sim.tick - (town.bridgeAt || 0) < 900) return; town.bridgeAt = sim.tick;
     const rng = sim.rng, c = town.cy * n + town.cx, reg = W.region[c], f = sim.path.field(c).d, R = Math.min(30, town.radius + 10);
     for (let k = 0; k < 24; k++) { const sx = town.cx + rng.int(R * 2 + 1) - R, sy = town.cy + rng.int(R * 2 + 1) - R; if (!W.inb(sx, sy) || W.region[sy * n + sx] !== reg || !reg) continue; const d = rng.int(4), dx = d === 0 ? 1 : d === 1 ? -1 : 0, dy = d === 2 ? 1 : d === 3 ? -1 : 0;
@@ -104,7 +107,7 @@
       if (!ok || run < 1) continue; const far = y * n + x, rf = W.region[far], near = first - dx - dy * n, len = run + 1;
       // worth it: the far bank is another land of some size, or the way round is at least 40 tiles and six times the crossing
       const other = rf !== reg && rf > 0 && (W.regionSize[rf] || 0) >= 80, round = rf === reg && f[far] !== 65535 && f[far] - f[near] > Math.max(320, len * 48); if (!other && !round) continue;
-      const tiles = []; for (let q = 0; q < run; q++) tiles.push(first + q * (dx + dy * n)); town.bridge = { tiles, at: 0 }; S.bridgePlans = (S.bridgePlans || 0) + 1; return; } };
+      const tiles = []; for (let q = 0; q < run; q++) tiles.push(first + q * (dx + dy * n)); town.bridge = { tiles, at: 0, near, last: sim.tick }; S.bridgePlans = (S.bridgePlans || 0) + 1; return; } };
   T.assign = function (sim, town) { const E = sim.E, J = AL.JOB, want = town.want, have = town.have, st = town.stock, pop = town.adults, cnt = town.count, BT = AL.BT, cv = town.cultureValues || AL.KINDS[town.people].culture; want.fill(0); have.fill(0);
     const done = id => { let c = 0; for (const b of town.blds) if (sim.B.type[b] === id && sim.B.state[b] === 1) c++; return c; };
     const foodPer = st[AL.RES.food] / Math.max(1, town.pop), farms = done(BT.farm), meat = AL.KINDS[town.people].diet === 'meat';
@@ -126,6 +129,7 @@
     want[J.blacksmith] = done(BT.forge) ? Math.min(2, 1 + (pop > 60 ? 1 : 0)) : 0; want[J.merchant] = done(BT.market) ? 1 + (cv.trade > 0.6 && pop > 50 ? 1 : 0) : 0; want[J.priest] = done(BT.temple) ? 1 + (pop > 80 ? 1 : 0) : 0;
     { const nG = done(BT.grove), nD = done(BT.delve), nS = done(BT.sporebed), nT = done(BT.tidehouse); if (nG && !crisis) want[J.warden] = tight ? 1 : Math.min(nG * 2, Math.max(1, Math.ceil(pop * 0.08))); if (nD) want[J.delver] = Math.min(nD * 3, Math.max(1, Math.ceil(pop * 0.15)));
       if (nS) want[J.sporer] = Math.min(nS * 3, Math.max(1, Math.ceil(pop * (crisis ? 0.5 : tight ? 0.35 : foodPer > 14 ? 0.1 : 0.22)))); if (nT) want[J.diver] = Math.min(nT * 3, Math.max(1, Math.ceil(pop * (crisis ? 0.4 : tight ? 0.3 : foodPer > 14 ? 0.08 : 0.18)))); }
+    want[J.healer] = done(BT.hospital) ? 1 + (pop > 120 ? 1 : 0) : 0; want[J.engineer] = town.bridge ? 1 : (town.stage >= 3 && pop > 50 && !crisis ? 1 : 0); // chantier B.3
     want[J.scholar] = done(BT.library) ? 1 + (cv.lore > 0.6 ? 1 : 0) : 0; want[J.bard] = done(BT.tavern) ? 1 : 0; want[J.herder] = town.herd ? 1 : 0;
     // monsters near the town (zombies, skeletons, demons) call the militia out, war or no war
     { let mc = 0; const nq = E.query(town.cx, town.cy, 22); for (let k = 0; k < nq; k++) { const j = E.near[k]; if (!(E.flags[j] & 1) && E.kind[j] >= AL.NPEOPLE && AL.KINDS[E.kind[j]].cls === 2) mc++; } town.monsters = mc; town.threat = !!town.atWar || mc > 0; }

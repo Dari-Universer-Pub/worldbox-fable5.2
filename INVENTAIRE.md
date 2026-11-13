@@ -10,7 +10,7 @@
 | Animaux | 40 (8 soignés + 32 provisoires) | 40 | les provisoires n'apparaissent jamais seuls (densité 0), seulement posés par le joueur |
 | Monstres | 20 (3 soignés + 17 provisoires) | 20 | dont dragon, géant, golem, esprit, néantin, léviathan, colosse 64×64 ; comportement générique |
 | Pouvoirs | 100 (tous de vrais pouvoirs depuis A.7) | 100 | chacun a son icône, son effet, son son et son geste propre ; équilibrage non réglé |
-| Métiers | 25 (dont 4 propres à un peuple : gardien, puisatier, sporier, plongeur) | 20 | **2 ne servent à rien** : ingénieur, guérisseur (chantier B.3) ; le marin mène les barques (B.2) |
+| Métiers | 25 (dont 4 propres à un peuple : gardien, puisatier, sporier, plongeur) | 20 | tous affectés : le marin mène les barques (B.2), l'ingénieur pose les ponts et répare, le guérisseur soigne (B.3) |
 | Bâtiments | 17 types × 5 stades dessinés × 6 peuples + 4 bâtiments propres (bosquet, puits, champignonnière, maison des marées) | 15 types × 5 stades | fait (chantiers A.6 et A.8) |
 | Ères | 10 | 10 | complet |
 | Dogmes | 12 | 12 | complet |
@@ -42,7 +42,7 @@ Ces comptes sont vérifiés par `node tools/validate-data.js` (tableau « vision
 - **Pillage et réfugiés :** absents.
 - **Moral :** seulement un trait, pas de vraie fuite sur le champ de bataille (non vérifié en détail).
 - **Dragon avec nid et trésor, capacités du colosse :** absents (le dragon et le colosse existent comme monstres provisoires au comportement générique ; le pouvoir « contrôle » marche sur eux comme sur toute créature, non vérifié en jeu).
-- **Métiers inutilisés :** ingénieur, guérisseur (définis, jamais affectés par le code).
+- **Métiers inutilisés :** aucun (B.3). L'ingénieur et le guérisseur n'ont pas encore leurs propres sprites (B.4).
 
 ## Non vérifié
 
