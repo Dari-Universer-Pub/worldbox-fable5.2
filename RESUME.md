@@ -6,16 +6,20 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — A.7 done; next task: **A.8 the 4 peoples: game identity**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — A.8 done; next task: **A.9 buildings of the 4 peoples: one shell per trade**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
 
-**A.8 — les 4 peuples : identité de jeu (EN COURS, pas encore coché).** Fait : 4 bâtiments propres (`grove` elfes, `delve` nains, `sporebed` myrrins, `tidehouse` okaris), 4 métiers (`warden`, `delver`, `sporer`, `diver`) avec leur tenue, comportements (`replant`, `early`/`craft`, `fearFire`, `fishMul`), effets client (`tend`, `delve`, `spore`, `dive`), textes EN/FR, `provisional` retiré des 4 peuples. `build`, `validate-data`, `check-provenance` OK.
-- Vu (une partie `solo-<peuple> 7 100` chacun) : elfes planted=121 tended=458 replanted=520, 265 habitants à l'an 100 ; nains delved=6234 delvedOre=2783 ; myrrins spored=720 sporeFood=54824 fireFled=263 ; okaris dived=4108 pearls=507. Planche couleur des bâtiments cuits regardée (`shots/a8-baked-own.png`).
-- Corrigé : les elfes s'éteignaient vers l'an 65 (gardiens pris sur les adultes nourriciers) → pas de gardien en famine, 1 seul si la nourriture est juste, 4 de nourriture par soin.
-- Non vérifié : planche silhouette des bâtiments cuits, planches des 4 tenues après cuisson complète, le jeu ouvert une fois (script jetable à relancer), un pixel flottant sur le chantier de `sporebed` stade 4.
-- Action suivante précise : regarder `shots/a8-baked-own-sil.png` et les tenues, ouvrir le jeu sur une ville de chaque peuple, corriger, puis cocher A.8, mettre à jour `INVENTAIRE.md` (19 types de bâtiments, 25 métiers) et `TOOLS.md` (7e argument de `building-sheet.js`).
-- À tester par Sonnet : scénarios de duel des 4 peuples contre humains et orcs et leurs cibles ; équilibrage des 4 métiers (rendements, part d'ouvriers) ; robots sur les nouveaux bâtiments.
+**A.8 — les 4 peuples : identité de jeu (fait).** Chaque peuple a un bâtiment, un métier et un comportement à lui ; plus aucun peuple n'est `provisional`.
+- Elfes : `grove` (bosquet sacré) et `warden` (plante des arbres près du bosquet, soigne les jeunes arbres, rapporte fruits et noix) ; tout arbre abattu est replanté (`replant`).
+- Nains : `delve` (puits de mine sans gisement requis) et `delver` (pierre, 45 % de minerai) ; forge dès le stade 1 (`early`), forgerons deux fois plus productifs (`craft`).
+- Myrrins : `sporebed` (champignonnière) et `sporer` (sème, soigne et récolte des champignons) ; fuient le feu à 5 cases (`fearFire`).
+- Okaris : `tidehouse` (maison des marées, sur le rivage) et `diver` (nourriture, 12 % de perle = or) ; pêche ×1,5 (`fishMul`).
+- Sprites : 4 bâtiments × 5 stades × 4 états dans `tools/art/buildings2.js`, 4 tenues (`warden`, `delver`, `sporer`, `diver`) avec 8 accessoires neufs dans `tools/art/rigs/humanoid.js` ; effets client `tend`, `delve`, `spore`, `dive` ; fiche du bâtiment avec son texte `bldd.*` ; un bâtiment propre garde l'allure de son peuple même dans une ville prise.
+- Vu (une partie `solo-<peuple> 7 100` chacun) : elfes planted=121 tended=458 replanted=520, 265 habitants à l'an 100 ; nains delved=6234 delvedOre=2783 ; myrrins spored=720 sporeFood=54824 fireFled=263 ; okaris dived=4108 pearls=507. Planches regardées en couleur et en silhouette (`shots/a8-baked-own*.png`, `shots/a8-look-*.png`), jeu ouvert sur une ville de chaque peuple avec son bâtiment (`shots/a8-game-*.png`). `build`, `validate-data`, `check-provenance` OK.
+- Corrigé : les elfes s'éteignaient vers l'an 65 (gardiens pris sur les adultes nourriciers) → pas de gardien en famine, un seul si la nourriture est juste, 4 de nourriture par soin.
+- Non vérifié : les effets `tend/delve/spore/dive` vus à l'écran sur un ouvrier précis (les bâtiments et les champignons semés sont vus, pas l'instant de l'effet) ; fuite du feu vue seulement par compteur ; un pixel flottant sur le chantier de `sporebed` stade 4 ; le panier du `sporer` reste discret ; la maison des marées se perd sous les arbres en mangrove dense.
+- À tester par Sonnet : scénarios de duel des 4 peuples contre humains et orcs et leurs cibles ; équilibrage des 4 métiers (rendements, part d'ouvriers, sporeFood très élevé chez les myrrins) ; robots sur les nouveaux bâtiments ; sauvegarde/chargement avec les nouveaux types.
 
 **À TESTER PAR SONNET (liste cumulée)**
 1. `node tests/run-all.js` complet (0.2). Dernier passage complet connu, fait pendant 0.1 avant le changement de rôles : 19/21 — `check-provenance` en échec parce que les icônes venaient d'être recuites sans reconstruction (repassé OK depuis), `tests/step8.js` en échec sur « ctl » (contrôle direct) mais OK relancé seul : sans doute sensible à la charge de la machine, à confirmer.
@@ -132,4 +136,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **A.8** — game identity of the 4 peoples (elves: forest; dwarves: mine and forge; myrrins: swamp, fear of fire; okaris: fishing and sea): one building and one job or behaviour of their own each, sprites looked at, remove `provisional`, light proof with `node tools/balance-bot.js run solo-<people> 7 100`.
+First unticked line of `CHANTIER.md`: **A.9** — in `tools/art/buildings2.js`, give the main building types of the elves, dwarves, myrrin and okari their own shell per trade (today one shell plus accessories), look at the sheets with `node tools/building-sheet.js`, bake, build, open the game once.

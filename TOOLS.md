@@ -92,7 +92,7 @@ Dans les atlas, `left` et `right` sont nommés d'après le signe du yaw du baker
 - `tests/step13.js` : robot (vraie souris, vrai clavier) du chargement, du titre, des fenêtres ouvertes depuis le titre, de l'entrée en jeu, de `?play`, des fichiers d'icônes et du manifeste, des requêtes hors du dossier. Captures : `shots/step13-*.png`.
 
 ## tools/building-sheet.js
-`node tools/building-sheet.js <out.png> <peuple> [stades, ex. 2,3,4] [échelle] [sil]` : rend les 17 bâtiments d'un peuple directement depuis les sources, une ligne par stade, sans cuire l'atlas ; `sil` = silhouettes ; avertit si un bâtiment dépasse la case de 64 px.
+`node tools/building-sheet.js <out.png> <peuple> [stades, ex. 2,3,4] [échelle] [sil|col] [types, ex. grove,delve]` : rend les 17 bâtiments d'un peuple directement depuis les sources, une ligne par stade, sans cuire l'atlas ; `sil` = silhouettes ; avertit si un bâtiment dépasse la case de 64 px.
 
 ## tools/creature-sheet.js
 `node tools/creature-sheet.js <out.png> <noms|all|second> [échelle] [par ligne]` : rend des espèces directement depuis `tools/art/creatures.js` sans cuire l'atlas (profil, trois-quarts, image en mouvement, et la même chose en silhouette) ; signale les sprites qui touchent le bord de leur case. `tools/bake-creatures.js` cuit maintenant sur 4 fils (environ 2 min 30).

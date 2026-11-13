@@ -6,12 +6,12 @@
 
 | Élément | Présent | Visé par le plan | Remarque |
 |---|---|---|---|
-| Peuples | 6 définis, **2 soignés** (humains, orques) + **4 provisoires jouables** (elfes, nains, myrrins, okaris) | 6 | les 4 provisoires ont leurs 18 aspects et leur architecture en 3 stades ; cachés tant que l'option « Contenu provisoire » est coupée |
+| Peuples | 6, tous jouables et non provisoires (humains, orques, elfes, nains, myrrins, okaris) | 6 | depuis A.8 chacun des 4 derniers a son bâtiment, son métier et son comportement propres ; duels contre humains et orques non équilibrés (Sonnet) |
 | Animaux | 40 (8 soignés + 32 provisoires) | 40 | les provisoires n'apparaissent jamais seuls (densité 0), seulement posés par le joueur |
 | Monstres | 20 (3 soignés + 17 provisoires) | 20 | dont dragon, géant, golem, esprit, néantin, léviathan, colosse 64×64 ; comportement générique |
 | Pouvoirs | 100 (tous de vrais pouvoirs depuis A.7) | 100 | chacun a son icône, son effet, son son et son geste propre ; équilibrage non réglé |
-| Métiers | 21 | 20 | **3 ne servent à rien** : marin, ingénieur, guérisseur |
-| Bâtiments | 17 types × 5 stades dessinés × 6 peuples | 15 types × 5 stades | fait (chantier A.6) |
+| Métiers | 25 (dont 4 propres à un peuple : gardien, puisatier, sporier, plongeur) | 20 | **3 ne servent à rien** : marin, ingénieur, guérisseur (chantier B.3) |
+| Bâtiments | 17 types × 5 stades dessinés × 6 peuples + 4 bâtiments propres (bosquet, puits, champignonnière, maison des marées) | 15 types × 5 stades | fait (chantiers A.6 et A.8) |
 | Ères | 10 | 10 | complet |
 | Dogmes | 12 | 12 | complet |
 | Traits | 60 | 60 | complet |
