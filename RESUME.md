@@ -6,9 +6,15 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — A.10 done; next task: **A.11 remove the “Provisional content” option**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A done (A.1–A.11); next task: **B.1 bridges**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**A.11 — option « Contenu provisoire » retirée (fait).** Plus rien n'est provisoire dans les peuples, animaux, monstres, pouvoirs, sons, pistes ni langues (les 4 langues elfe, naine, myrrine, okarie relues sur 9 noms de personnes et 9 noms de lieux chacune, drapeau retiré). L'option, son texte `opt.provisional` et le drapeau `showProvisional` sont supprimés de `src/client/ui.js` et `src/data/i18n.json`.
+- Vu : fenêtre Options sans la ligne (`shots/a11-options.png`), `validate-data` : colonne « provisional » à 0 partout sauf 1 bâtiment.
+- Reste volontairement : `hospital` garde `provisional` dans `src/data/buildings.json` (les villes ne le construisent pas) jusqu'à B.3, où le guérisseur lui donne un usage.
+- Non vérifié : quelques noms de lieux longs (4 syllabes) chez les elfes et les nains.
+- À tester par Sonnet : `tests/prov-run.js` (il liste les genres et pouvoirs `provisional` : il n'y en a plus, le test est à adapter ou retirer de `run-all.js`), `tests/step10.js`/`step12` si elles cliquent l'option.
 
 **A.10 — sons et musiques provisoires (fait, à juger à l'oreille par Julien).** Plus aucun son ni aucune piste n'est `provisional`.
 - Sons : les 44 (animaux, monstres, magie, catastrophes) ont chacun trois prises (`vary` dans `tools/art/sounds.py` : la prise écrite, une plus grave et plus lente, une plus aiguë et plus courte) et 16 d'entre eux une couche de plus (`EXTRA` : souffle de la vache, troisième hululement, réponse de la grenouille, pierres du golem, etc.). `level-audio` puis `measure-audio` : AUDIO OK, 163 sons.
@@ -154,4 +160,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **A.11** — check what is still `provisional` in `src/data` (animals, monsters, stages, languages), look at the toolbar with the option on, remove the option from `src/client/ui.js` when nothing is provisional any more (otherwise mark `[~]` and say what remains).
+First unticked line of `CHANTIER.md`: **B.1** — bridges: read the task line, see how roads form (`W.road`) and how the pathfinder treats water, add a bridge building/feature with its sprite, let towns build one where a road meets a narrow river, prove it with one `solo-human 7 100` game (counter `stats.bridges`).

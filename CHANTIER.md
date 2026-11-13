@@ -23,7 +23,7 @@ Règles qui restent valables (voir `CLAUDE.md`) : aucun asset validé sans planc
 - [x] **A.8 Les 4 peuples : identité de jeu.** Un bâtiment et un métier ou un comportement propre à chacun (elfes : forêt ; nains : mine et forge ; myrrins : marais, peur du feu ; okaris : pêche et mer), retirer `provisional` ; les scénarios de duel dans le robot (contre humains et orques) et leurs cibles seront faits par Sonnet.
 - [x] **A.9 Bâtiments des 4 peuples** : une coque propre par métier pour les types principaux (aujourd'hui une coque + accessoires), comme chez les humains.
 - [x] **A.10 Sons et musiques provisoires** : revoir les 44 sons et les 5 pistes (écriture plus longue, variantes) ; brancher les pistes de climat et de catastrophe sans l'option ; **à juger à l'oreille par Julien** (impossible ici).
-- [ ] **A.11 Option « Contenu provisoire »** : la retirer quand plus rien n'est provisoire ; d'ici là regarder la barre d'outils avec l'option activée.
+- [x] **A.11 Option « Contenu provisoire »** : la retirer quand plus rien n'est provisoire ; d'ici là regarder la barre d'outils avec l'option activée.
 
 ## B. Systèmes absents
 - [ ] **B.1 Ponts** : sur les rivières étroites, construits par les villes quand une route bute sur l'eau ; pathfinding mis à jour ; sprite.
