@@ -135,6 +135,17 @@ E['loot'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), SK = R('s
   if (!open) { im.set(7, 8, SK[0]); im.set(8, 8, SK[0]); im.set(7, 7, SK[1]); im.set(8, 7, SK[2]); } else for (let x = 5; x < 11; x++) im.set(x, 9, G[1 + (x & 1)]);
   if (open) for (let k = 0; k < 6; k++) { const a = -Math.PI * (0.18 + 0.64 * (k + 0.5) / 6), sp = 5 + (k * 37 % 5) * 0.7, x = Math.round(7.5 + Math.cos(a) * sp * t), y = Math.round(9 + Math.sin(a) * sp * 1.5 * t + 11 * t * t); if (y > 15 || y < 0 || x < 0 || x > 15) continue; im.set(x, y, G[3 - (f % 2 === k % 2 ? 1 : 0)]); if (y + 1 < 16) im.set(x, y + 1, G[1]); if (f < 3 && x + 1 < 16) im.set(x + 1, y, G[2]); }
   return im; }, pivot: [8, 15] };
+// ---- individuals (chantier B.7)
+// friend: two little notes of laughter rise side by side and lean toward each other, a warm spark between them
+E['friend'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), A = R('fire', [3, 5]), Bc = R('pink', [3, 5]), W = ix('sand', 5), up = [0, 1, 3, 4, 6, 7][f], lean = f >= 2 ? 1 : 0;
+  const NOTE = ['.xX', '.x.', '.x.', 'Xx.', 'xx.']; for (let s = 0; s < 2; s++) { const C = s ? Bc : A, bx = s ? 9 - lean : 3 + lean, by = 10 - up + (s ? 1 : 0); for (let j = 0; j < 5; j++) for (let k = 0; k < 3; k++) { const c = NOTE[j][s ? 2 - k : k]; if (c !== '.' && by + j >= 0 && by + j < 16) im.set(bx + k, by + j, C[c === 'X' ? 1 : 0]); } }
+  if (f >= 2 && f < 5) { const y = 9 - up; im.set(7, y, W); im.set(8, y, W); if (f === 3) { im.set(7, y - 1, A[1]); im.set(8, y + 1, A[1]); im.set(6, y, A[1]); im.set(9, y, A[1]); } }
+  return im; }, pivot: [8, 15] };
+// quarrel: a jagged red burst with two crossed strokes, it swells, shakes and breaks up
+E['quarrel'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), Rr = R('red', [1, 3, 4]), W = ix('sand', 5), r = [2.5, 4, 5, 5, 4.5, 3][f], sh = [0, 0, 1, -1, 0, 0][f], cx = 8 + sh, cy = 8;
+  for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) { const dx = x + 0.5 - cx, dy = y + 0.5 - cy, a = Math.atan2(dy, dx), d = Math.hypot(dx, dy), spike = r * (0.72 + 0.28 * Math.abs(Math.sin(a * 3.5 + f * 0.6))); if (d < spike && !(f === 5 && ((x + y) & 1))) im.set(x, y, d > spike - 1.1 ? Rr[0] : dx + dy < -1 ? Rr[2] : Rr[1]); }
+  if (f >= 1 && f <= 4) { for (let k = -3; k <= 0; k++) { im.set(cx - 1, cy + k, W); im.set(cx, cy + k, W); } im.set(cx - 1, cy + 2, W); im.set(cx, cy + 2, W); }
+  return im; }, pivot: [8, 15] };
 // ---- diplomacy (chantier B.6), drawn frame by frame
 // wedding: two gold rings slide together and interlock, a heart rises above them, petals drift
 E['wedding'] = { size: 16, n: 6, fn: (f) => { const im = new Img(16, 16), G = R('fire', [2, 3, 5]), H = R('red', [2, 3, 4]), P = R('pink', [3, 5]), d = [3.5, 2, 1, 1, 1, 1][f];

@@ -11,6 +11,8 @@ for (const big of [false, true]) { const at = new Atlas(big ? 'fontb' : 'font', 
   // war-map markers (chantier B.5): tools/art/marks.js
   const WK = { o: ix('earth', 0), T: 132, t: 130, d: 128, M: ix('stone', 5), S: ix('stone', 3), s: ix('stone', 4), n: ix('stone', 1), w: ix('earth', 3), k: ix('sand', 4), K: ix('sand', 5), F: ix('fire', 4), f: ix('fire', 2) };
   const MG = require('./art/marks').GRIDS; for (const k in MG) { const g = MG[k], im = Img.fromGrid(g, WK); at.add('mark/' + k, im, (im.w / 2) | 0, k.startsWith('army') || k === 'siege' || k === 'taken' ? im.h - 1 : (im.h / 2) | 0); }
+  // carried loads (chantier B.7): tools/art/loads.js
+  { const LD = require('./art/loads'); for (const k in LD.GRIDS) { const o = LD.ORE[k], key = Object.assign({}, WK, { W: ix('earth', 4), E: ix('sand', 4), C: ix('sand', 4), c: ix('sand', 3), d: ix('sand', 1), m: ix('stone', 4), A: o ? ix(o[0][0], o[0][1]) : 0, a: o ? ix(o[1][0], o[1][1]) : 0 }), im = Img.fromGrid(LD.GRIDS[k], key); at.add('load/' + k, im, (im.w / 2) | 0, im.h - 1); } }
   at.save(); console.log('marks ' + Object.keys(at.frames).length); }
 
 // icons (pipeline B): tools/art/icons.js -> atlas 'icons', frames 'ic/<name>'. Outline: tone 0 of the ink ramp of the neighbouring colour.

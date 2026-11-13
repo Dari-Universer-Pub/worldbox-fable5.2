@@ -137,6 +137,11 @@ def vary(layers, pitch=1.0, time=1.0):
 # ---- war (chantier B.4)
 def war3(name, cat, dur, cen, layers, **k):
     snd(name, cat, dur, cen, variants=[layers, vary(layers, 1.09, 0.93), vary(layers, 0.92, 1.08)], **k)
+# ---- individuals (chantier B.7)
+# friend: two short warm notes of laughter, the second a third above
+war3("friend", "crowd", [0.2, 1.2], [400, 4000], [O("triangle", [392, 440, 0.08], 0.3, 0.01, 0.1, 0.06), O("sine", 784, 0.1, 0.01, 0.1, 0.06), O("triangle", [494, 554, 0.08], 0.3, 0.01, 0.14, 0.1, at=0.14), O("sine", 988, 0.1, 0.01, 0.14, 0.1, at=0.14)], rev=0.2)
+# quarrel: two harsh barks one over the other
+war3("quarrel", "crowd", [0.2, 1.2], [300, 3500], [O("sawtooth", [260, 190, 0.12], 0.3, 0.005, 0.12, 0.06, flt=bp(1000, 2)), N(0.3, 0.005, 0.08, 0.05, bp(1800, 1.5)), O("sawtooth", [215, 150, 0.14], 0.3, 0.005, 0.14, 0.08, at=0.13, flt=bp(850, 2)), N(0.3, 0.005, 0.08, 0.06, bp(1500, 1.5), at=0.13)])
 # ---- diplomacy (chantier B.6)
 # wedding: two bells answer each other, a third rings them together
 war3("wedding", "crowd", [0.8, 3.5], [400, 5000], [O("sine", 784, 0.35, 0.002, 1.1, 0.6, fm=[3.51, 2.0, 0.8, 0.02]), O("sine", 2163, 0.08, 0.002, 0.6, 0.3), O("sine", 1047, 0.35, 0.002, 1.1, 0.6, at=0.28, fm=[3.51, 2.0, 0.8, 0.02]), O("sine", 2889, 0.07, 0.002, 0.6, 0.3, at=0.28), O("sine", 1319, 0.3, 0.002, 1.3, 0.8, at=0.56, fm=[3.51, 1.6, 0.8, 0.02]), O("sine", 659, 0.16, 0.002, 1.2, 0.8, at=0.56)], rev=0.5)

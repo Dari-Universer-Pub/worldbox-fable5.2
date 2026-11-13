@@ -79,6 +79,7 @@
     if (!env.lockAmbient) { env.ambient[0] = a[1] + (b[1] - a[1]) * f; env.ambient[1] = a[2] + (b[2] - a[2]) * f; env.ambient[2] = a[3] + (b[3] - a[3]) * f; }
     S.night = p > 0.72 || p < 0.04 ? 1 : p > 0.66 ? (p - 0.66) / 0.06 : p < 0.08 ? 1 - (p - 0.04) / 0.04 : 0; env.night = S.night; env.sun[0] = 0.55 - (p - 0.4) * 0.5; };
   // ---- drawing
+  const LOADF = [], LOX = [0, -5, 0, 5], LOY = [-2, -3, -3, -3], LOZ = [4, 5, 5, 5], loadOf = r => LOADF[r] !== undefined ? LOADF[r] : (LOADF[r] = AL.Assets.frames['load/' + AL.RESN[r]] || null);
   const markUnit = () => S._mk || (S._mk = AL.Assets.frames['mark/unit/0']);
   S.draw = function (env) { const G = AL.Gfx, c = Game.cam, z = c.z, A = AL.Assets, vx0 = c.x - 40, vy0 = c.y - 40, vx1 = c.x + G.W / z + 40, vy1 = c.y + G.H / z + 70, far = z < 0.74, night = S.night > 0.5;
     // buildings
@@ -110,6 +111,8 @@
       if (fs.once) fi = Math.min(fs.length - 1, (el * fs.fps) | 0); else fi = (((an === 1 ? t : el) * fs.fps + (an === 1 ? i * 0.37 : 0)) | 0) % fs.length;
       const alpha = (fl & 1) && el > 6 ? Math.max(0, 1 - (el - 6) / 2.5) : 1;
       G.spr(fs[fi], wx, wy, team, ((fl & 8) || (fl & 16) ? 4 : 0) | (S.flash && S.flash[i] > t ? 2 : 0), 0, alpha, 1, 0); nu++;
+      // what the villager carries (chantier B.7): held in front when facing us, on the back when walking away, at the hip from the side
+      if (m.carry[i] && m.cr && an <= 1 && !(fl & 1)) { const lf = loadOf(m.cr[i]); if (lf) { const d = m.dir[i], bob = an === 1 ? ((t * 8 + i * 0.37) | 0) & 1 : 0; G.spr(lf, wx + LOX[d], wy + LOY[d] - bob, 0, 0, 0, alpha, 1, LOZ[d]); } }
       if (S.sel === i) S.selPos = [wx, wy]; }
     S.nUnits = nu; };
   // animals: frames '<species>/<anim>/<dir>/<i>'; humanoid monsters go through the people path
