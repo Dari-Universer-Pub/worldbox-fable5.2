@@ -46,6 +46,7 @@ Règles qui restent valables (voir `CLAUDE.md`) : aucun asset validé sans planc
 - [ ] **C.7 Tactile et téléphone** : gestes, déblocage du son sur iPhone, taille d'interface ×2.
 - [ ] **C.8 Captures jamais regardées** des étapes 5 à 10 : les regarder et corriger ce qu'elles montrent.
 - [ ] **C.9 Petits défauts notés** : souches qui ne repoussent pas, champignons flous, lapin peu lisible, son `chop` hors fenêtre.
+- [ ] **C.10 Arbres transparents devant ce qu'ils cachent** (demande de Julien) : quand on zoome sur une forêt et qu'une unité, un bâtiment, un animal ou un monstre se trouve derrière un arbre, l'arbre devient un peu transparent à cet endroit pour qu'on voie l'objet caché, de façon **très propre**. **Le dessin des arbres ne change pas** (Julien les trouve très bien) : seul le rendu change. Pistes : fondu doux limité à la zone autour de l'objet caché (pas tout l'arbre), ou tramage régulier aligné sur la grille de pixels, sans scintillement d'une image à l'autre, avec une transition douce à l'apparition et à la disparition ; actif surtout aux zooms rapprochés, discret ou absent au zoom éloigné ; ne s'applique qu'aux arbres qui cachent réellement quelque chose (ordre de dessin : l'arbre est devant l'objet). Vérifier : captures avant/après sur une forêt avec un village et des unités, à plusieurs zooms ; images successives sans scintillement ; coût de rendu mesuré (à repasser par Sonnet sur sa machine de test).
 
 ## Ce que seul Julien peut juger (à chaque palier)
 Le son et la musique à l'oreille ; le rythme à ×1, ×5, ×10 ; la beauté des nouveaux sprites en jeu ; la fluidité sur son PC et son téléphone.
@@ -58,3 +59,4 @@ Le son et la musique à l'oreille ; le rythme à ×1, ×5, ×10 ; la beauté des
 - A.4 fait : les 32 animaux ont une densité et vivent seuls (tirage pondéré par la densité dans `C.populate`, plafond d'animaux n²/56) ; un siècle sauvage : 40 espèces vivantes à l'an 50, 39 à l'an 100.
 - A.5 fait : `src/sim/monsters.js` (17 comportements, compteurs `sim.stats.m_*`), nid du dragon dessiné, 4 effets nouveaux, scénario `bestiary` du robot ; tous les compteurs vus au moins une fois (détail dans `RESUME.md`).
 - A.6 fait : stades 4 et 5 dessinés pour les 6 peuples (finis, chantiers, ruines), `stages.json` sans `provisional`, ville humaine vue au stade 5 en jeu et dans une partie sous Node (stade 4 an 22, stade 5 an 29).
+- C.10 ajoutée à la demande de Julien : arbres partiellement transparents devant ce qu'ils cachent, rendu propre, dessin des arbres inchangé.
