@@ -36,7 +36,7 @@
   { const old = War.mobilize; War.mobilize = function (sim, kd) { old.call(this, sim, kd); const E = sim.E; for (let i = 0; i < E.hi; i++) if (E.alive[i] && E.kingdom[i] === kd.id && (E.flags[i] & F.MOBILIZED) && E.hp[i] < E.hpMax[i] * 0.45 && E.act[i] !== ACT.FIGHT) { E.flags[i] &= ~F.MOBILIZED; E.army[i] = -1; } }; }
   // ---- looting and refugees when a town falls
   { const old = T.onHallLost; T.onHallLost = function (sim, town, by) { const E = sim.E, okd = sim.kingdoms[town.kingdom], akd = by != null && by >= 0 && E.alive[by] ? sim.kingdoms[E.kingdom[by]] : null;
-      if (akd && okd && akd !== okd) { const cap = sim.towns[akd.capital]; let loot = 0; if (cap && cap.alive && cap !== town) { for (let r = 0; r < AL.NRES; r++) { const v = town.stock[r] * 0.35; if (v > 0) { town.stock[r] -= v; cap.stock[r] += v; loot += v; } } }
+      if (akd && okd && akd !== okd) { town.capT = sim.tick; town.capBy = akd.id; const cap = sim.towns[akd.capital]; let loot = 0; if (cap && cap.alive && cap !== town) { for (let r = 0; r < AL.NRES; r++) { const v = town.stock[r] * 0.35; if (v > 0) { town.stock[r] -= v; cap.stock[r] += v; loot += v; } } }
         if (loot >= 1) { sim.stats.looted = (sim.stats.looted || 0) + Math.round(loot); sim.stats.lootings = (sim.stats.lootings || 0) + 1; sim.emit('loot', town.cx, town.cy); R.log(sim, 'capture', ['log.loot', akd.name, town.name, Math.round(loot)], town.cx, town.cy, akd.id, okd.id); }
         // civilians flee to the nearest town their kingdom still holds
         let haven = null, bd = 1e9; const reg = sim.world.region[town.cy * sim.world.n + town.cx]; for (const tid of okd.towns) { const o = sim.towns[tid]; if (!o || !o.alive || o === town || sim.world.region[o.cy * sim.world.n + o.cx] !== reg) continue; const d = Math.abs(o.cx - town.cx) + Math.abs(o.cy - town.cy); if (d < bd) { bd = d; haven = o; } }
@@ -85,4 +85,43 @@
     onDeath(sim, i) { const E = sim.E; if (E.look && E.look[i] === L.rider) sim.stats.ridersFallen = (sim.stats.ridersFallen || 0) + 1; },
     snapshot(sim) { const S = sim.siege; if (!S || (!S.list.length && !S.sent)) return null; const n = S.list.length, o = { t: 'machines', n, x: new Float32Array(n), y: new Float32Array(n), type: new Uint8Array(n), dir: new Uint8Array(n), kd: new Int16Array(n), people: new Uint8Array(n), st: new Uint8Array(n), id: new Int32Array(n), ph: new Uint16Array(n) };
       for (let k = 0; k < n; k++) { const m = S.list[k]; o.x[k] = m.x; o.y[k] = m.y; o.type[k] = m.type; o.dir[k] = m.dir; o.kd[k] = m.kd; o.people[k] = m.people; o.st[k] = m.st; o.id[k] = m.id; o.ph[k] = m.st === MS.ATTACK ? (m.t % SPEC[m.type].every) * 1000 / SPEC[m.type].every : 0; } S.sent = n; return o; } });
+  // ---- reading the war (chantier B.5): what the wars layer shows. Every 20 ticks the armies on the march (one per kingdom and
+  // target: where its soldiers stand, how many, where they go), the towns under siege, the towns taken in the last two years and the
+  // fronts (where the lands of two kingdoms at war touch) are counted into sim.warmap; nothing here changes the simulation.
+  const WM = War.map = { MAXA: 48, MAXF: 64 }; let wmCell = null, wmSx = null, wmSy = null, wmPair = null; const wmHit = new Uint8Array(4096);
+  WM.scan = function (sim) { const E = sim.E, W = sim.world, n = W.n, M = sim.warmap, tw = sim.towns, kds = sim.kingdoms; let na = 0;
+    const aK = M.aK, aT = M.aT, aX = M.aX, aY = M.aY, aN = M.aN, aS = M.aS;
+    for (let i = 0; i < E.hi; i++) { if (!E.alive[i] || !(E.flags[i] & F.MOBILIZED) || E.army[i] < 0) continue; const a = E.act[i]; if (a !== ACT.MARCH && a !== ACT.SIEGE && a !== ACT.FIGHT) continue;
+      const kd = E.kingdom[i], tg = E.army[i]; let k = 0; for (; k < na; k++) if (aK[k] === kd && aT[k] === tg) break; if (k === na) { if (na >= WM.MAXA) continue; aK[k] = kd; aT[k] = tg; aX[k] = 0; aY[k] = 0; aN[k] = 0; na++; }
+      aX[k] += E.x[i]; aY[k] += E.y[i]; aN[k]++; }
+    let ns = 0; for (let k = 0; k < na; k++) { aX[k] /= aN[k]; aY[k] /= aN[k]; const t = tw[aT[k]], near = t && Math.abs(aX[k] - t.cx) + Math.abs(aY[k] - t.cy) < 13; aS[k] = near ? 1 : 0;
+      if (near && aN[k] >= 2) { let q = 0; for (; q < ns; q++) if (M.sT[q] === aT[k]) break; if (q === ns && ns < 32) { M.sT[ns] = aT[k]; M.sK[ns] = aK[k]; ns++; } } }
+    const SL = sim.siege ? sim.siege.list : null; if (SL) for (let k = 0; k < SL.length; k++) { const m = SL[k]; if (m.st !== MS.ATTACK) continue; let q = 0; for (; q < ns; q++) if (M.sT[q] === m.target) break; if (q === ns && ns < 32) { M.sT[ns] = m.target; M.sK[ns] = m.kd; ns++; } }
+    M.na = na; M.ns = ns;
+    // fronts: coarse cells of 16 tiles where two kingdoms at war touch
+    const cn = (n + 15) >> 4; if (!wmCell || wmCell.length !== cn * cn) { wmCell = new Uint16Array(cn * cn); wmSx = new Float32Array(cn * cn); wmSy = new Float32Array(cn * cn); wmPair = new Int32Array(cn * cn); }
+    wmCell.fill(0); wmSx.fill(0); wmSy.fill(0); wmHit.fill(0); const o = W.owner; let anyWar = false; for (let k = 0; k < kds.length; k++) if (kds[k].alive) for (const w in kds[k].wars) { anyWar = true; break; }
+    let nf = 0; if (anyWar) { for (let y = 0; y < n - 2; y += 2) for (let x = 0; x < n - 2; x += 2) { const i = y * n + x, v = o[i]; if (!v) continue; const ta = tw[v - 1]; if (!ta || ta.kingdom < 0) continue;
+        for (let d = 0; d < 2; d++) { const u = o[d ? i + 2 * n : i + 2]; if (!u || u === v) continue; const tb = tw[u - 1]; if (!tb || tb.kingdom < 0 || tb.kingdom === ta.kingdom) continue; const ka = kds[ta.kingdom]; if (!ka || ka.wars[tb.kingdom] == null) continue;
+          const c = (y >> 4) * cn + (x >> 4); wmCell[c]++; wmSx[c] += x + 1; wmSy[c] += y + 1; const lo = Math.min(ta.kingdom, tb.kingdom), hi = Math.max(ta.kingdom, tb.kingdom); wmPair[c] = lo * 4096 + hi; wmHit[((lo & 63) << 6) | (hi & 63)] = 1; } }
+      for (let c = 0; c < cn * cn && nf < WM.MAXF; c++) if (wmCell[c] >= 2) { M.fX[nf] = wmSx[c] / wmCell[c]; M.fY[nf] = wmSy[c] / wmCell[c]; M.fA[nf] = (wmPair[c] / 4096) | 0; M.fB[nf] = wmPair[c] % 4096; M.fD[nf] = 0; nf++; }
+      // two kingdoms at war whose lands do not touch: the front is halfway between their two nearest towns
+      for (let a = 0; a < kds.length && nf < WM.MAXF; a++) { const ka = kds[a]; if (!ka.alive) continue; for (const w in ka.wars) { const b = +w; if (b <= a || wmHit[((a & 63) << 6) | (b & 63)]) continue; const kb = kds[b]; if (!kb || !kb.alive) continue;
+          let bd = 1e9, bx = 0, by = 0; for (const ia of ka.towns) { const A = tw[ia]; if (!A || !A.alive) continue; for (const ib of kb.towns) { const B = tw[ib]; if (!B || !B.alive) continue; const dd = Math.abs(A.cx - B.cx) + Math.abs(A.cy - B.cy); if (dd < bd) { bd = dd; bx = (A.cx + B.cx) / 2; by = (A.cy + B.cy) / 2; } } }
+          if (bd < 1e9 && nf < WM.MAXF) { M.fX[nf] = bx; M.fY[nf] = by; M.fA[nf] = a; M.fB[nf] = b; M.fD[nf] = 1; nf++; } } } }
+    M.nf = nf;
+    let nc = 0; for (let k = 0; k < tw.length && nc < 32; k++) { const t = tw[k]; if (t.alive && t.capT != null && sim.tick - t.capT < 2 * AL.YEAR && t.kingdom === t.capBy) M.cT[nc++] = k; } M.nc = nc;
+    const st = sim.stats; if (na) { st.wmArmies = (st.wmArmies || 0) + na; let big = 0; for (let k = 0; k < na; k++) if (aN[k] > big) big = aN[k]; if (big > (st.wmHost || 0)) st.wmHost = big; }
+    if (ns) st.wmSieges = (st.wmSieges || 0) + ns; if (nf) st.wmFronts = (st.wmFronts || 0) + nf; if (nc) st.wmCaptured = (st.wmCaptured || 0) + nc; M.dirty = true; };
+  AL.Sim.modules.push({ name: 'warmap',
+    init(sim) { const A = WM.MAXA, Fn = WM.MAXF; sim.warmap = { na: 0, ns: 0, nf: 0, nc: 0, dirty: false, sent: 0, aK: new Int16Array(A), aT: new Int16Array(A), aX: new Float32Array(A), aY: new Float32Array(A), aN: new Uint16Array(A), aS: new Uint8Array(A), sT: new Int16Array(32), sK: new Int16Array(32), fX: new Float32Array(Fn), fY: new Float32Array(Fn), fA: new Int16Array(Fn), fB: new Int16Array(Fn), fD: new Uint8Array(Fn), cT: new Int16Array(32) }; },
+    tick(sim) { if (sim.tick % 20 === 7 && sim.kingdoms && sim.towns) WM.scan(sim); },
+    snapshot(sim) { const M = sim.warmap; if (!M || !M.dirty) return null; M.dirty = false; const tot = M.na + M.ns + M.nf + M.nc; if (!tot && !M.sent) return null; M.sent = tot; const tw = sim.towns, kds = sim.kingdoms;
+      const o = { t: 'warmap', armies: [], sieges: [], fronts: [], taken: [], pairs: [] };
+      for (let k = 0; k < M.na; k++) { const t = tw[M.aT[k]], kd = kds[M.aK[k]]; if (!t || !kd) continue; o.armies.push([M.aX[k], M.aY[k], M.aN[k], M.aK[k], kd.people, t.cx, t.cy, M.aS[k]]); }
+      for (let k = 0; k < M.ns; k++) { const t = tw[M.sT[k]], kd = kds[M.sK[k]]; if (t && kd) o.sieges.push([t.cx, t.cy, M.sK[k], kd.people]); }
+      for (let k = 0; k < M.nf; k++) o.fronts.push([M.fX[k], M.fY[k], M.fA[k], M.fB[k], M.fD[k]]);
+      for (let k = 0; k < M.nc; k++) { const t = tw[M.cT[k]], kd = kds[t.capBy]; if (kd) o.taken.push([t.cx, t.cy, t.capBy, kd.people]); }
+      for (let a = 0; a < kds.length; a++) if (kds[a].alive) for (const w in kds[a].wars) if (+w > a) o.pairs.push(a, +w);
+      return o; } });
 })(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));

@@ -100,7 +100,7 @@
     if (UI.hidden) { UI.cineT -= dt; if (UI.cineT <= 0 && S.cur) { UI.cineT = 11; const m = S.cur; let pick = -1; for (let k = 0; k < 80 && pick < 0; k++) { const i = (Math.random() * m.n) | 0; if (m.alive[i] && m.kind[i] < AL.NPEOPLE && m.anim[i] !== 14) pick = i; } Game.follow = pick; if (Game.cam.tz < 2) Game.cam.tz = 2; } click = false; return; }
     if (!Game.map) { const s = t('ui.loading'); UI.text(s, (W - UI.textW(s, true)) >> 1, H >> 1, C.accent, true); click = false; return; }
     if (AL.App && AL.App.title) { titleScreen(dt); if (UI.win) windowFrame(dt); if (UI.toastT > 0) { const w = UI.textW(UI.toastS) + 12; panel((W - w) >> 1, 4, w, 15, C.bg2); UI.text(UI.toastS, ((W - w) >> 1) + 6, 6, C.accent); } click = false; wheelD = 0; return; }
-    topBar(); sideBar(); toolbar(); if (UI.mm) minimap(); eventLog(dt); if (UI.sheet) sheet(dt); if (UI.win) windowFrame(dt);
+    topBar(); sideBar(); toolbar(); if (S.layer === 2) warLegend(); if (UI.mm) minimap(); eventLog(dt); if (UI.sheet) sheet(dt); if (UI.win) windowFrame(dt);
     if (UI.toastT > 0) { const w = UI.textW(UI.toastS) + 12; panel((W - w) >> 1, 20, w, 15, C.bg2); UI.text(UI.toastS, ((W - w) >> 1) + 6, 22, C.accent); }
     // marker around the selected being (violet while controlled) and a flag where the last order was sent: a small flying eagle is otherwise hard to follow
     if (!UI.hidden && Game.cam) { const c = Game.cam, ctl = Game.hud && Game.hud.ctl >= 0 && Game.hud.ctl === S.sel, now = performance.now();
@@ -135,6 +135,11 @@
     let bx = W - 2 - SPEEDS.length * 19 - 18; const paused = Game.speed === 0; if (button('pause', bx, 0, 17, 15, { icon: paused ? 'play' : 'pause', sel: paused, tip: t('key.pause') })) Game.onAction('pause'); bx += 18;
     for (const sp of SPEEDS) { if (button('sp' + sp, bx, 0, 18, 15, { label: (sp < 1 ? '.5' : sp), sel: Game.speed === sp, tip: t('ui.speed') + ' x' + sp })) Game.setSpeed(sp); bx += 19; } }
   // ------------------------------------------------------------ side buttons
+  // legend of the wars layer (chantier B.5): the four markers, drawn as they are on the map
+  const WLEG = [['army/1', 'war.army'], ['front', 'war.front'], ['siege', 'war.siege'], ['taken', 'war.taken']];
+  function mark(name) { let c = pics['mk/' + name]; if (c !== undefined) return c; const f = A.frames['mark/' + name]; return (pics['mk/' + name] = f ? A.toCanvas(f, 9) : null); }
+  function warLegend() { let w = 0; for (const [, k] of WLEG) w = Math.max(w, UI.textW(t(k))); const x = W - w - 26, y = 18, h = WLEG.length * 15 + 5; panel(x, y, w + 24, h); let yy = y + 3;
+    for (const [nm, k] of WLEG) { const c = mark(nm); if (c) g.drawImage(c, x + 3 + ((14 - c.width) >> 1), yy + ((14 - c.height) >> 1)); UI.text(t(k), x + 20, yy + 3, C.text); yy += 15; } }
   function sideBar() { const B = [['lists', 'kingdoms', 'win.lists'], ['history', 'history', 'win.history'], ['stats', 'stats', 'win.stats'], ['layers', 'layers', 'ui.layers'], ['minimap', 'minimap', 'ui.minimap'], ['cinema', 'cinema', 'ui.cinema'], ['saves', 'saves', 'win.saves'], ['options', 'options', 'win.options'], ['new', 'newworld', 'win.new']]; let y = 18;
     for (const [id, ic, name] of B) { if (button('side' + id, 1, y, 18, 18, { icon: ic, tip: t(name) + (id === 'layers' && S.layer ? ': ' + t('layer.' + S.layer) : ''), sel: UI.win === id || (id === 'layers' && S.layer > 0) || (id === 'minimap' && UI.mm) })) { if (id === 'layers') S.setLayer((S.layer + 1) % 8); else if (id === 'minimap') UI.mm = !UI.mm; else if (id === 'cinema') UI.cinema(true); else UI.openWin(id); } y += 19; } }
   // ------------------------------------------------------------ toolbar

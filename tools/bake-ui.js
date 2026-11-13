@@ -6,8 +6,12 @@ for (const big of [false, true]) { const at = new Atlas(big ? 'fontb' : 'font', 
   for (const ch of F.chars()) { let g = F.glyph(ch); if (!g) continue; if (big) g = F.enlarge(g); const im = new Img(g.w, g.h); for (let i = 0; i < g.bits.length; i++) if (g.bits[i]) im.d[i] = 35; at.add('g/' + ch.codePointAt(0), im, 0, 0); }
   at.save(); console.log((big ? 'fontb' : 'font') + ' glyphs ' + Object.keys(at.frames).length + ' atlas ' + at.img.w + 'x' + at.img.h); }
 // far-view marks (pipeline B): what a unit looks like when the camera is too far for its sprite
-{ const { ix } = require('./lib/mats'); const at = new Atlas('marks', { maxW: 64, pad: 1 }), K = { o: ix('earth', 0), s: ix('skin', 4), T: 132, t: 130 };
-  at.add('mark/unit/0', Img.fromGrid(['.o.', 'oso', 'oTo', 'oto', '.o.'], K), 1, 4); at.save(); console.log('marks ' + Object.keys(at.frames).length); }
+{ const { ix } = require('./lib/mats'); const at = new Atlas('marks', { maxW: 128, pad: 1 }), K = { o: ix('earth', 0), s: ix('skin', 4), T: 132, t: 130 };
+  at.add('mark/unit/0', Img.fromGrid(['.o.', 'oso', 'oTo', 'oto', '.o.'], K), 1, 4);
+  // war-map markers (chantier B.5): tools/art/marks.js
+  const WK = { o: ix('earth', 0), T: 132, t: 130, d: 128, M: ix('stone', 5), S: ix('stone', 3), s: ix('stone', 4), n: ix('stone', 1), w: ix('earth', 3), k: ix('sand', 4), K: ix('sand', 5), F: ix('fire', 4), f: ix('fire', 2) };
+  const MG = require('./art/marks').GRIDS; for (const k in MG) { const g = MG[k], im = Img.fromGrid(g, WK); at.add('mark/' + k, im, (im.w / 2) | 0, k.startsWith('army') || k === 'siege' || k === 'taken' ? im.h - 1 : (im.h / 2) | 0); }
+  at.save(); console.log('marks ' + Object.keys(at.frames).length); }
 
 // icons (pipeline B): tools/art/icons.js -> atlas 'icons', frames 'ic/<name>'. Outline: tone 0 of the ink ramp of the neighbouring colour.
 { const { ix } = require('./lib/mats'); const { I, RAMP } = require('./art/icons'); const INKR = { grass: 'forest', forest: 'forest', jungle: 'forest', sand: 'earth', earth: 'earth', stone: 'stone', water: 'water', ice: 'water', skin: 'earth', red: 'red', fire: 'red', magic: 'magic', swamp: 'swamp', teal: 'teal', royal: 'water', pink: 'red' };

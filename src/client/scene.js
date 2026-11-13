@@ -49,14 +49,29 @@
     const idOf = [];
     for (let t = 0; t < tw.length; t++) { const T = tw[t]; if (!T) { idOf[t] = 0; continue; } const kd = T[0]; let id, ramp, tone = 3;
       if (L === 1) { id = kd >= 0 ? (kd % 200) + 1 : 201 + (t % 54); ramp = S.teamOf(T[1], kd); }
-      else if (L === 2) { const w = kd >= 0 && kw[kd] > 0; id = w ? 1 + (kd % 100) : 150; ramp = w ? 9 : 5; tone = w ? 2 + (kd % 3) : 3; }
+      else if (L === 2) { const w = kd >= 0 && kw[kd] > 0; id = w ? 1 + (kd % 100) : 150; ramp = w ? S.teamOf(T[1], kd) : 5; tone = 3; }
       else if (L === 3) { const a = kd >= 0 ? ka[kd] : -1; id = a >= 0 ? 1 + (a % 100) : 150; ramp = a >= 0 ? LRAMP[(a + 1) % LRAMP.length] : 5; }
       else if (L === 4) { const r = T[5]; id = r >= 0 ? 1 + (r % 100) : 150; ramp = r >= 0 ? LRAMP[(r * 5 + 3) % LRAMP.length] : 5; tone = r >= 0 ? 3 + (r % 2) : 3; }
       else if (L === 5) { const c = T[6]; id = c >= 0 ? 1 + (c % 100) : 150; ramp = c >= 0 ? LRAMP[(c * 7 + 1) % LRAMP.length] : 5; tone = c >= 0 ? 2 + (c % 3) : 3; }
       else { const p = T[7] || 0, b = p < 10 ? 1 : p < 25 ? 2 : p < 50 ? 3 : 4; id = b; ramp = 10; tone = b; }
       idOf[t] = id; setc(id, ramp, tone); }
     for (let i = 0; i < ids.length; i++) { const v = o[i]; ids[i] = v ? (idOf[v - 1] || 0) : 0; }
+    // wars layer: the front line, two tiles thick, where the lands of two kingdoms at war touch
+    if (L === 2 && S.warPairs && S.warPairs.size) { const wp = S.warPairs; setc(250, 10, 4); for (let y = 0; y < n - 1; y++) for (let x = 0; x < n - 1; x++) { const i = y * n + x, v = o[i]; if (!v) continue; const ta = tw[v - 1]; if (!ta || ta[0] < 0) continue;
+        for (let d = 0; d < 2; d++) { const j = d ? i + n : i + 1, u = o[j]; if (!u || u === v) continue; const tb = tw[u - 1]; if (!tb || tb[0] < 0 || tb[0] === ta[0]) continue; const lo = Math.min(ta[0], tb[0]), hi = Math.max(ta[0], tb[0]); if (wp.has(lo * 4096 + hi)) { ids[i] = 250; ids[j] = 250; } } } }
     G.setLayer(ids, pal); G.layerOn = 1; };
+  // ---- reading the war (chantier B.5): armies on the march, fronts, sieges and towns taken, drawn over the wars layer at a constant size on the screen
+  Game.on('warmap', m => { S.warmap = m; let key = m.pairs.join(','); if (key !== S._wpk) { S._wpk = key; const wp = S.warPairs = new Set(); for (let k = 0; k < m.pairs.length; k += 2) wp.add(m.pairs[k] * 4096 + m.pairs[k + 1]); if (S.layer === 2) S.applyLayer(); } });
+  S.drawWar = function (G, t) { const m = S.warmap; if (!m || S.layer !== 2) return; const fr = AL.Assets.frames, z = Game.cam.z, sc = Math.max(0.7, Math.min(8, 2 / z)), ZB = 3000, FLG = 40; let nd = 0;
+    const fF = fr['mark/front'], fD = fr['mark/far'], fS = fr['mark/siege'], fT = fr['mark/taken'], fP = fr['mark/step']; if (!fF) return;
+    for (let k = 0; k < m.fronts.length; k++) { const f = m.fronts[k], pulse = ((t * 2 + k * 0.37) | 0) & 1; G.spr(f[4] ? fD : fF, f[0] * 8, f[1] * 8 - (f[4] ? 0 : pulse * sc), 0, FLG, 0, 1, sc, ZB); nd++; }
+    for (let k = 0; k < m.taken.length; k++) { const c = m.taken[k]; let bes = false; for (let q = 0; q < m.sieges.length; q++) if (m.sieges[q][0] === c[0] && m.sieges[q][1] === c[1]) bes = true; if (bes) continue; G.spr(fT, c[0] * 8, c[1] * 8 - 14 * sc, S.teamOf(c[3], c[2]), FLG, 0, 1, sc, ZB + 1); nd++; }
+    for (let k = 0; k < m.sieges.length; k++) { const c = m.sieges[k], bob = ((t * 3 + k) | 0) & 1; G.spr(fS, c[0] * 8, c[1] * 8 - (14 + bob) * sc, 0, FLG, 0, 1, sc, ZB + 2); nd++; }
+    for (let k = 0; k < m.armies.length; k++) { const a = m.armies[k], team = S.teamOf(a[4], a[3]), ax = a[0] * 8, ay = a[1] * 8, tx = a[5] * 8, ty = a[6] * 8, dx = tx - ax, dy = ty - ay, len = Math.sqrt(dx * dx + dy * dy);
+      if (!a[7] && len > 22 * sc) { const ux = dx / len, uy = dy / len, gap = 6 * sc, end = len - 9 * sc, ph = (t * 1.6) % 1; let q = 0; for (let d = 7 * sc + ph * gap; d < end && q < 90; d += gap, q++) G.spr(fP, ax + ux * d, ay + uy * d, team, FLG, 0, 1, sc, ZB + 3);
+        const h = fr['mark/head/' + ((Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) + 8) % 8)]; if (h) G.spr(h, ax + ux * end, ay + uy * end, team, FLG, 0, 1, sc, ZB + 3); }
+      const f = fr['mark/army/' + (a[2] < 8 ? 0 : a[2] < 20 ? 1 : 2)]; if (f) { G.spr(f, ax, ay - (4 + (((t * 2.5 + k) | 0) & 1)) * sc, team, FLG, 0, 1, sc, ZB + 4); nd++; } }
+    S.warDrawn = nd; };
   S.setLayer = function (v) { S.layer = v; S.applyLayer(); };
   // ---- day / night ambience (refined with weather and ages in the effects module)
   const KEYS = [[0.00, 0.50, 0.52, 0.80], [0.05, 0.86, 0.72, 0.74], [0.12, 1.0, 0.98, 0.94], [0.50, 1.02, 1.0, 0.96], [0.62, 1.0, 0.86, 0.72], [0.70, 0.78, 0.60, 0.74], [0.76, 0.46, 0.48, 0.78], [1.0, 0.50, 0.52, 0.80]];
@@ -80,6 +95,7 @@
     S.nBlds = nb;
     S.drawBoats(G, vx0, vy0, vx1, vy1, Game.time, far);
     S.drawMachines(G, vx0, vy0, vx1, vy1, Game.time, far);
+    if (S.layer === 2) S.drawWar(G, Game.time);
     // units
     const m = S.cur; let nu = 0; S.selPos = null; if (!m) { S.nUnits = 0; return; }
     const pv = S.prev, now = performance.now() / 1000, al = Math.min(1, (now - S.t0) / S.dur), t = Game.time, np = AL.NPEOPLE, mk = far ? markUnit() : null;
