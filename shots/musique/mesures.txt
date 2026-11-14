@@ -1,0 +1,99 @@
+
+== calm — Fields Before Noon ==
+source: 97.23 s, tempo measured 83.36 bpm (wanted 84), bar 2.879 s, first beat 0.549 s
+stems kept: guitar, other, vocals ; lag of their sum against the mix 25.1 ms (correlation 0.993) ; what the kept stems miss of the mix: -16.5 dB below the mix
+cut: intro 25.600 s (8 bars + cross-fade 2 s), loop 69.098 s (24 bars)
+loudness of the loop: -14.9 LUFS, peak -2.8 dBFS -> gain -3.1 dB -> -18 LUFS, peak -5.9 dBFS (target -18)
+  layer base    <- guitar             level  -27.0 dB, 56 kbit/s, 650 KB
+  layer pad     <- other              level  -25.5 dB, 56 kbit/s, 650 KB
+  layer melody  <- vocals             level  -28.6 dB, 40 kbit/s mono, 464 KB
+decoded MP3 against what was encoded (ffmpeg decoder): base 25.1 ms (corr 0.998), pad 25.0 ms (corr 0.983), melody 25.0 ms (corr 0.969) -> spread between layers 0.05 ms
+loop seam: largest sample step at the seam 0.0133 (99.9 % of the steps inside the loop are under 0.0866) -> no click ; level 0.4 s after against 0.4 s before the seam: 0.6 dB (largest such step inside the loop: 5.5 dB)
+weight: 1764 KB of MP3, 2352 KB as assets/music/music-calm.js
+
+== night — Lanterns ==
+source: 56.03 s, tempo measured 59.92 bpm (wanted 60), bar 4.005 s, first beat 0.02 s
+stems kept: guitar, piano, other, vocals ; lag of their sum against the mix 25.0 ms (correlation 0.984) ; what the kept stems miss of the mix: -15.1 dB below the mix
+cut: intro 6.043 s (1 bars + cross-fade 2 s), loop 48.064 s (12 bars)
+loudness of the loop: -17.5 LUFS, peak -3.9 dBFS -> gain -0.5 dB -> -18 LUFS, peak -4.4 dBFS (target -18)
+  layer base    <- guitar+piano       level  -29.7 dB, 56 kbit/s, 372 KB
+  layer pad     <- other              level  -34.4 dB, 56 kbit/s, 372 KB
+  layer melody  <- vocals             level  -22.2 dB, 40 kbit/s mono, 266 KB
+decoded MP3 against what was encoded (ffmpeg decoder): base 25.0 ms (corr 0.999), pad 25.0 ms (corr 0.994), melody 25.0 ms (corr 0.975) -> spread between layers 0.00 ms
+loop seam: largest sample step at the seam 0.0225 (99.9 % of the steps inside the loop are under 0.1129) -> no click ; level 0.4 s after against 0.4 s before the seam: -4.6 dB (largest such step inside the loop: 10.3 dB)
+weight: 1011 KB of MP3, 1348 KB as assets/music/music-night.js
+
+== war — Iron Oaths ==
+source: 56.40 s, tempo measured 131.68 bpm (wanted 132), bar 1.823 s, first beat 0.012 s
+stems kept: guitar, other, vocals, drums ; lag of their sum against the mix 25.1 ms (correlation 0.989) ; what the kept stems miss of the mix: -14.9 dB below the mix
+cut: intro 3.925 s (2 bars + cross-fade 0.25 s), loop 51.033 s (28 bars)
+loudness of the loop: -12.4 LUFS, peak -1 dBFS -> gain -5.6 dB -> -18 LUFS, peak -6.6 dBFS (target -18)
+  layer base    <- guitar             level  -33.2 dB, 56 kbit/s, 378 KB
+  layer pad     <- other              level  -28.2 dB, 56 kbit/s, 378 KB
+  layer melody  <- vocals             level  -26.7 dB, 40 kbit/s mono, 270 KB
+  layer rhythm  <- drums              level  -29.7 dB, 48 kbit/s mono, 324 KB
+decoded MP3 against what was encoded (ffmpeg decoder): base 25.1 ms (corr 0.992), pad 25.0 ms (corr 0.985), melody 25.1 ms (corr 0.988), rhythm 25.1 ms (corr 0.984) -> spread between layers 0.05 ms
+loop seam: largest sample step at the seam 0.0158 (99.9 % of the steps inside the loop are under 0.0583) -> no click ; level 0.4 s after against 0.4 s before the seam: 0.3 dB (largest such step inside the loop: 7.2 dB)
+weight: 1351 KB of MP3, 1801 KB as assets/music/music-war.js
+
+== menu — The Crown in the Dust ==
+source: 60.03 s, tempo measured 72.02 bpm (wanted 72), bar 3.332 s, first beat 0.226 s
+stems kept: other, guitar, vocals ; lag of their sum against the mix 25.1 ms (correlation 0.979) ; what the kept stems miss of the mix: -13.4 dB below the mix
+cut: intro 2.744 s (0 bars + cross-fade 2.5 s), loop 53.319 s (16 bars)
+loudness of the loop: -20.1 LUFS, peak -5.8 dBFS -> gain 2.1 dB -> -18 LUFS, peak -3.7 dBFS (target -18)
+  layer base    <- other+guitar       level  -26.0 dB, 56 kbit/s, 386 KB
+  layer melody  <- vocals             level  -24.9 dB, 40 kbit/s mono, 276 KB
+decoded MP3 against what was encoded (ffmpeg decoder): base 25.0 ms (corr 0.973), melody 25.1 ms (corr 0.976) -> spread between layers 0.05 ms
+loop seam: largest sample step at the seam 0.0042 (99.9 % of the steps inside the loop are under 0.1478) -> no click ; level 0.4 s after against 0.4 s before the seam: 1.1 dB (largest such step inside the loop: 17.2 dB)
+weight: 661 KB of MP3, 882 KB as assets/music/music-menu.js
+
+== disaster — Ashfall ==
+source: 54.05 s, tempo measured 120.18 bpm (wanted 120), bar 1.997 s, first beat 0.012 s
+stems kept: other, guitar, piano, vocals, drums ; lag of their sum against the mix 25.0 ms (correlation 0.977) ; what the kept stems miss of the mix: -14.4 dB below the mix
+cut: intro 0.280 s (0 bars + cross-fade 0.25 s), loop 47.928 s (24 bars)
+loudness of the loop: -13.4 LUFS, peak -0.9 dBFS -> gain -4.6 dB -> -18 LUFS, peak -5.5 dBFS (target -18)
+  layer base    <- other+guitar+piano level  -26.4 dB, 56 kbit/s, 332 KB
+  layer melody  <- vocals             level  -27.1 dB, 40 kbit/s mono, 237 KB
+  layer rhythm  <- drums              level  -29.8 dB, 48 kbit/s mono, 285 KB
+decoded MP3 against what was encoded (ffmpeg decoder): base 25.1 ms (corr 0.993), melody 25.0 ms (corr 0.934), rhythm 25.1 ms (corr 0.998) -> spread between layers 0.05 ms
+loop seam: largest sample step at the seam 0.0178 (99.9 % of the steps inside the loop are under 0.0968) -> no click ; level 0.4 s after against 0.4 s before the seam: 2.8 dB (largest such step inside the loop: 8.5 dB)
+weight: 854 KB of MP3, 1139 KB as assets/music/music-disaster.js
+
+== frost — White Silence ==
+source: 62.28 s, tempo measured 54 bpm (wanted 54), bar 4.444 s, first beat 0.012 s
+stems kept: other, piano, vocals ; lag of their sum against the mix 25.1 ms (correlation 0.977) ; what the kept stems miss of the mix: -12.9 dB below the mix
+cut: intro 3.030 s (0 bars + cross-fade 3 s), loop 53.333 s (12 bars)
+loudness of the loop: -21.8 LUFS, peak -5.2 dBFS -> gain 3.8 dB -> -18 LUFS, peak -1.4 dBFS (target -18)
+  layer base    <- other+piano        level  -29.1 dB, 56 kbit/s, 388 KB
+  layer melody  <- vocals             level  -23.3 dB, 40 kbit/s mono, 277 KB
+decoded MP3 against what was encoded (ffmpeg decoder): base 25.1 ms (corr 0.983), melody 25.0 ms (corr 0.975) -> spread between layers 0.05 ms
+loop seam: largest sample step at the seam 0.0039 (99.9 % of the steps inside the loop are under 0.1686) -> no click ; level 0.4 s after against 0.4 s before the seam: -1.9 dB (largest such step inside the loop: 23.1 dB)
+weight: 665 KB of MP3, 886 KB as assets/music/music-frost.js
+
+== dunes — Caravan of Embers ==
+source: 57.55 s, tempo measured 96.14 bpm (wanted 96), bar 2.496 s, first beat 0.456 s
+stems kept: guitar, other, vocals ; lag of their sum against the mix 25.1 ms (correlation 0.994) ; what the kept stems miss of the mix: -16.2 dB below the mix
+cut: intro 12.459 s (4 bars + cross-fade 2 s), loop 39.942 s (16 bars)
+loudness of the loop: -14.1 LUFS, peak -3.1 dBFS -> gain -3.9 dB -> -18 LUFS, peak -7 dBFS (target -18)
+  layer base    <- guitar             level  -28.4 dB, 56 kbit/s, 361 KB
+  layer pad     <- other              level  -23.6 dB, 56 kbit/s, 361 KB
+  layer melody  <- vocals             level  -28.5 dB, 40 kbit/s mono, 258 KB
+decoded MP3 against what was encoded (ffmpeg decoder): base 25.1 ms (corr 0.993), pad 25.0 ms (corr 0.994), melody 25.1 ms (corr 0.957) -> spread between layers 0.05 ms
+loop seam: largest sample step at the seam 0.0355 (99.9 % of the steps inside the loop are under 0.0952) -> no click ; level 0.4 s after against 0.4 s before the seam: -1.1 dB (largest such step inside the loop: 6.6 dB)
+weight: 979 KB of MP3, 1306 KB as assets/music/music-dunes.js
+
+== tide — Salt Wind ==
+source: 54.05 s, tempo measured 80.12 bpm (wanted 80), bar 2.996 s, first beat 0.041 s
+stems kept: guitar, other, vocals ; lag of their sum against the mix 25.0 ms (correlation 0.973) ; what the kept stems miss of the mix: -13.9 dB below the mix
+cut: intro 2.559 s (0 bars + cross-fade 2.5 s), loop 47.928 s (16 bars)
+loudness of the loop: -13.8 LUFS, peak -1.9 dBFS -> gain -4.2 dB -> -18 LUFS, peak -6.1 dBFS (target -18)
+  layer base    <- guitar             level  -30.2 dB, 56 kbit/s, 348 KB
+  layer pad     <- other              level  -27.3 dB, 56 kbit/s, 348 KB
+  layer melody  <- vocals             level  -24.1 dB, 40 kbit/s mono, 248 KB
+decoded MP3 against what was encoded (ffmpeg decoder): base 25.0 ms (corr 0.997), pad 25.1 ms (corr 0.980), melody 25.0 ms (corr 0.970) -> spread between layers 0.05 ms
+loop seam: largest sample step at the seam 0.0176 (99.9 % of the steps inside the loop are under 0.1270) -> no click ; level 0.4 s after against 0.4 s before the seam: -0.1 dB (largest such step inside the loop: 6.9 dB)
+weight: 943 KB of MP3, 1258 KB as assets/music/music-tide.js
+
+chain written: calm from 0.0 s, night from 25.9 s, war from 49.9 s (each change falls on a bar line of the track that was playing)
+
+TOTAL music shipped: 10.72 MB in 8 files (budget 12 MB)

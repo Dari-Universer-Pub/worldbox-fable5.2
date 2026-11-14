@@ -1,0 +1,69 @@
+{
+  "model_id": "music_v2_5",
+  "conditioning_ref": "6d62s8om3WvF29B6BgvY_upload",
+  "composition_plan": {
+    "chunks": [
+      {
+        "text": "Lanterns. 60 BPM, 4/4, B minor. Quiet night: slow soft strings hold long chords, a lute plucks sparse single notes, small bells ring far away. Still and tender.",
+        "duration_ms": 24000,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "slow sustained strings",
+          "sparse lute",
+          "small bells",
+          "nocturne",
+          "60 bpm",
+          "B minor"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "drums",
+          "loud"
+        ]
+      },
+      {
+        "text": "Same tempo and key. A low wooden flute sings a slow lullaby melody over the strings and the sparse lute; bells answer softly. Steady and calm, the music keeps going at the same level.",
+        "duration_ms": 32000,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "slow sustained strings",
+          "sparse lute",
+          "low wooden flute melody",
+          "small bells",
+          "nocturne",
+          "steady loop",
+          "60 bpm",
+          "B minor"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "drums",
+          "loud"
+        ]
+      }
+    ]
+  },
+  "seed": 6001
+}

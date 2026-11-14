@@ -1,0 +1,20 @@
+{
+  "model_id": "music_v2_5",
+  "composition_plan": {
+    "chunks": [
+      { "text": "Fields Before Noon. 84 BPM, 4/4, D major. A lute plays a steady flowing arpeggio over soft sustained strings; a wooden flute enters with a simple pastoral melody. Peaceful village morning.", "duration_ms": 22860,
+        "positive_styles": ["medieval fantasy folk", "lute arpeggio", "wooden flute melody", "soft string ensemble", "small bells", "warm wooden hall reverb", "instrumental", "84 bpm", "D major"],
+        "negative_styles": ["vocals", "choir", "electronic", "synthesizer", "electric guitar", "heavy drums", "tempo changes", "fade out"] },
+      { "text": "Same tempo and key. The flute repeats the melody with a small variation and a higher ending; a light hand drum and tambourine join quietly; small bells answer the flute.", "duration_ms": 22860,
+        "positive_styles": ["medieval fantasy folk", "lute arpeggio", "wooden flute melody", "soft string ensemble", "small bells", "light hand drum", "instrumental", "84 bpm", "D major"],
+        "negative_styles": ["vocals", "choir", "electronic", "synthesizer", "electric guitar", "heavy drums", "tempo changes", "fade out"] },
+      { "text": "Same tempo and key. Contrasting middle part: the strings rise warmly to G major and B minor, the flute sings longer notes, the lute keeps its arpeggio, the hand drum stays light.", "duration_ms": 22860,
+        "positive_styles": ["medieval fantasy folk", "lute arpeggio", "wooden flute melody", "warm string ensemble", "small bells", "light hand drum", "instrumental", "84 bpm", "D major"],
+        "negative_styles": ["vocals", "choir", "electronic", "synthesizer", "electric guitar", "heavy drums", "tempo changes", "fade out"] },
+      { "text": "Same tempo and key. Return of the first flute melody over lute, strings, bells and light hand drum, steady and full, no ending and no slowing down: the music keeps going at the same level.", "duration_ms": 28570,
+        "positive_styles": ["medieval fantasy folk", "lute arpeggio", "wooden flute melody", "soft string ensemble", "small bells", "light hand drum", "instrumental", "84 bpm", "D major", "steady loop"],
+        "negative_styles": ["vocals", "choir", "electronic", "synthesizer", "electric guitar", "heavy drums", "tempo changes", "fade out", "ending", "ritardando"] }
+    ]
+  },
+  "seed": 8401
+}

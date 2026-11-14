@@ -104,20 +104,53 @@
       if (nn !== '-') ev.push({ pos, len, notes: nn.split('+').map(parseNote).filter(v => v != null), acc }); pos += len; } return { ev, len: pos }; }
   const M = A.Music = { cur: null, layers: {}, timer: null, layerGain: {}, intensity: {} };
   function compile(track) { if (track._c) return track._c; const c = { parts: {} }; for (const tr of track.tracks) for (const p in tr.parts) (c.parts[p] = c.parts[p] || []).push({ tr, pat: parsePattern(tr.parts[p]) }); track._c = c; return c; }
-  M.play = function (id, fade) {
-    if (!A.ready) return; const T = AL.DATA.music.tracks[id]; if (!T || (M.cur && M.cur.id === id)) return; fade = fade == null ? 2.5 : fade; const now = ctx.currentTime;
-    if (M.cur) { const old = M.cur; old.out.gain.cancelScheduledValues(now); old.out.gain.setValueAtTime(old.out.gain.value, now); old.out.gain.linearRampToValueAtTime(0, now + fade); old.dead = now + fade + 0.5; }
+  // ---------- recorded music (chantier C.11): every track is a set of layers (stems) of the same length cut on the bar grid, shipped as
+  // base64 MP3 in game/music-<id>.js (script tags: works from file://). The compressed bytes of the 8 tracks stay in memory (about 8 MB);
+  // decoded sound is kept for the track that plays and the one before it only. Whatever fails (script, decoding) falls back to the synthesizer.
+  const R = M.rec = { raw: {}, buf: {}, state: {}, meta: {}, order: ['menu', 'calm', 'night', 'war', 'disaster', 'tide', 'dunes', 'frost'], on: typeof document !== 'undefined' };
+  function fadeOut(old, at, fade) { const g = old.out.gain, now = ctx.currentTime; g.cancelScheduledValues(now); g.setValueAtTime(g.value, now); if (at > now) g.setValueAtTime(g.value, at); g.linearRampToValueAtTime(0, at + fade); old.dead = at + fade + 0.5; if (old.srcs) for (const s of old.srcs) { try { s.stop(at + fade + 0.3); } catch (e) { } } }
+  function bytes(b64) { const bin = atob(b64), n = bin.length, u = new Uint8Array(n); for (let i = 0; i < n; i++) u[i] = bin.charCodeAt(i); return u.buffer; }
+  function fail(id) { R.state[id] = 'failed'; delete R.raw[id]; delete R.buf[id]; if (M.want === id && A.ready) playSynth(id, M.wantFade); }
+  // fetch the script of a track (once), keep its compressed bytes
+  R.load = function (id, cb) { if (R.raw[id]) return cb && cb(); if (R.state[id] === 'failed' || !R.on) return; (R.wait[id] = R.wait[id] || []).push(cb); if (R.state[id] === 'loading') return; R.state[id] = 'loading';
+    const done = () => { const d = (typeof window !== 'undefined' && window.AL_MUSIC || {})[id]; if (!d) return fail(id); try { const raw = {}; for (const g in d.stems) raw[g] = bytes(d.stems[g]); d.stems = null; R.raw[id] = raw; R.meta[id] = d; R.state[id] = 'loaded'; } catch (e) { return fail(id); } const w = R.wait[id]; R.wait[id] = null; for (const f of w) if (f) f(); };
+    if (typeof window !== 'undefined' && window.AL_MUSIC && window.AL_MUSIC[id]) return done(); const s = document.createElement('script'); s.src = 'music-' + id + '.js'; s.onload = done; s.onerror = () => fail(id); document.body.appendChild(s); };
+  R.wait = {};
+  // decoded layers of a track, decoding them if needed; drops the decoded sound of the tracks that neither play nor are asked for
+  R.ensure = function (id, cb) { if (R.buf[id]) return cb(); R.load(id, () => { if (R.buf[id]) return cb(); if (R.state[id] === 'decoding') { (R.wait['d' + id] = R.wait['d' + id] || []).push(cb); return; } R.state[id] = 'decoding'; R.wait['d' + id] = [cb];
+      const raw = R.raw[id], names = Object.keys(raw), out = {}; let left = names.length, bad = false;
+      const end = () => { if (--left) return; if (bad) return fail(id); R.buf[id] = out; R.state[id] = 'ready'; for (const k in R.buf) if (k !== id && !(M.cur && M.cur.id === k) && k !== M.want) delete R.buf[k]; const w = R.wait['d' + id]; R.wait['d' + id] = null; for (const f of w) f(); };
+      for (const g of names) { try { const p = ctx.decodeAudioData(raw[g].slice(0), b => { out[g] = b; end(); }, () => { bad = true; end(); }); if (p && p.catch) p.catch(() => { }); } catch (e) { bad = true; end(); } } }); };
+  // the other tracks are fetched one after the other in the background, the menu first
+  R.preload = function () { if (!R.on || R.preloading) return; R.preloading = true; let k = 0; const next = () => { if (k >= R.order.length) return; const id = R.order[k++]; if (!AL.DATA.music.tracks[id] || !AL.DATA.music.tracks[id].audio) return next(); R.load(id, () => setTimeout(next, 400)); if (R.state[id] === 'failed') setTimeout(next, 400); }; next(); };
+  const layerOf = k => M.layers[k] == null ? (k === 'base' ? 1 : 0) : M.layers[k];
+  function stemGain(meta, g) { const w = meta.layers[g]; let v = 0; for (const k in w) v += w[k] * layerOf(k); return Math.max(0, Math.min(1, v)); }
+  function playRec(id, fade) { const T = AL.DATA.music.tracks[id], meta = R.meta[id], bufs = R.buf[id]; if (M.cur && M.cur.id === id) return; fade = fade == null ? 2.5 : fade; const now = ctx.currentTime, old = M.cur; let when = now + 0.06;
+    // the change falls on the next bar line of the track that plays (its grid keeps running through the loop, which is a whole number of bars)
+    if (old && old.rec && now - old.at > 1.5) { const k = Math.max(0, Math.ceil((when - old.t0 - old.first) / old.bar)), t = old.t0 + old.first + k * old.bar; if (t - now < 5) when = Math.max(when, t); }
+    if (old) fadeOut(old, when, fade);
+    const out = ctx.createGain(); out.gain.setValueAtTime(0, now); out.gain.setValueAtTime(0, when); out.gain.linearRampToValueAtTime(T.vol == null ? 1 : T.vol, when + Math.max(0.05, fade)); out.connect(buses.music);
+    const sg = {}, srcs = []; for (const g in bufs) { const gn = ctx.createGain(); gn.gain.value = stemGain(meta, g); gn.connect(out); const s = ctx.createBufferSource(); s.buffer = bufs[g]; s.loop = true; s.loopStart = meta.loopStart; s.loopEnd = meta.loopStart + meta.loop; s.connect(gn); s.start(when); sg[g] = gn; srcs.push(s); }
+    M.cur = { id, T, rec: true, out, lg: {}, sg, srcs, meta, t0: when, first: meta.first, bar: meta.bar, at: when }; M.switches = (M.switches || 0) + 1; }
+  M.play = function (id, fade) { if (!A.ready) return; const T = AL.DATA.music.tracks[id]; if (!T) return; M.want = id; M.wantFade = fade;
+    if (!R.on || A.offline || !T.audio || R.state[id] === 'failed') return playSynth(id, fade);
+    R.preload(); R.ensure(id, () => { if (M.want === id && A.ready) playRec(id, M.wantFade); }); };
+  M.stop = function (fade) { M.want = null; if (!M.cur) return; fadeOut(M.cur, ctx.currentTime, fade || 1.5); M.cur = null; };
+  // adaptive mix: target gain per layer name (0..1), smoothed; a recorded layer follows the layers music.json gives it (weights)
+  M.setLayers = function (targets, tc) { for (const k in targets) { M.layers[k] = targets[k]; if (M.cur && M.cur.lg[k]) M.cur.lg[k].gain.setTargetAtTime(targets[k], ctx.currentTime, tc || 1.2); }
+    if (M.cur && M.cur.rec) for (const g in M.cur.sg) M.cur.sg[g].gain.setTargetAtTime(stemGain(M.cur.meta, g), ctx.currentTime, tc || 1.2); };
+  // the synthesized score of music.json: kept as the fallback when the recorded music cannot be loaded or decoded (and for the offline measures)
+  function playSynth(id, fade) {
+    const T = AL.DATA.music.tracks[id]; if (!T || (M.cur && M.cur.id === id)) return; fade = fade == null ? 2.5 : fade; const now = ctx.currentTime;
+    if (M.cur) fadeOut(M.cur, now, fade);
     const out = ctx.createGain(); out.gain.setValueAtTime(0, now); out.gain.linearRampToValueAtTime(T.vol == null ? 1 : T.vol, now + fade); out.connect(buses.music);
     const lg = {}; for (const tr of T.tracks) { const ln = tr.layer || 'base'; if (!lg[ln]) { lg[ln] = ctx.createGain(); lg[ln].gain.value = M.layers[ln] == null ? (ln === 'base' ? 1 : 0) : M.layers[ln]; lg[ln].connect(out); } }
     M.cur = { id, T, c: compile(T), out, lg, next: now + 0.1, formPos: 0, step: 0, loops: 0 };
     if (!M.timer && typeof setInterval !== 'undefined' && !A.offline) M.timer = setInterval(M.pump, 60);
     M.pump();
-  };
-  M.stop = function (fade) { if (!M.cur) return; const now = ctx.currentTime; M.cur.out.gain.setValueAtTime(M.cur.out.gain.value, now); M.cur.out.gain.linearRampToValueAtTime(0, now + (fade || 1.5)); M.cur = null; };
-  // adaptive mix: target gain per layer name (0..1), smoothed
-  M.setLayers = function (targets, tc) { for (const k in targets) { M.layers[k] = targets[k]; if (M.cur && M.cur.lg[k]) M.cur.lg[k].gain.setTargetAtTime(targets[k], ctx.currentTime, tc || 1.2); } };
+  }
   M.pump = function (horizon) {
-    const S = M.cur; if (!S) return; const T = S.T, stepDur = 60 / T.bpm / 4, until = ctx.currentTime + (horizon || 0.35);
+    const S = M.cur; if (!S || S.rec) return; const T = S.T, stepDur = 60 / T.bpm / 4, until = ctx.currentTime + (horizon || 0.35);
     while (S.next < until) {
       const part = T.form[S.formPos], items = S.c.parts[part] || []; let partLen = 0;
       for (const it of items) partLen = Math.max(partLen, it.pat.len);

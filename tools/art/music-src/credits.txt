@@ -1,0 +1,17 @@
+2026-11-14T08:42:25Z probe duration=3.03s credits=38 used_total=12127 left=27716 (balance before any request: used 12089, left 27754)
+2026-11-14T08:42:36Z calm duration=97.227750s credits=0 used_total=12127 left=27716
+2026-11-14T08:45:10Z calm-layerA-lute duration=22.909375s credits=0 used_total=15772 left=24071
+2026-11-14T08:46:11Z night duration=56.032625s credits=0 used_total=16347 left=23496
+2026-11-14T08:46:18Z war duration=56.398313s credits=0 used_total=16347 left=23496
+2026-11-14T08:46:27Z menu duration=60.029375s credits=0 used_total=16347 left=23496
+2026-11-14T08:46:34Z disaster duration=54.047313s credits=2830 used_total=19177 left=20666
+2026-11-14T08:47:03Z frost duration=62.275875s credits=0 used_total=19177 left=20666
+2026-11-14T08:47:10Z dunes duration=57.547750s credits=0 used_total=19177 left=20666
+2026-11-14T08:47:17Z tide duration=54.047313s credits=0 used_total=19177 left=20666
+2026-11-14T08:48:30Z night-stems credits=0 used_total=21349 left=18494
+2026-11-14T08:48:42Z war-stems credits=0 used_total=22750 left=17093
+2026-11-14T08:48:54Z menu-stems credits=0 used_total=22750 left=17093
+2026-11-14T08:49:06Z disaster-stems credits=0 used_total=22750 left=17093
+2026-11-14T08:49:18Z frost-stems credits=0 used_total=22750 left=17093
+2026-11-14T08:49:30Z dunes-stems credits=0 used_total=22750 left=17093
+2026-11-14T08:49:42Z tide-stems credits=8609 used_total=31359 left=8484

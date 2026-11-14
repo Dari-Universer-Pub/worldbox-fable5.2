@@ -1,0 +1,98 @@
+{
+  "model_id": "music_v2_5",
+  "conditioning_ref": "6d62s8om3WvF29B6BgvY_upload",
+  "composition_plan": {
+    "chunks": [
+      {
+        "text": "Caravan of Embers. 96 BPM, 4/4, D Phrygian dominant scale. Desert caravan: a frame drum and finger cymbals keep a swaying rhythm, a lute plays a winding riff.",
+        "duration_ms": 20000,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "desert caravan",
+          "frame drum",
+          "finger cymbals",
+          "lute riff",
+          "Phrygian dominant",
+          "96 bpm",
+          "D Phrygian dominant"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "loud drums"
+        ]
+      },
+      {
+        "text": "Same tempo and key. A wooden flute plays an ornamented, winding melody over the frame drum and the lute riff; low strings hold a drone on D.",
+        "duration_ms": 20000,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "desert caravan",
+          "frame drum",
+          "lute riff",
+          "ornamented wooden flute melody",
+          "string drone",
+          "Phrygian dominant",
+          "96 bpm",
+          "D Phrygian dominant"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "loud drums"
+        ]
+      },
+      {
+        "text": "Same tempo and key. The flute melody again with new ornaments, drum, lute and drone steady, no ending and no slowing down: the caravan keeps going.",
+        "duration_ms": 17500,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "desert caravan",
+          "frame drum",
+          "lute riff",
+          "ornamented wooden flute melody",
+          "string drone",
+          "steady loop",
+          "96 bpm",
+          "D Phrygian dominant"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "loud drums"
+        ]
+      }
+    ]
+  },
+  "seed": 9601
+}

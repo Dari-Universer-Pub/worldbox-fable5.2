@@ -1,0 +1,73 @@
+{
+  "model_id": "music_v2_5",
+  "conditioning_ref": "6d62s8om3WvF29B6BgvY_upload",
+  "composition_plan": {
+    "chunks": [
+      {
+        "text": "White Silence. 54 BPM, 4/4, B minor. Frozen land: small crystal bells play a slow sparse melody, high thin strings hold cold long notes, much silence and air.",
+        "duration_ms": 26667,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "crystal bells melody",
+          "high thin strings",
+          "cold",
+          "sparse",
+          "slow",
+          "54 bpm",
+          "B minor"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "drums",
+          "loud",
+          "warm"
+        ]
+      },
+      {
+        "text": "Same tempo and key. A lute adds slow single notes under the bells, a breathy wooden flute holds one long note now and then; cold and still, the music keeps going at the same level.",
+        "duration_ms": 35556,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "crystal bells melody",
+          "high thin strings",
+          "sparse lute",
+          "breathy wooden flute",
+          "cold",
+          "slow",
+          "steady loop",
+          "54 bpm",
+          "B minor"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "drums",
+          "loud",
+          "warm"
+        ]
+      }
+    ]
+  },
+  "seed": 5401
+}

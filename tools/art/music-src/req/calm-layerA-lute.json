@@ -1,0 +1,12 @@
+{
+  "model_id": "music_v2_5",
+  "conditioning_ref": "6d62s8om3WvF29B6BgvY_upload",
+  "composition_plan": {
+    "chunks": [
+      { "text": "Fields Before Noon. 84 BPM, 4/4, D major. Solo lute alone: a steady flowing arpeggio, nothing else plays. Peaceful village morning.", "duration_ms": 22860,
+        "positive_styles": ["medieval fantasy folk", "solo lute arpeggio", "warm wooden hall reverb", "instrumental", "84 bpm", "D major"],
+        "negative_styles": ["vocals", "choir", "electronic", "synthesizer", "flute", "strings", "drums", "bells", "tempo changes", "fade out"] }
+    ]
+  },
+  "seed": 8401
+}

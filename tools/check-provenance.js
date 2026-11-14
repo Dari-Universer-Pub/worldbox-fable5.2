@@ -7,11 +7,17 @@
 const fs = require('fs'), path = require('path'), crypto = require('crypto');
 const ROOT = path.join(__dirname, '..'); let fail = 0; const counts = {};
 const FORBID = /\.(wav|mp3|ogg|flac|aac|m4a|mid|midi|sf2|ttf|otf|woff2?|eot|obj|fbx|gltf|glb|blend|dae|psd|ase|aseprite|xcf|kra|svg|jpg|jpeg|gif|webp|bmp|tga|mp4|webm|zip|tar|gz|wasm)$/i;
-const ALLOW = /\.(js|py|json|md|html|css|txt|png|bin|webmanifest|ico|aeon|gitignore)$/i;
+const ALLOW = /\.(js|py|json|md|html|css|txt|png|bin|webmanifest|ico|aeon|gitignore|sh)$/i;
+// the one exception to rule 3 (decision D-C11 of Julien): the game music generated with ElevenLabs. Its files are listed with their hashes in
+// tools/art/music-src/manifest.json (written by tools/music-build.js); an audio file that is not in that list, or that differs from it, is refused.
+const musicFile = path.join(ROOT, 'tools/art/music-src/manifest.json'), MUSIC = fs.existsSync(musicFile) ? JSON.parse(fs.readFileSync(musicFile, 'utf8')) : {}; const seenMusic = new Set();
+const sha = p => crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex');
 function walk(d) { for (const f of fs.readdirSync(d)) { if (f === '.git' || f === 'node_modules') continue; const p = path.join(d, f), st = fs.statSync(p); if (st.isDirectory()) walk(p); else check(p); } }
 const manifestFile = path.join(ROOT, 'assets/manifest.json'); const manifest = fs.existsSync(manifestFile) ? JSON.parse(fs.readFileSync(manifestFile, 'utf8')) : null;
 function check(p) {
   const rel = path.relative(ROOT, p).replace(/\\/g, '/'), ext = path.extname(p).toLowerCase(); counts[ext] = (counts[ext] || 0) + 1;
+  if (rel in MUSIC) { seenMusic.add(rel); if (sha(p) !== MUSIC[rel]) { console.log('MUSIC FILE differs from tools/art/music-src/manifest.json: ' + rel); fail++; } if (/\.mp3$/.test(rel)) return; }
+  { const m = /^game\/(music-[a-z]+\.js)$/.exec(rel); if (m) { if (MUSIC['assets/music/' + m[1]] !== sha(p)) { console.log('SHIPPED MUSIC is not the output of tools/music-build.js: ' + rel); fail++; } } }
   if (FORBID.test(p)) { console.log('FORBIDDEN media/model/font file: ' + rel); fail++; return; }
   if (!ALLOW.test(p) && path.basename(p) !== '.gitignore') { console.log('UNKNOWN file type: ' + rel); fail++; return; }
   if (/\.(png|bin|ico)$/.test(p)) {
@@ -25,7 +31,9 @@ function check(p) {
   }
 }
 walk(ROOT);
+for (const k in MUSIC) if (!seenMusic.has(k)) { console.log('MUSIC FILE listed but missing: ' + k); fail++; }
+console.log('music files (generated with ElevenLabs, decision D-C11): ' + seenMusic.size + ' listed and checked');
 console.log('files by type: ' + Object.entries(counts).map(([k, v]) => (k || '(none)') + ' ' + v).join(', '));
 if (!manifest) console.log('note: assets/manifest.json not present yet (bake-all writes it)');
-console.log(fail ? 'PROVENANCE: ' + fail + ' PROBLEM(S)' : 'PROVENANCE OK — no external artistic content, no external URL in shipped files');
+console.log(fail ? 'PROVENANCE: ' + fail + ' PROBLEM(S)' : 'PROVENANCE OK — no external artistic content except the listed AI-generated music (D-C11), no external URL in shipped files');
 process.exit(fail ? 1 : 0);

@@ -1,0 +1,98 @@
+{
+  "model_id": "music_v2_5",
+  "conditioning_ref": "6d62s8om3WvF29B6BgvY_upload",
+  "composition_plan": {
+    "chunks": [
+      {
+        "text": "Iron Oaths. 132 BPM, 4/4, B minor. War march: deep war drums pound a driving pattern, low strings play a fast ostinato, a lute strums hard. Tense and determined.",
+        "duration_ms": 14545,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "war drums",
+          "low string ostinato",
+          "strummed lute",
+          "battle march",
+          "132 bpm",
+          "B minor"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "soft",
+          "slow"
+        ]
+      },
+      {
+        "text": "Same tempo and key. A horn calls a bold heroic melody over the pounding war drums and the string ostinato; a wooden flute doubles it high. Full force.",
+        "duration_ms": 21818,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "war drums",
+          "low string ostinato",
+          "horn melody",
+          "wooden flute",
+          "battle march",
+          "132 bpm",
+          "B minor"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "soft",
+          "slow"
+        ]
+      },
+      {
+        "text": "Same tempo and key. The horn melody returns higher, drums and strings at full force, no ending and no slowing down: the march keeps going at the same level.",
+        "duration_ms": 20000,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "war drums",
+          "low string ostinato",
+          "horn melody",
+          "battle march",
+          "steady loop",
+          "132 bpm",
+          "B minor"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "soft",
+          "slow"
+        ]
+      }
+    ]
+  },
+  "seed": 13201
+}

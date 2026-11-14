@@ -1,0 +1,70 @@
+{
+  "model_id": "music_v2_5",
+  "conditioning_ref": "6d62s8om3WvF29B6BgvY_upload",
+  "composition_plan": {
+    "chunks": [
+      {
+        "text": "The Crown in the Dust. 72 BPM, 4/4, E minor. Main theme: a wooden flute plays a noble, wistful melody over a lute arpeggio and warm strings; small bells mark the phrases.",
+        "duration_ms": 26667,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "noble main theme",
+          "wooden flute melody",
+          "lute arpeggio",
+          "warm string ensemble",
+          "small bells",
+          "72 bpm",
+          "E minor"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "drums",
+          "loud"
+        ]
+      },
+      {
+        "text": "Same tempo and key. The strings take the theme and lift it to G major, the flute answers above, lute and bells continue; grand but gentle, the music keeps going at the same level.",
+        "duration_ms": 33333,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "noble main theme",
+          "wooden flute melody",
+          "lute arpeggio",
+          "warm string ensemble",
+          "small bells",
+          "steady loop",
+          "72 bpm",
+          "E minor"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "drums",
+          "loud"
+        ]
+      }
+    ]
+  },
+  "seed": 7201
+}

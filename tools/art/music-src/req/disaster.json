@@ -1,0 +1,104 @@
+{
+  "model_id": "music_v2_5",
+  "conditioning_ref": "6d62s8om3WvF29B6BgvY_upload",
+  "composition_plan": {
+    "chunks": [
+      {
+        "text": "Ashfall. 120 BPM, 4/4, B minor. Catastrophe: low strings saw an urgent rhythm, a big drum hits hard, a deep bell tolls, a horn cries a falling alarm melody. Dark and urgent.",
+        "duration_ms": 16000,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "urgent low strings",
+          "big drums",
+          "tolling deep bell",
+          "horn alarm melody",
+          "dark",
+          "120 bpm",
+          "B minor"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "soft",
+          "happy",
+          "major key"
+        ]
+      },
+      {
+        "text": "Same tempo and key. The horn melody climbs in distress, drums and strings drive harder, the deep bell keeps tolling, a lute tremolo shivers underneath.",
+        "duration_ms": 20000,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "urgent low strings",
+          "big drums",
+          "tolling deep bell",
+          "horn alarm melody",
+          "lute tremolo",
+          "dark",
+          "120 bpm",
+          "B minor"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "soft",
+          "happy",
+          "major key"
+        ]
+      },
+      {
+        "text": "Same tempo and key. Full force, the alarm melody again, no ending and no slowing down: the music keeps going at the same level.",
+        "duration_ms": 18000,
+        "positive_styles": [
+          "medieval fantasy folk",
+          "acoustic instruments",
+          "warm wooden hall reverb",
+          "instrumental",
+          "urgent low strings",
+          "big drums",
+          "tolling deep bell",
+          "horn alarm melody",
+          "dark",
+          "steady loop",
+          "120 bpm",
+          "B minor"
+        ],
+        "negative_styles": [
+          "vocals",
+          "choir",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "tempo changes",
+          "fade out",
+          "ending",
+          "ritardando",
+          "soft",
+          "happy",
+          "major key"
+        ]
+      }
+    ]
+  },
+  "seed": 12001
+}

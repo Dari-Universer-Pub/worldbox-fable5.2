@@ -1,0 +1,9 @@
+{
+  "model_id": "music_v2_5",
+  "composition_plan": {
+    "chunks": [
+      { "text": "A solo lute plays a gentle rising arpeggio in D major, warm wooden room, calm medieval fantasy village mood.", "duration_ms": 3000, "positive_styles": ["lute", "acoustic", "warm room reverb", "instrumental"], "negative_styles": ["vocals", "electronic", "drums"] }
+    ]
+  },
+  "seed": 1101
+}
