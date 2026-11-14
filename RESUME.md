@@ -6,6 +6,10 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
+## PROCHAINE ACTION : bloc D de `CHANTIER.md`
+
+Julien a ajouté après avoir joué dix tâches, D.1 à D.10, dans `CHANTIER.md` (bloc D). **Commencer par D.1** (bruits de construction et de mer entendus partout sur la carte), puis D.2 (textes « fait par du code » faux pour la musique), et suivre l'ordre. Rien n'est commencé. Les règles de travail sont celles de `CLAUDE.md` (une tâche, un commit, preuve légère, pas de tests lourds).
+
 ## PASSATION (à lire en premier) — C.10 refait en vrai fondu, reste la passe de Sonnet
 
 **C.11 (musiques avec ElevenLabs) est faite, validée par Julien et intégrée.** Histoire courte : un premier jeu de pistes rejeté (une voix lisait les consignes : le `text` d'un chunk de plan de composition est chanté) ; 8 extraits instrumentaux validés par Julien ; leurs prolongations (64 à 90 s) validées aussi ; séparation en couches ; intégration. **Julien a ensuite validé l'ensemble (« je valide complètement »)** après les extraits de contrôle (coutures, enchaînement calm → night → war). Il ne reste rien à faire sur C.11 pour l'agent de contenu ; si Julien remarque quelque chose en jouant (volume face aux effets, passages d'un biome à l'autre), les réglages sont dans le bloc `audio` de `src/data/music.json` et dans `src/client/mixer.js`. Crédits : seconde clé 10 595, première clé 5 084 (seuil d'arrêt 5 000 chacune) ; ne lancer aucune requête payante sans que Julien le demande. Tout le détail : `tools/art/music-src/README.md`.
