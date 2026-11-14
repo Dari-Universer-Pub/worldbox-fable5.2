@@ -8,7 +8,7 @@
 
 ## PROCHAINE ACTION : bloc D de `CHANTIER.md`
 
-Julien a ajouté après avoir joué dix tâches, D.1 à D.10, dans `CHANTIER.md` (bloc D). **Commencer par D.1** (bruits de construction et de mer entendus partout sur la carte), puis D.2 (textes « fait par du code » faux pour la musique), et suivre l'ordre. Rien n'est commencé. Les règles de travail sont celles de `CLAUDE.md` (une tâche, un commit, preuve légère, pas de tests lourds).
+Julien a ajouté après avoir joué onze tâches, D.1 à D.11, dans `CHANTIER.md` (bloc D). **Commencer par D.1** (bruits de construction et de mer entendus partout sur la carte), puis D.2 (textes « fait par du code » faux pour la musique), et suivre l'ordre. Rien n'est commencé. Les règles de travail sont celles de `CLAUDE.md` (une tâche, un commit, preuve légère, pas de tests lourds).
 
 ## PASSATION (à lire en premier) — C.10 refait en vrai fondu, reste la passe de Sonnet
 
