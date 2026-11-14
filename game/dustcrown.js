@@ -3298,7 +3298,7 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=vec4(texture(uScene,q).rgb,texture(uE
       Mx.state = (war ? 'war ' : '') + (dis ? 'disaster ' : '') + (night ? 'night' : 'day');
       // the director: `tr` above is only a wish. A day lasts 30 s at x1 and soldiers come and go around the thresholds, so obeying the wish
       // at once changed the music every few seconds. Rules: a quiet piece (calm, night, a climate) is played to the end of its loop, and
-      // gives way there, to a wish that has held for 5 s; war and disaster come in after 1.5 s of the same wish, stay at least 25 s, and
+      // gives way there, to a wish that has held for 5 s (the night piece comes in as night falls, see below); war and disaster come in after 1.5 s of the same wish, stay at least 25 s, and
       // stay 20 s after the last sign of trouble before a quiet piece returns.
       { const now = performance.now() / 1000, urgent = tr === 'war' || tr === 'disaster', curUrg = Mx.track === 'war' || Mx.track === 'disaster';
         if (tr !== Mx.wish) { Mx.wish = tr; Mx.wishSince = now; } if (urgent) Mx.urgLast = now;
@@ -3307,7 +3307,10 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=vec4(texture(uScene,q).rgb,texture(uE
         else if (tr === Mx.track) go = false;
         else if (urgent) go = stable >= 1.5 && (!curUrg || age >= 25);
         else if (curUrg) go = now - (Mx.urgLast || 0) >= 20 && stable >= 3;
-        else if (cur && cur.rec && cur.id === Mx.track) { const m = cur.meta, pos = A.ctx.currentTime - cur.t0, toEnd = pos < m.loopStart ? m.loopStart + m.loop - pos : m.loop - ((pos - m.loopStart) % m.loop); go = stable >= 5 && pos > 20 && toEnd <= 1.2; }
+        else if (cur && cur.rec && cur.id === Mx.track) { const m = cur.meta, pos = A.ctx.currentTime - cur.t0, toEnd = pos < m.loopStart ? m.loopStart + m.loop - pos : m.loop - ((pos - m.loopStart) % m.loop); const heard = pos >= m.loopStart + m.loop - 1.2;
+          // night music with short nights (a night lasts about 10 s at x1): once the piece that plays has been heard in full, the night piece starts the
+          // moment it is night, and is itself heard in full before a day piece returns, the moment it is day. Between two day pieces: at the loop end.
+          if (tr === 'night' || Mx.track === 'night') go = heard; else go = stable >= 5 && pos > 20 && toEnd <= 1.2; }
         else go = stable >= 5 && age >= 60;                                                // synthesized fallback, or a piece still loading
         if (go) { Mx.track = tr; Mx.since = now; A.Music.play(tr, urgent ? 1.5 : 4); }
         tr = Mx.track; }
