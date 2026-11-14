@@ -4,8 +4,8 @@
   const U = AL.Units = {}, ACT = U.ACT = { NONE: 0, WANDER: 1, EAT: 2, SLEEP: 3, WORK: 4, HAUL: 5, BUILD: 6, SOCIAL: 7, PRAY: 8, FLEE: 9, FIGHT: 10, FOUND: 11, SETTLE: 12, FORAGE: 13, GUARD: 14, MARCH: 15, GOTO: 16, CONTROL: 17, BOARD: 18, CORPSE: 255 };
   const F = AL.Ents.F, T = AL.Towns;
   U.ACTN = Object.keys(ACT);
-  U.dayPhase = sim => (sim.tick % AL.DAY) / AL.DAY;       // 0..1; night when > 0.7
-  U.isNight = sim => { const p = (sim.tick % AL.DAY) / AL.DAY; return p > 0.72 || p < 0.04; };
+  U.dayPhase = sim => AL.dayQ((sim.tick % AL.DAY) / AL.DAY);       // 0..1 in the former phase (see AL.dayQ); night when > 0.72
+  U.isNight = sim => { const p = AL.dayQ((sim.tick % AL.DAY) / AL.DAY); return p > 0.72 || p < 0.04; };
   // ------------------------------------------------------------ movement
   // start a trip. returns 1 arrived already, 2 started, 0 failed/unreachable, -1 deferred (budget)
   U.goTo = function (sim, i, tx, ty) { const E = sim.E, W = sim.world, n = W.n, sx = E.x[i] | 0, sy = E.y[i] | 0; E.tx[i] = tx; E.ty[i] = ty; E.flow[i] = -1; E.pathLen[i] = 0; E.pathPos[i] = 0;

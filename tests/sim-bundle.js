@@ -2,6 +2,10 @@
 // AL core shared by the simulation and the client: constants, seeded RNG, hashing, noise, data lookups.
 (function (AL) {
   'use strict';
+  // Day and night last as long as each other (asked by Julien, so that night music is heard as much as day music). The rest of the game keeps
+  // thinking in the former phase q, where the day ran from 0.04 to 0.72 and the night was shorter: AL.dayQ turns the real phase p of the day
+  // (0..1) into q, the day being 0.04..0.54 of p and the night the other half. Simulation (sleep, evening, spirits) and lighting both use q.
+  AL.dayQ = p => p < 0.04 ? 0.0144 + 0.64 * p : p < 0.54 ? 0.04 + (p - 0.04) * 1.36 : (0.72 + (p - 0.54) * 0.64) % 1;
   AL.TICK_HZ = 10; AL.DAY = 300; AL.YEAR = 1200; AL.TILE = 8; AL.SEA = 100;
   AL.SIZES = { small: 128, medium: 256, large: 384, giant: 512 };
   // xoshiro128** — every random number of the simulation comes from here
@@ -562,8 +566,8 @@
   const U = AL.Units = {}, ACT = U.ACT = { NONE: 0, WANDER: 1, EAT: 2, SLEEP: 3, WORK: 4, HAUL: 5, BUILD: 6, SOCIAL: 7, PRAY: 8, FLEE: 9, FIGHT: 10, FOUND: 11, SETTLE: 12, FORAGE: 13, GUARD: 14, MARCH: 15, GOTO: 16, CONTROL: 17, BOARD: 18, CORPSE: 255 };
   const F = AL.Ents.F, T = AL.Towns;
   U.ACTN = Object.keys(ACT);
-  U.dayPhase = sim => (sim.tick % AL.DAY) / AL.DAY;       // 0..1; night when > 0.7
-  U.isNight = sim => { const p = (sim.tick % AL.DAY) / AL.DAY; return p > 0.72 || p < 0.04; };
+  U.dayPhase = sim => AL.dayQ((sim.tick % AL.DAY) / AL.DAY);       // 0..1 in the former phase (see AL.dayQ); night when > 0.72
+  U.isNight = sim => { const p = AL.dayQ((sim.tick % AL.DAY) / AL.DAY); return p > 0.72 || p < 0.04; };
   // ------------------------------------------------------------ movement
   // start a trip. returns 1 arrived already, 2 started, 0 failed/unreachable, -1 deferred (budget)
   U.goTo = function (sim, i, tx, ty) { const E = sim.E, W = sim.world, n = W.n, sx = E.x[i] | 0, sy = E.y[i] | 0; E.tx[i] = tx; E.ty[i] = ty; E.flow[i] = -1; E.pathLen[i] = 0; E.pathPos[i] = 0;
