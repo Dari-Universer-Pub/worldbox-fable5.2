@@ -1,6 +1,6 @@
 # C.10 — Arbres transparents : les pistes sur la table
 
-Document de discussion avec Julien. **Rien n'est décidé, rien n'est codé** pour ces pistes.
+Document de discussion avec Julien. **Décision prise : piste 1 (fenêtre en vrai fondu), sans tronc gardé opaque. Elle est codée ; voir `RESUME.md`.** Le reste du document garde la trace des pistes écartées.
 La version actuelle (trame 2×2, commit 8e955f9) ne convainc pas : Julien veut « qu'on voie vraiment bien derrière ».
 Contrainte fixe : **le dessin des arbres ne change pas**, seul le rendu change.
 
