@@ -6,7 +6,22 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; all of C done (C.0, C.1, C.3 to C.10); what remains is the test and balance pass reserved for Sonnet (line 0.2 and the lists « À tester par Sonnet »).
+## PASSATION (à lire en premier) — C.10 rouvert, discussion en cours avec Julien
+
+**Julien n'est pas convaincu par la trame des arbres (C.10).** Ses mots : il veut « qu'on voie vraiment bien derrière ». La trame 2×2 actuelle laisse trop d'arbre devant : on devine, on ne voit pas. C.10 repasse donc à `[~]` dans `CHANTIER.md`. **Rien n'est décidé** : la discussion (remue-méninges) reprend avec le prochain agent ; ne rien coder avant le choix de Julien.
+
+Trois pistes déjà proposées à Julien (il n'a pas encore répondu) :
+1. **Fenêtre en fondu continu, sans trame (ma recommandation).** Autour de chaque être caché, l'arbre tombe à environ 15 % d'opacité dans un rond un peu plus grand que l'être, bord fondu sur 4 à 5 px ; devant un bâtiment caché, arbres à environ 35 % ; apparition et disparition sur un quart de seconde ; coupé en vue éloignée. Coût : le canal alpha de la scène porte aujourd'hui l'ÉMISSION de lumière (pas l'opacité) et le mélange est désactivé dans la passe des sprites, d'où la trame. Il faut donc une seconde cible de rendu pour l'émission (`gl.drawBuffers` sur `fboScene`), l'opacité dans l'alpha de la couleur, le mélange alpha activé dans la passe des sprites (ils sont déjà triés par y), `FS_C` qui lit l'émission dans la nouvelle texture, et dans `FS_S` `opacité = mix(1, 0.15, couverture)` à la place du `discard` par trame. Touche le cœur du rendu : feux, fenêtres la nuit, lave, effets, dissolution ordonnée existante sont à revérifier, et le coût à remesurer sur une machine avec carte graphique.
+2. **Arbre entier fantôme** : tout arbre qui cache quelque chose passe à environ 30 % d'opacité. Propre et classique, mais une forêt autour d'un village devient largement translucide. Demande le même travail de rendu que la piste 1 (vrai alpha).
+3. **Silhouette par-dessus** : arbres intacts, l'unité cachée redessinée par-dessus en silhouette à la couleur de son royaume. Pas de changement du cœur du rendu, mais on ne voit ni le dessin ni l'animation de l'unité.
+
+Autres idées à mettre sur la table si Julien veut élargir : trame beaucoup plus ouverte (ne garder qu'un pixel sur quatre dans le rond, sans toucher au rendu) ; ne garder que le contour de l'arbre dans le rond ; touche du clavier qui cache tous les arbres ; abaisser les arbres en souches près du curseur.
+
+Ce qui existe dans le code (commit 8e955f9) et servira quelle que soit la piste : le masque des objets cachés (`progM`, `fboOcc`, `G.occ(wx, wy, r, k, baseY)` dans `src/client/gl.js`, appelé depuis `src/client/scene.js`), le drapeau 128 des arbres adultes (`src/client/main.js`), le test de profondeur `vDepth > m.r + .006`, l'interrupteur `G.veilOff`, l'extinction en vue éloignée (`veil = clamp((cam.z - 1) / 0.5, 0, 1)`). Seule la dernière étape (le `discard` par trame dans `FS_S`) est à remplacer. Captures de référence : `shots/c10-z{1,1.5,2,3}-{before,after}.png`, `shots/c10-seq0..3.png`.
+
+Une fois la piste choisie : coder, `node tools/build.js`, vérifier la syntaxe du paquet, refaire les captures avant/après aux zooms 1, 1.5, 2 et 3 et les regarder, vérifier de nuit (fenêtres, feux, lave) si le rendu de l'émission a changé, mesurer le temps d'image, noter Vu / Non vérifié / À tester par Sonnet ici, recocher C.10, un commit, pousser sur `claude/ecstatic-lovelace-b5e456`.
+
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; all of C done (C.0, C.1, C.3 to C.9; **C.10 reopened, see the handoff block above**); what remains is the test and balance pass reserved for Sonnet (line 0.2 and the lists « À tester par Sonnet »).
 
 ### Chantier — journal des tâches (le plus récent en haut)
 
@@ -303,4 +318,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-Every line of parts A, B and C of `CHANTIER.md` is ticked. What is left is NOT for this agent: line 0.2 and the test and balance pass (Sonnet): `node tests/run-all.js`, `node tools/balance-bot.js battery`, the Playwright robots, balance tuning, and every item listed under « À tester par Sonnet » in the notes above (C.10 down to A). Start with `node tools/bake-all.js` (reproducibility), `node tools/build.js`, `node tools/validate-data.js`, then the full test suite, and repair what it shows.
+**First: resume the discussion with Julien about C.10 (handoff block at the top of this file), then redo C.10 with the approach he picks.** Every other line of parts A, B and C of `CHANTIER.md` is ticked. What is left is NOT for this agent: line 0.2 and the test and balance pass (Sonnet): `node tests/run-all.js`, `node tools/balance-bot.js battery`, the Playwright robots, balance tuning, and every item listed under « À tester par Sonnet » in the notes above (C.10 down to A). Start with `node tools/bake-all.js` (reproducibility), `node tools/build.js`, `node tools/validate-data.js`, then the full test suite, and repair what it shows.

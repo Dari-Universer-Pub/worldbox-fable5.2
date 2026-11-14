@@ -54,5 +54,5 @@
 - Écran-titre : pas d'animation propre du logo (léger flottement seulement), pas de crédits, pas de bouton plein écran ; le bouton « Continuer » n'apparaît que s'il existe une sauvegarde automatique (non vérifié par le robot).
 - Écran de chargement : la barre avance par étapes (images, code, monde), pas en continu ; non testé sur une connexion lente ni sur téléphone.
 - Icône d'application : une seule image carrée « any maskable » ; pas d'icône monochrome ni de captures pour l'installation.
-- Arbres transparents (chantier C.10) : l'amincissement se fait par trame régulière parce que le canal alpha de la scène porte l'émission de lumière. Un vrai fondu (alpha continu) demanderait une seconde cible de rendu pour l'émission ; à faire si Julien préfère un fondu à la trame.
+- Arbres transparents (chantier C.10) : l'amincissement se fait par trame régulière parce que le canal alpha de la scène porte l'émission de lumière. Un vrai fondu (alpha continu) demanderait une seconde cible de rendu pour l'émission ; Julien a refusé la trame (il veut voir vraiment bien derrière) : le choix entre fondu continu, arbre entier fantôme et silhouette par-dessus est en discussion (voir `RESUME.md`, bloc PASSATION).
 - Sol brûlé, ombres de nuages (C.3) : pas d'option pour couper les ombres de nuages dans la fenêtre des options (seulement `options.clouds = false`).
