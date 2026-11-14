@@ -1,0 +1,6 @@
+{
+  "model_id": "music_v2_5",
+  "prompt": "War march, around 132 beats per minute, B minor. Deep war drums pound a driving pattern, low strings play a fast ostinato, a horn calls a bold heroic melody, a lute strums hard. Tense and determined, full force. Instrumental only, no voice, no singing, no speech, no choir. Acoustic medieval fantasy folk played by a small ensemble in a warm wooden hall: lute, wooden flute, string ensemble, small bells, hand percussion. Soundtrack of a peaceful pixel-art god game. No electronic sounds, no synthesizer, no electric guitar. Steady tempo from the first second to the last, no introduction, no ending, no fade out.",
+  "music_length_ms": 34000,
+  "force_instrumental": true
+}

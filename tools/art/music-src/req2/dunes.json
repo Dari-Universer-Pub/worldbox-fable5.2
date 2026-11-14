@@ -1,0 +1,6 @@
+{
+  "model_id": "music_v2_5",
+  "prompt": "Desert caravan, around 96 beats per minute, Phrygian dominant scale on D. A frame drum and finger cymbals keep a swaying rhythm, a lute plays a winding riff, a wooden flute plays an ornamented melody, low strings hold a drone. Instrumental only, no voice, no singing, no speech, no choir. Acoustic medieval fantasy folk played by a small ensemble in a warm wooden hall: lute, wooden flute, string ensemble, small bells, hand percussion. Soundtrack of a peaceful pixel-art god game. No electronic sounds, no synthesizer, no electric guitar. Steady tempo from the first second to the last, no introduction, no ending, no fade out.",
+  "music_length_ms": 34000,
+  "force_instrumental": true
+}

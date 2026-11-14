@@ -1,0 +1,6 @@
+{
+  "model_id": "music_v2_5",
+  "prompt": "Pastoral village morning, around 84 beats per minute, D major. A lute plays a flowing arpeggio, a wooden flute sings a simple happy melody, soft strings underneath, a few small bells. Gentle and bright. Instrumental only, no voice, no singing, no speech, no choir. Acoustic medieval fantasy folk played by a small ensemble in a warm wooden hall: lute, wooden flute, string ensemble, small bells, hand percussion. Soundtrack of a peaceful pixel-art god game. No electronic sounds, no synthesizer, no electric guitar. Steady tempo from the first second to the last, no introduction, no ending, no fade out.",
+  "music_length_ms": 34000,
+  "force_instrumental": true
+}

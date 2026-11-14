@@ -15,3 +15,11 @@
 2026-11-14T08:49:18Z frost-stems credits=0 used_total=22750 left=17093
 2026-11-14T08:49:30Z dunes-stems credits=0 used_total=22750 left=17093
 2026-11-14T08:49:42Z tide-stems credits=8609 used_total=31359 left=8484
+2026-11-14T11:07:00Z v2 calm duration=34.037500s used_total=31359 left=8484 (the balance lags behind by a few requests)
+2026-11-14T11:07:17Z v2 night duration=34.037500s used_total=31359 left=8484 (the balance lags behind by a few requests)
+2026-11-14T11:07:27Z v2 war duration=34.037500s used_total=31359 left=8484 (the balance lags behind by a few requests)
+2026-11-14T11:07:34Z v2 menu duration=34.037500s used_total=31359 left=8484 (the balance lags behind by a few requests)
+2026-11-14T11:07:41Z v2 disaster duration=34.037500s used_total=33484 left=6359 (the balance lags behind by a few requests)
+2026-11-14T11:07:49Z v2 frost duration=34.037500s used_total=33484 left=6359 (the balance lags behind by a few requests)
+2026-11-14T11:07:59Z v2 dunes duration=34.037500s used_total=33484 left=6359 (the balance lags behind by a few requests)
+2026-11-14T11:08:06Z v2 tide duration=34.037500s used_total=33484 left=6359 (the balance lags behind by a few requests)

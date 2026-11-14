@@ -429,46 +429,7 @@
       "B": "b3+f#4/16 | b3+g4/16 | a3+f#4/16 | a3+e4/16"
      }
     }
-   ],
-   "audio": {
-    "bpm": 83.36,
-    "first": 0.549,
-    "skip": 0,
-    "introBars": 8,
-    "loopBars": 24,
-    "xfade": 2,
-    "stems": {
-     "base": {
-      "from": [
-       "guitar"
-      ],
-      "layers": {
-       "base": 1
-      },
-      "kbps": 56
-     },
-     "pad": {
-      "from": [
-       "other"
-      ],
-      "layers": {
-       "pad": 0.7,
-       "bells": 0.3
-      },
-      "kbps": 56
-     },
-     "melody": {
-      "from": [
-       "vocals"
-      ],
-      "layers": {
-       "melody": 1
-      },
-      "kbps": 40,
-      "mono": true
-     }
-    }
-   }
+   ]
   },
   "night": {
    "title": "Lanterns",
@@ -563,47 +524,7 @@
       "B2": "-/4 c5/4 -/4 c5/4 | -/4 c5/4 -/4 c5/4 | -/4 c5/4 -/4 c5/4 | -/4 c5/4 -/4 c5/4"
      }
     }
-   ],
-   "audio": {
-    "bpm": 59.92,
-    "first": 0.02,
-    "skip": 0,
-    "introBars": 1,
-    "loopBars": 12,
-    "xfade": 2,
-    "stems": {
-     "base": {
-      "from": [
-       "guitar",
-       "piano"
-      ],
-      "layers": {
-       "base": 1
-      },
-      "kbps": 56
-     },
-     "pad": {
-      "from": [
-       "other"
-      ],
-      "layers": {
-       "pad": 0.7,
-       "bells": 0.3
-      },
-      "kbps": 56
-     },
-     "melody": {
-      "from": [
-       "vocals"
-      ],
-      "layers": {
-       "melody": 1
-      },
-      "kbps": 40,
-      "mono": true
-     }
-    }
-   }
+   ]
   },
   "war": {
    "title": "Iron Oaths",
@@ -699,57 +620,7 @@
       "B": "g5/16 | f5/16 | e5/16 | e5/8 a5/8"
      }
     }
-   ],
-   "audio": {
-    "bpm": 131.68,
-    "first": 0.012,
-    "skip": 0,
-    "introBars": 2,
-    "loopBars": 28,
-    "xfade": 0.25,
-    "stems": {
-     "base": {
-      "from": [
-       "guitar"
-      ],
-      "layers": {
-       "base": 1
-      },
-      "kbps": 56
-     },
-     "pad": {
-      "from": [
-       "other"
-      ],
-      "layers": {
-       "pad": 0.7,
-       "bells": 0.3
-      },
-      "kbps": 56
-     },
-     "melody": {
-      "from": [
-       "vocals"
-      ],
-      "layers": {
-       "melody": 1
-      },
-      "kbps": 40,
-      "mono": true
-     },
-     "rhythm": {
-      "from": [
-       "drums"
-      ],
-      "layers": {
-       "rhythm": 0.75,
-       "tension": 0.25
-      },
-      "kbps": 48,
-      "mono": true
-     }
-    }
-   }
+   ]
   },
   "menu": {
    "title": "The Crown in the Dust",
@@ -857,37 +728,7 @@
       "B2": "c5/4 c5/4 c5/2 c5/2 c5/4 | c5/4 c5/4 c5/2 c5/2 c5/4 | c5/4 c5/4 c5/2 c5/2 c5/4 | c5/4 c5/4 c5/2 c5/2 c5/4"
      }
     }
-   ],
-   "audio": {
-    "bpm": 72.02,
-    "first": 0.226,
-    "skip": 0,
-    "introBars": 0,
-    "loopBars": 16,
-    "xfade": 2.5,
-    "stems": {
-     "base": {
-      "from": [
-       "other",
-       "guitar"
-      ],
-      "layers": {
-       "base": 1
-      },
-      "kbps": 56
-     },
-     "melody": {
-      "from": [
-       "vocals"
-      ],
-      "layers": {
-       "melody": 1
-      },
-      "kbps": 40,
-      "mono": true
-     }
-    }
-   }
+   ]
   },
   "disaster": {
    "title": "Ashfall",
@@ -1000,49 +841,7 @@
      "gate": 0.8,
      "pan": 0.2
     }
-   ],
-   "audio": {
-    "bpm": 120.18,
-    "first": 0.012,
-    "skip": 4.121,
-    "introBars": 0,
-    "loopBars": 24,
-    "xfade": 0.25,
-    "stems": {
-     "base": {
-      "from": [
-       "other",
-       "guitar",
-       "piano"
-      ],
-      "layers": {
-       "base": 1
-      },
-      "kbps": 56
-     },
-     "melody": {
-      "from": [
-       "vocals"
-      ],
-      "layers": {
-       "melody": 1
-      },
-      "kbps": 40,
-      "mono": true
-     },
-     "rhythm": {
-      "from": [
-       "drums"
-      ],
-      "layers": {
-       "rhythm": 0.75,
-       "tension": 0.25
-      },
-      "kbps": 48,
-      "mono": true
-     }
-    }
-   }
+   ]
   },
   "frost": {
    "title": "White Silence",
@@ -1143,37 +942,7 @@
       "C": "-/16 | -/12 c5/4 | -/16 | -/12 c5/4"
      }
     }
-   ],
-   "audio": {
-    "bpm": 54,
-    "first": 0.012,
-    "skip": 0,
-    "introBars": 0,
-    "loopBars": 12,
-    "xfade": 3,
-    "stems": {
-     "base": {
-      "from": [
-       "other",
-       "piano"
-      ],
-      "layers": {
-       "base": 1
-      },
-      "kbps": 56
-     },
-     "melody": {
-      "from": [
-       "vocals"
-      ],
-      "layers": {
-       "melody": 1
-      },
-      "kbps": 40,
-      "mono": true
-     }
-    }
-   }
+   ]
   },
   "dunes": {
    "title": "Caravan of Embers",
@@ -1285,46 +1054,7 @@
      },
      "gate": 1
     }
-   ],
-   "audio": {
-    "bpm": 96.14,
-    "first": 0.456,
-    "skip": 0,
-    "introBars": 4,
-    "loopBars": 16,
-    "xfade": 2,
-    "stems": {
-     "base": {
-      "from": [
-       "guitar"
-      ],
-      "layers": {
-       "base": 1
-      },
-      "kbps": 56
-     },
-     "pad": {
-      "from": [
-       "other"
-      ],
-      "layers": {
-       "pad": 0.7,
-       "bells": 0.3
-      },
-      "kbps": 56
-     },
-     "melody": {
-      "from": [
-       "vocals"
-      ],
-      "layers": {
-       "melody": 1
-      },
-      "kbps": 40,
-      "mono": true
-     }
-    }
-   }
+   ]
   },
   "tide": {
    "title": "Salt Wind",
@@ -1432,46 +1162,7 @@
       "B2": "c5/6 c5/2 c5/6 c5/2 | c5/6 c5/2 c5/6 c5/2 | c5/6 c5/2 c5/6 c5/2 | c5/6 c5/2 c5/6 c5/2"
      }
     }
-   ],
-   "audio": {
-    "bpm": 80.12,
-    "first": 0.041,
-    "skip": 0,
-    "introBars": 0,
-    "loopBars": 16,
-    "xfade": 2.5,
-    "stems": {
-     "base": {
-      "from": [
-       "guitar"
-      ],
-      "layers": {
-       "base": 1
-      },
-      "kbps": 56
-     },
-     "pad": {
-      "from": [
-       "other"
-      ],
-      "layers": {
-       "pad": 0.7,
-       "bells": 0.3
-      },
-      "kbps": 56
-     },
-     "melody": {
-      "from": [
-       "vocals"
-      ],
-      "layers": {
-       "melody": 1
-      },
-      "kbps": 40,
-      "mono": true
-     }
-    }
-   }
+   ]
   }
  },
  "audio": {

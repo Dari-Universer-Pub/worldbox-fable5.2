@@ -1,0 +1,6 @@
+{
+  "model_id": "music_v2_5",
+  "prompt": "Noble and wistful main theme, around 72 beats per minute, E minor. A wooden flute plays a memorable melody over a lute arpeggio and warm strings, small bells mark the phrases. Grand but gentle. Instrumental only, no voice, no singing, no speech, no choir. Acoustic medieval fantasy folk played by a small ensemble in a warm wooden hall: lute, wooden flute, string ensemble, small bells, hand percussion. Soundtrack of a peaceful pixel-art god game. No electronic sounds, no synthesizer, no electric guitar. Steady tempo from the first second to the last, no introduction, no ending, no fade out.",
+  "music_length_ms": 34000,
+  "force_instrumental": true
+}

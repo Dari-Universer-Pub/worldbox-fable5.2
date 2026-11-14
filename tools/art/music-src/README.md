@@ -1,31 +1,26 @@
-# Sources de la musique du jeu (chantier C.11)
+# Sources de la musique du jeu (chantier C.11) — en cours, rien n'est intégré
 
-La musique de Dustcrown est **générée par une IA** : l'API musique d'ElevenLabs (modèle `music_v2_5`), avec la clé de Julien (offre Starter payante), le 14 novembre 2026. C'est une exception à la règle 3 du projet, décidée par Julien (voir `DECISIONS.md`, D-C11, et `PROVENANCE.md`). Les effets sonores, eux, restent synthétisés par le code.
+La musique de Dustcrown doit être **générée par une IA** : l'API musique d'ElevenLabs (modèle `music_v2_5`), avec la clé de Julien (offre Starter payante). C'est une exception à la règle 3 du projet, décidée par Julien (`DECISIONS.md`, D-C11). Les effets sonores restent synthétisés par le code. La clé n'est écrite nulle part : l'en-tête `xi-api-key: proxy-injected` est remplacé par le proxy de la session.
 
-Ces fichiers ne se régénèrent pas à l'identique (une nouvelle requête donne une autre musique) : **ce sont des sources**. Ne pas les supprimer.
+**État : le jeu joue toujours l'ancienne musique synthétisée.** Julien écoute d'abord, valide, et seulement ensuite on intègre.
 
-## Ce qu'il y a ici
-- `make-req.js` : écrit les plans de composition `req/<piste>.json` des 7 pistes qui suivent `calm` (tempo, tonalité, graine, instruments, texte de chaque partie). `req/calm.json`, `req/probe.json` et `req/calm-layerA-lute.json` ont été écrits à la main.
-- `gen.sh <piste>` : envoie `req/<piste>.json` à `POST /v1/music`, écrit `raw/<piste>.mp3` et note les crédits dans `credits.txt`. `stems.sh <piste>` : envoie `raw/<piste>.mp3` à `POST /v1/music/stem-separation` (`six_stems_v1`) et écrit `raw/<piste>-stems/*.mp3`. `bal.sh` : affiche le solde. Une seule requête à la fois. La clé n'est écrite nulle part : l'en-tête `xi-api-key: proxy-injected` est remplacé par le proxy de la session.
-- `raw/` : les sorties brutes (MP3 44,1 kHz 128 kbit/s). `raw/calm-ref.mp3` est l'extrait de `calm` (de 46,6 s à 69,7 s) téléversé par `POST /v1/music/upload` ; l'identifiant reçu (`raw/calm-ref.upload.json`) sert de `conditioning_ref` aux 7 autres pistes, pour qu'elles gardent la même salle et les mêmes instruments.
-- `manifest.json` : la liste de tous les fichiers de musique du projet avec leur empreinte, écrite par `tools/music-build.js` ; `tools/check-provenance.js` n'accepte que ceux-là.
-- `credits.txt` : le compteur de crédits.
+## Premier essai : rejeté par Julien (14 novembre 2026)
+Huit pistes avaient été générées par plan de composition (`chunks`), séparées en couches et intégrées au jeu. Julien les a trouvées affreuses : **on entend une voix dire « sixty BPM, four four »**. Cause : dans un plan de composition, le champ `text` d'un chunk contient les **paroles** (plus, au besoin, un nom de section entre crochets et des indications entre accolades), pas une description. Les descriptions y avaient été écrites, la voix les a dites ou chantées. La piste « vocals » de la séparation, prise pour la flûte, était cette voix.
+Les sons de cet essai ont été retirés du dépôt. Restent, pour mémoire, dans `req-v1-rejected/` : les requêtes envoyées et les scripts d'alors. Ce qui reste vrai et utile de cet essai :
+- coûts : génération 12,5 crédits par seconde, séparation en six pistes (`six_stems_v1`) 25 crédits par seconde, téléversement d'une référence 288 crédits pour 23 s ;
+- les tempos demandés sont respectés à moins de 1 % ;
+- la séparation redonne le mélange (somme des pistes à 32 dB sous le mélange, retard fixe de 25 ms) ; générer chaque couche à part ne marche pas (tempo et départ différents) ;
+- `conditioning_ref` se met **dans chaque chunk**, sous la forme `{ "song_id": …, "range": … }` ; mis à la racine de la requête (comme au premier essai) il est très probablement ignoré ;
+- le modèle ajoute presque toujours une mesure de conclusion à la fin, même si on demande le contraire ;
+- il existe un `generation_mode` (`track`, `loop`, `ambience`) utilisable avec `prompt` : `loop` est à essayer pour les boucles.
 
-## Comment les pistes ont été choisies
-Chaque piste a été générée **une seule fois** (aucun tri entre plusieurs essais : le budget de crédits ne le permettait pas) puis mesurée avec `node tools/music-measure.js <fichier> <tempo>` : tempo réel, premier temps, niveau par mesure. Les boucles ont été placées d'après ces mesures (début sur une mesure où le niveau est le même qu'à la fin, fin avant la mesure de conclusion que le modèle ajoute presque toujours malgré la consigne). Personne ne les a encore écoutées : **c'est à Julien de les juger à l'oreille**.
+## Second essai : extraits à écouter (14 novembre 2026)
+`make-req2.js` écrit `req2/<piste>.json` : mode `prompt` (une description, pas de paroles possibles) avec `force_instrumental: true`, que l'API documente comme la garantie d'un morceau sans voix ; 34 s par piste. `gen2.sh <piste>` envoie la requête et écrit `raw2/<piste>.mp3`. Une seule requête à la fois. Chaque extrait a été généré une fois, sans tri. Copies à écouter : `shots/musique-v2/`.
+Mesuré (`node tools/music-measure.js`) : calm 84,04 battements par minute pour 84, night 60,08 pour 60, war 131,68 pour 132, menu 72,02 pour 72, disaster 120,18 pour 120, dunes 96,14 pour 96, tide 80,12 pour 80, frost 56,96 pour 54 (piste clairsemée, mesure peu sûre). **Non vérifié : l'absence de voix** (l'agent ne peut pas écouter ; il s'appuie sur la garantie de l'API).
+Ce mode n'accepte ni graine ni référence sonore : la parenté entre les pistes ne tient qu'au texte commun des descriptions.
 
-Identifiants des morceaux chez ElevenLabs : calm wPDesvjX5J0HDGQKPbyl ; night Kc72uaRUwsOYlW56I6TX ; war Bb3JouhWiGWLB4PuHMEh ; menu IXLx2TgLGL1sMwNLhVnL ; disaster FZAwPOLj0CcWiqiG5V7R ; frost ybnAInHu2fSpvPv6vwhu ; dunes gwLt0BePycQarCmeCafN ; tide b3cBGYtIcDlw5h8JFTSG.
+## Crédits
+Solde au début du chantier : 27 754. Premier essai : 19 270 dépensés. Second essai : 3 400 (8 × 34 s). **Solde : 5 084**, au ras du seuil d'arrêt de 5 000 fixé par Julien : plus aucune requête sans nouveaux crédits. Journal : `credits.txt`.
 
-Tonalités demandées, pour que les fondus ne frottent pas : `calm` ré majeur ; `night`, `war`, `disaster`, `frost` si mineur (relatif de ré majeur) ; `tide` sol majeur ; `dunes` mode phrygien dominant sur ré ; `menu` mi mineur. La tonalité réellement jouée n'a pas été mesurée.
-
-## Les deux voies comparées pour les couches (sur `calm`)
-- **Voie A, chaque couche générée séparément** (même plan, même graine, même référence) : essai avec le luth seul, `raw/calm-layerA-lute.mp3`. Mesure : 84,04 battements par minute contre 83,36 pour le mélange, premier temps à 0,044 s contre 0,549 s, et le morceau se conclut tout seul à la 7ᵉ mesure. Les couches ne se superposent donc pas. **Écartée.** Elle aurait aussi coûté six fois plus de crédits.
-- **Voie B, mélange complet puis séparation** (`six_stems_v1`) : la somme des pistes séparées redonne le mélange à 32 dB sous son niveau, avec un retard fixe de 25 ms (celui du MP3) que `tools/music-build.js` mesure et retire. **Retenue.** Limite : la séparation ne connaît que six familles (voix, batterie, basse, guitare, piano, autres). Dans cette musique, le luth sort en « guitare », la flûte ou le cor en « voix », les cordes et les cloches en « autres », les tambours en « batterie » ; basse et piano sont presque toujours vides.
-
-Pistes séparées non utilisées et supprimées du dépôt (niveau moyen mesuré) : calm/bass -91.0 dB ; calm/drums -45.8 dB ; calm/piano -91.0 dB ; night/bass -91.0 dB ; night/drums -91.0 dB ; war/bass -91.0 dB ; war/piano -91.0 dB ; menu/bass -91.0 dB ; menu/drums -91.0 dB ; menu/piano -91.0 dB ; disaster/bass -91.0 dB ; frost/bass -91.0 dB ; frost/drums -77.3 dB ; frost/guitar -91.0 dB ; dunes/bass -91.0 dB ; dunes/drums -56.6 dB ; dunes/piano -85.5 dB ; tide/bass -91.0 dB ; tide/drums -90.3 dB ; tide/piano -91.0 dB.
-
-## Crédits dépensés
-Solde avant : 27 754. Génération : 12,5 crédits par seconde ; séparation : 25 crédits par seconde ; téléversement de la référence : 288. Total dépensé : 19 270 (essai 38, `calm` 1 214, séparation de `calm` 2 431, référence 288, essai de la voie A 287, sept pistes 5 001, sept séparations 10 011). **Solde après : 8 484.** C'est ce coût qui a fixé la longueur des boucles (48 à 53 s, 69 s pour `calm`).
-
-## Fabriquer les fichiers du jeu
-`node tools/music-build.js` (demande `ffmpeg`) lit `src/data/music.json` (bloc `audio` de chaque piste) et ces sources, et écrit `assets/music/music-<piste>.js`, les mesures `shots/musique/mesures.txt` et les extraits à écouter `shots/musique/*.mp3`. Puis `node tools/build.js`.
+## Après la validation de Julien
+Générer les pistes validées en longueur de boucle (essayer `generation_mode: "loop"`), les séparer en couches si le budget le permet, remettre un bloc `audio` par piste dans `src/data/music.json`, puis `node tools/music-build.js` (coupe sur les mesures, boucle, même loudness, MP3, mesures) et `node tools/build.js`. Le lecteur est déjà dans `src/client/audio.js` (inactif tant qu'aucune piste n'a de bloc `audio`). `manifest.json` liste les fichiers audio du projet avec leur empreinte ; `tools/check-provenance.js` n'accepte que ceux-là.

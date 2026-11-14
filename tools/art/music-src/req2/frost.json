@@ -1,0 +1,6 @@
+{
+  "model_id": "music_v2_5",
+  "prompt": "Frozen silent land, around 54 beats per minute, B minor. Small crystal bells play a slow sparse melody, high thin strings hold cold long notes, a lute adds a single note now and then. Cold, empty, beautiful. Instrumental only, no voice, no singing, no speech, no choir. Acoustic medieval fantasy folk played by a small ensemble in a warm wooden hall: lute, wooden flute, string ensemble, small bells, hand percussion. Soundtrack of a peaceful pixel-art god game. No electronic sounds, no synthesizer, no electric guitar. Steady tempo from the first second to the last, no introduction, no ending, no fade out.",
+  "music_length_ms": 34000,
+  "force_instrumental": true
+}
