@@ -216,5 +216,50 @@ E['impact'] = { size: 32, n: 5, fn: (f) => { const im = new Img(32, 32), t = (f 
     const X = Math.round(x), Y = Math.round(y); if (X < 1 || Y < 1 || X > 30 || Y > 30) continue; im.set(X, Y, tn[1]); if (wood) { im.set(X + (Math.cos(a) > 0 ? 1 : -1), Y + (Math.sin(a) > 0.3 ? 1 : 0), tn[0]); if (f < 3) im.set(X - (Math.cos(a) > 0 ? 1 : -1), Y - (Math.sin(a) > 0.3 ? 1 : 0), tn[1]); } else { im.set(X + 1, Y, tn[0]); im.set(X, Y + 1, tn[0]); } }
   if (f > 0) for (let x = 8; x < 24; x++) { const h = Math.round((1.6 + 1.4 * nz(x * 0.45, f * 0.9, 81)) * (1 - Math.abs(x - 16) / 9) * (f < 4 ? 1 : 0.5)); for (let j = 0; j < h; j++) im.set(x, 27 - j - f, DUST[j === h - 1 ? 2 : 1]); }
   return im; }, pivot: [16, 20] };
+// ---- chantier C.3: the weak effects redrawn. An impact on a liquid: a column, a crown of fingers that break into drops,
+// and a ring on the ground that widens, thins and breaks. T = [dark, mid, light, foam].
+function impact(S, T, o) { o = o || {}; const K = o.k || 5, sd = o.seed || 3; return (f, n) => { const im = new Img(S, S), t = f / (n - 1), cx = S / 2, by = S - 4;
+  const rx = 1.6 + t * (o.rx || 5.2), ry = 0.9 + t * (o.ry || 1.9);
+  if (t < 0.3) for (let y = -1; y <= 1; y++) for (let x = -2; x <= 1; x++) if (Math.abs(y) + Math.abs(x + 0.5) < 2.6) im.set(cx + x, by + y, T[1]); // the disturbed surface
+  for (let a = 0; a < 72; a++) { const an = a / 72 * 6.2832, sn = Math.sin(an); if (t > 0.55 && AL.hash2(a >> 2, 5, sd) < (t - 0.55) * 2) continue;
+    const x = Math.round(cx - 0.5 + Math.cos(an) * rx), y = Math.round(by + sn * ry); im.set(x, y, sn > 0.25 ? T[2] : sn < -0.25 ? T[0] : T[1]); if (t < 0.7 && sn > 0.5) im.set(x, y + 1, T[0]); }
+  if (t < 0.45) { const h = Math.round(2 + 5 * Math.sin(t / 0.45 * 2.2)); for (let j = 0; j < h; j++) { im.set(cx - 1, by - 1 - j, j > h - 2 ? T[3] : T[2]); im.set(cx, by - 1 - j, j > h - 2 ? T[2] : T[1]); } } // the central column
+  for (let p = 0; p < K; p++) { const u = t / (0.8 + AL.hash2(p, 2, sd) * 0.2); if (u > 1) continue; const dir = (p + 0.5) / K * 2 - 1 + (AL.hash2(p, 1, sd) - 0.5) * 0.25, reach = (o.reach || 6) * dir, H = (o.up || 9) * (0.65 + 0.35 * (1 - Math.abs(dir))) * (0.8 + AL.hash2(p, 3, sd) * 0.3);
+    const x = Math.round(cx - 0.5 + reach * u), y = Math.round(by - 1 - H * 4 * u * (1 - u));
+    if (u < 0.4) { const x0 = Math.round(cx - 0.5 + dir * rx * 0.8), steps = Math.max(1, by - 1 - y); for (let j = 0; j <= steps; j++) im.set(Math.round(x0 + (x - x0) * j / steps), by - 1 - j, j > steps - 2 ? T[2] : T[1]); } // a finger still tied to the ring
+    im.set(x, y, T[3]); if (u < 0.75) { im.set(x + 1, y, T[2]); im.set(x, y + 1, T[2]); im.set(x + 1, y + 1, T[0]); } else if (u < 0.9) im.set(x, y + 1, T[1]); }
+  if (o.bubbles && f >= 2) for (let b = 0; b < 3; b++) { const ph = (f - 2 + b) % 3, bx = Math.round(cx - 5 + b * 4 + AL.hash2(b, 7, sd) * 2), yy = by - 1 - ph * 2 - b % 2; if (f - 2 + b >= n - 1) continue;
+    im.set(bx, yy, T[3]); im.set(bx + 1, yy, T[2]); im.set(bx, yy + 1, T[2]); im.set(bx + 1, yy + 1, T[1]); if (ph === 2) { im.set(bx, yy, 255); im.set(bx + 1, yy + 1, 255); } } // bubbles that swell and burst
+  if (o.fume && f >= 3) { const fy = by - 6 - (f - 3) * 2; for (let j = 0; j < 4; j++) { const fx = Math.round(cx + 2 + Math.sin(j * 1.3 + f) * 1.4); im.set(fx, fy - j, o.fume); if (j % 2 === 0) im.set(fx + 1, fy - j, o.fume); } }
+  return im; }; }
+E['splash'] = { size: 16, n: 6, fn: impact(16, [ix('water', 3), ix('water', 4), ix('water', 5), ix('ice', 5)], { k: 5 }) };
+E['acid'] = { size: 16, n: 6, fn: impact(16, [ix('jungle', 2), ix('jungle', 3), ix('jungle', 4), ix('jungle', 5)], { k: 4, up: 6, reach: 5, bubbles: 1, fume: ix('jungle', 4), seed: 9 }) };
+// blood, discreet: three drops in a short arc, then a small pool that stays a moment
+E['blood'] = { size: 16, n: 5, fn: (f) => { const im = new Img(16, 16), d = ix('red', 1), m = ix('red', 2), l = ix('red', 3), u = f / 3;
+  if (f < 4) for (let p = 0; p < 3; p++) { const dir = p - 1 + (AL.hash2(p, 1, 6) - 0.5) * 0.5, x = Math.round(7.5 + dir * 4.5 * u), y = Math.round(10 - (5 + p) * 4 * u * (1 - u) * 0.55 + 4 * u * u); im.set(x, y, f < 2 ? l : m); if (f < 3) { im.set(x + (dir < 0 ? 1 : -1), y, m); im.set(x, y + 1, d); } }
+  if (f >= 2) { const w = f === 2 ? 1 : f === 3 ? 3 : 2; for (let x = -w; x <= w; x++) { im.set(8 + x, 14, d); if (Math.abs(x) < w && f > 2) im.set(8 + x, 13, x < 0 ? l : m); } }
+  return im; } };
+// crack in the ground: a wide middle that tapers, the far wall seen in the hole, a lit lip on the near edge, thin branches, loose chips
+E['crack'] = { size: 32, n: 3, pivot: [16, 16], fn: (f) => { const im = new Img(32, 32), V = ix('stone', 0), W1 = ix('earth', 0), W2 = ix('earth', 1), LIP = ix('earth', 4), CH = ix('earth', 3);
+  const walk = (x, y, a, L, s, wide) => { for (let k = 0; k < L; k++) { const X = Math.round(x), Y = Math.round(y), w = wide ? (k < L * 0.25 ? 2 : k < L * 0.6 ? 1 : 0) : 0;
+      im.set(X, Y - 1 - (w > 1 ? 1 : 0), W2); for (let j = -(w > 1 ? 1 : 0); j <= w - (w > 1 ? 1 : 0); j++) im.set(X, Y + j, j === -(w > 1 ? 1 : 0) ? W1 : V); if (!w) im.set(X, Y, W1);
+      if (w && (k & 3) !== 3) im.set(X, Y + w + (w > 1 ? 0 : 1), LIP);
+      a += (AL.hash2(k, s, 4) - 0.5) * 1.3; x += Math.cos(a) * 1.1; y += Math.sin(a) * 0.6; if (k === (L >> 1) && L > 6) walk(x, y, a + (s & 1 ? 1 : -1), L >> 1, s + 9, false); } };
+  walk(16, 16, 0.2 + f, 13, f * 5 + 1, true); walk(16, 16, 3.3 + f, 13, f * 5 + 2, true); walk(16, 16, 1.8 - f, 7, f * 5 + 3, false);
+  for (let c = 0; c < 4; c++) { const x = Math.round(6 + AL.hash2(c, f, 31) * 20), y = Math.round(9 + AL.hash2(c, f, 32) * 14); if (im.get(x, y) !== 255 || im.get(x + 1, y) !== 255 || im.get(x, y + 1) !== 255 || im.get(x, y - 1) !== 255) continue; im.set(x, y, CH); im.set(x + 1, y, CH); im.set(x, y + 1, W2); im.set(x + 1, y + 1, W2); }
+  return im; } };
+// scorch mark (decal): charred rim, black heart, a few pale ash flakes
+E['scorch'] = { size: 16, n: 2, pivot: [8, 8], fn: (f) => { const im = field(16, (x, y) => { const d = Math.hypot(x - 8, (y - 8) * 1.7) / 7 + (nz(x * 0.5 + f * 9, y * 0.5, 2) - 0.5) * 0.5; return d > 1 ? 0 : d > 0.72 ? 0.2 : d > 0.4 ? 0.5 : 0.9; }, [ix('earth', 1), ix('earth', 0), ix('stone', 0)]);
+  for (let k = 0; k < 3; k++) { const x = 5 + ((AL.hash2(k, f, 41) * 6) | 0), y = 7 + ((AL.hash2(k, f, 42) * 3) | 0); im.set(x, y, ix('stone', 2)); im.set(x + 1, y, ix('stone', 2)); } return im; } };
+// rain: a long two-tone streak with a dark tail (readable on pale grounds too); the storm's streak leans more
+{ const a = ix('royal', 5), b = ix('royal', 4), c = ix('royal', 3), streak = (pts, w, h) => ({ w, h, n: 1, pivot: [0, 0], fn: () => { const im = new Img(w, h); for (const [x, y, v] of pts) im.set(x, y, v); return im; } });
+  E['p/rain'] = streak([[1, 0, a], [1, 1, a], [1, 2, b], [0, 3, b], [0, 4, b], [0, 5, c]], 2, 6);
+  E['p/rain2'] = streak([[2, 0, a], [2, 1, a], [1, 2, b], [1, 3, b], [0, 4, b], [0, 5, c]], 3, 6);
+  const g = [ix('jungle', 5), ix('jungle', 4), ix('jungle', 2)]; E['p/acid'] = streak([[1, 0, g[0]], [1, 1, g[0]], [1, 2, g[1]], [0, 3, g[1]], [0, 4, g[1]], [0, 5, g[2]]], 2, 6);
+  // a drop that hits the ground: a bright dot, a small ring that opens, two specks
+  E['rainhit'] = { w: 8, h: 8, n: 4, pivot: [4, 6], fn: (f) => { const im = new Img(8, 8); if (f === 0) { im.set(3, 5, a); im.set(4, 5, a); im.set(3, 4, a); im.set(3, 6, c); im.set(4, 6, c); }
+      else if (f === 1) { im.set(2, 5, b); im.set(5, 5, b); im.set(3, 4, a); im.set(4, 4, a); im.set(3, 6, c); im.set(4, 6, c); im.set(3, 2, a); }
+      else if (f === 2) { im.set(1, 5, b); im.set(6, 5, b); im.set(2, 4, a); im.set(5, 4, a); im.set(2, 6, c); im.set(3, 7, c); im.set(4, 7, c); im.set(5, 6, c); im.set(1, 2, b); im.set(6, 3, b); }
+      else { im.set(0, 5, c); im.set(7, 5, c); im.set(2, 7, c); im.set(5, 7, c); } return im; } }; }
 require('./fx-powers')(E, { AL, Img, ix, R, nz, sm, field, clean, FIRE, SMOKE, SOOT, DUST, K1, ring, spray, glyphRise });
 module.exports = E;

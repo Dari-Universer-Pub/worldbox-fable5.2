@@ -70,7 +70,11 @@ G.lava = () => { const fr = []; for (let f = 0; f < 4; f++) { const t = new Tex(
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const n = vn(x + f * 2, y + f, 4, 70) * 0.6 + vn(x - f, y + f * 2, 8, 71) * 0.4; if (n < 0.3) t.set(x, y, R('red', 2)); else if (n < 0.36) t.set(x, y, R('fire', 1)); else if (n > 0.66) t.set(x, y, R('fire', 4)); else if (n > 0.58) t.set(x, y, R('fire', 3)); }
     fr.push(t.clean().im); } return fr; };
 
-const ORDER = ['deep', 'shallow', 'lava', 'sand', 'soil', 'road', 'desert', 'savanna', 'grass', 'swamp', 'forest', 'jungle', 'tundra', 'hills', 'mountain', 'volcanic', 'snow', 'ice', 'bridge'];
+// burnt ground (chantier C.3): charcoal masses, black hearts, pale ash drifts, heat cracks, a few embers still red
+G.scorch = () => { const t = new Tex(R('stone', 1)).patches(R('stone', 0), 0.40, 91).patches(R('earth', 1), 0.24, 92, (x, y, s) => vn(x, y, 8, s)).clean();
+  for (let i = 0; i < 8; i++) { let x = (hash(i, 1, 93) * N) | 0, y = (hash(i, 2, 93) * N) | 0; const len = 4 + ((hash(i, 3, 93) * 5) | 0); for (let k = 0; k < len; k++) { t.set(x, y, R('earth', 0)); x += hash(i, k, 94) < 0.6 ? 1 : (hash(i, k, 96) < 0.3 ? -1 : 0); y += hash(i, k, 95) < 0.6 ? 1 : 0; } }
+  return [t.stamps([[[0, 0, R('stone', 3)], [1, 0, R('stone', 3)], [2, 0, R('stone', 2)], [1, 1, R('stone', 2)], [0, 1, R('stone', 2)]], [[0, 0, R('stone', 3)], [1, 0, R('stone', 2)], [0, 1, R('stone', 2)]], [[0, 0, R('stone', 2)], [1, 0, R('stone', 2)]]], 8, 0.5, 97).stamps([[[0, 0, R('fire', 2)], [1, 0, R('fire', 1)], [0, 1, R('red', 2)], [1, 1, R('red', 2)]], [[0, 0, R('fire', 1)], [1, 0, R('red', 2)]]], 16, 0.5, 98).im]; };
+const ORDER = ['deep', 'shallow', 'lava', 'sand', 'soil', 'road', 'desert', 'savanna', 'grass', 'swamp', 'forest', 'jungle', 'tundra', 'hills', 'mountain', 'volcanic', 'snow', 'ice', 'bridge', 'scorch'];
 const atlas = new Atlas('terrain', { maxW: 128, meta: { order: ORDER, size: N } }); const P = palette(); const rows = [];
 ORDER.forEach((name) => { const frames = G[name](); for (let f = 0; f < 4; f++) atlas.add(name + '/' + f, frames[f % frames.length], 0, 0);
   // measures: mean luminance, dominant tone share, isolated pixels

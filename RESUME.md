@@ -6,9 +6,17 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0 and C.1 done; next task: **C.3 effects**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0, C.1 and C.3 done; next task: **C.4 interface**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**C.3 — effets (fait).** Client et assets seulement, aucune règle de simulation touchée (donc pas de partie Node).
+- Effets redessinés (`tools/art/fx.js`, `fx-powers.js`) : `splash` (colonne, couronne, gouttes, anneau qui s'ouvre, 6 images), `acid` (même geste en vert, bulles qui crèvent, fumerolle), `blood` (discret : trois gouttes puis une petite flaque), `crack` (cœur large qui s'effile, paroi, lèvre éclairée, éclats), `scorch` (trois tons, cendres), `fissure` (paroi du fond, vide, lèvre claire, gravats), pluie `p/rain`, `p/rain2`, `p/acid` (traits de 6 px à deux tons et queue sombre), nouveau `rainhit` (goutte qui touche le sol, semée sous la pluie par `src/client/fx.js`).
+- Sol brûlé dessiné : texture `scorch` ajoutée à l'atlas de terrain (`tools/bake-terrain.js`, rang 19), raccordée au sol voisin par les 47 formes de `tmask` (code des 8 voisins brûlés calculé dans `G.updateTiles`, texture `uD`), frange roussie d'un ton autour.
+- Ombres de nuages : dans le shader de composition (`src/client/gl.js`), masses à deux crans, taillées en pixels du monde, qui dérivent avec le vent ; couverture selon la météo (`env.cloud` réglé dans `fx.js`), rien sur ce qui émet de la lumière.
+- Vu : planches `shots/c3-before.png` et `shots/c3-after.png` ; en jeu `shots/c3-game-burnt.png` (zoom 2, pluie, sol brûlé raccordé), `shots/c3-game-clouds.png` (zoom 1), `shots/c3-game-far.png` (vue lointaine, ombres de nuages visibles, sol brûlé en aplats). build, validate-data, validate-palette, check-provenance OK.
+- Non vérifié : les ombres de nuages en mouvement (captures fixes seulement) et leur lisibilité au zoom 1 (peu marquées sur la capture) ; `rainhit` vu seulement mêlé à la pluie ; coût du shader sur vrai matériel ; `splash` image 3 un peu raide (colonne en T) ; `crack` court.
+- À tester par Sonnet : `node tests/run-all.js` (les robots qui comparent des pixels du terrain ou comptent les effets peuvent bouger), mesures fx (`tools/measure-*.js`), performance avec la texture `uD` et le bruit du shader de composition, `bake-all` reproductible.
 
 **C.1 — retouches des poses clés et scintillement (fait).** Deux volets.
 (1) **Scintillement** : nouvelle passe `settle()` dans `tools/lib/sdf.js`, appelée par `tools/bake-people.js` sur les images FINIES (après nettoyage et contour) : un pixel opaque dans deux images successives, dont les 4 voisins gardent la même couverture et dont la couleur change à l'intérieur d'une même rampe, garde la couleur de l'image précédente ; s'il devait rester seul de sa couleur, c'est l'image précédente qui est corrigée. `stabilize()` ne voyait ni le contour ni deux matières de même rampe.
@@ -240,4 +248,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **C.3** — effects: rain, splashes, blood, acid, cracks made more readable; burnt ground drawn (47 cases); cloud shadows. Start by writing a sheet of the current effects (`node tools/sheet.js fx --match "^fx/(rain|splash|blood|acid|crack)" --scale 8`), look at it, redraw the weak ones in `tools/art/fx.js`, then see how scorched ground is drawn today (`grep -n scorch src/client/*.js tools/bake-terrain.js`) and add a 47-case autotile for it, then cloud shadows in the scene shader (`src/client/gl.js`). Screenshots in game for each. Then C.4 to C.10.
+First unticked line of `CHANTIER.md`: **C.4** — interface: redraw the weak icons (creatures, peace, import/export, culture, flood) in the icon sources of `tools/bake-ui.js`, look at the sheet in colour and greyscale at real size; add a hint shown during direct control (keys for move, attack, special, release; texts through `AL.t`, EN and FR); add a first-game help (short steps shown once, dismissable, remembered in the options). Then C.5 to C.10 in order.
