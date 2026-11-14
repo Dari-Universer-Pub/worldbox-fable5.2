@@ -21,6 +21,11 @@ Julien a ajouté après avoir joué onze tâches, D.1 à D.11, dans `CHANTIER.md
 
 ### Chantier — journal des tâches (le plus récent en haut)
 
+**D.2 — textes « fait par du code » corrigés (fait).**
+- `src/data/i18n.json` (anglais et français) : `credits.3`, `credits.4`, `credits.8`, `menu.made` disent maintenant la vérité (images, animations, bruitages et police par du code ; musique générée avec ElevenLabs). `README.md` et le commentaire d'en-tête de `src/client/audio.js` corrigés ; `PROVENANCE.md` était déjà juste.
+- Vu : captures `shots/d2-title-{en,fr}.png` et `shots/d2-credits-{en,fr}.png` regardées, la phrase du bas de l'écran-titre tient dans la largeur en français ; `validate-data` OK, build OK, syntaxe du paquet OK.
+- Non vérifié : le défilement complet des crédits (seule la première partie a été regardée).
+
 **Musique de nuit : elle démarre quand la nuit tombe et joue en entier (la durée de la nuit, elle, n'a PAS changé).** Julien avait demandé une nuit aussi longue que le jour, puis l'a fait annuler (commit annulé par `git revert` : la nuit reste à 32 % du jour, environ 10 s à ×1 ; l'essai montrait plus de famines et d'adultes sans tâche). À la place, règle ajoutée dans `src/client/mixer.js` : une fois la piste en cours entendue en entier, la piste de nuit démarre dès qu'il fait nuit ; elle est elle-même entendue en entier avant qu'une piste de jour revienne, dès qu'il fait jour. Elle déborde donc sur le jour (une boucle dure 2 à 3 jours de jeu à ×1) : c'est voulu.
 - Vu (Chromium, `tests/shot.js`, 4 min à ×1) : `calm` de 5 s à 81 s, `night` à 81 s (à la tombée de la nuit, `S.night` 0,8) jusqu'à 152 s, `calm` jusqu'à 231 s, puis `night` de nouveau à la tombée de la nuit. Soit environ moitié jour, moitié nuit.
 - Non vérifié : à l'oreille ; les vitesses ×5 à ×50 (la nuit y dure 2 s ou moins : la piste de nuit démarre quand même, à la première seconde de nuit après la fin d'une boucle) ; les climats (frost, dunes, tide alternent de la même façon avec night).

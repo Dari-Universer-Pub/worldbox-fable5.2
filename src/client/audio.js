@@ -1,5 +1,5 @@
 // AL.Audio — synthesis engine, instruments, sound patches player, music sequencer and adaptive mixer.
-// Everything is synthesised with the Web Audio API; there is no audio file in the project.
+// Sound effects and ambiences are synthesised with the Web Audio API (no audio file). The music is recorded (chantier C.11) with a synthesised fallback.
 (function (AL) {
   'use strict';
   const A = AL.Audio = { ctx: null, ready: false, vol: { master: 0.8, sfx: 0.9, music: 0.7, amb: 0.6 } };
