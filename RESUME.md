@@ -21,6 +21,8 @@ Julien a ajouté après avoir joué onze tâches, D.1 à D.11, dans `CHANTIER.md
 
 ### Chantier — journal des tâches (le plus récent en haut)
 
+**C.10 (retouche) — taille de la clairière en curseur.** Julien veut pouvoir baisser la clairière encore plus. Les quatre boutons (non / petite / moyenne / grande = 0 / 0,55 / 1 / 1,6) sont remplacés par un curseur de 0 à ×2,5 par pas de 0,05 (`Game.options.veilm`, défaut ×1 ; `src/client/ui.js`, `src/client/scene.js`) : le côté gauche éteint la clairière, ×0,05 la réduit à presque rien. Un ancien réglage (`veil` 0 à 3) est converti tant que `veilm` n'a pas été touché. Vu : glissement à la souris réelle (×0,45, puis 0 = non, puis ×1,1), capture `shots/d-veilm-options.png`. Non vérifié : l'aspect des très petites clairières en forêt.
+
 **D.4 (retouche) — descriptions de pouvoirs.** « Une ligne de sept bombes », « Six petits rochers », « Huit mines » étaient devenus faux depuis que la taille choisie règle ces nombres : réécrits sans nombre fixe, en anglais et en français (`pwd.carpetbomb`, `pwd.meteorshower`, `pwd.minefield`). Recherche de « seven », « sept », « série de » dans tout le fichier de textes : plus d'autre occurrence. Règle : une description de pouvoir ne cite pas un nombre que la taille peut changer.
 
 **Retouches demandées par Julien (zoom du voile des arbres, centrage des liens).**
