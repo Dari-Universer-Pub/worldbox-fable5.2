@@ -8,6 +8,8 @@
 
 ## PASSATION (à lire en premier) — C.10 refait en vrai fondu, reste la passe de Sonnet
 
+**NOUVELLE TÂCHE, à faire avant la passe de Sonnet : C.11 (voir `CHANTIER.md`).** Julien veut que les musiques du jeu soient refaites avec l'API musique d'ElevenLabs et sa clé, de façon intelligente (couches, boucles, enchaînements sur les mesures, même famille sonore, poids maîtrisé), intégrées au mélangeur et au code. Les effets sonores ne changent pas. Tout le détail et les pièges connus sont dans la ligne C.11.
+
 **C.10 est refait et recoché.** Julien a choisi : dès qu'il y a quelque chose à montrer derrière des arbres, un rond autour de lui où les arbres deviennent transparents, proprement (piste 1 de `C10-PISTES.md`). La trame 2×2 est supprimée. Il ne reste que la ligne 0.2 et la passe de tests et d'équilibrage, réservées à Sonnet. Si Julien veut retoucher l'effet : le rond a été élargi en clairière (voir le journal C.10) ; taille des ronds et force dans `src/client/scene.js` (appels `G.occ`), bord du rond dans `FS_M` et opacité minimale (`op=1.-.9*cv`) dans `FS_S` (`src/client/gl.js`).
 
 
