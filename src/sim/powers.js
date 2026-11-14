@@ -120,6 +120,7 @@
     const hid = H[m.id] ? m.id : D.like || (D.spawn ? 'summon' : m.id);   // a power's own rule first, then the rule it borrows
     if (D.kind === 'zone' && !H[m.id]) { Pw.addZone(sim, ZN[D.zone], m.x, m.y, r, D.dur); n = 1; }
     else if (H[hid]) { if (D.scatter) { for (let k = 0; k < D.scatter; k++) { const a = sim.rng.f() * 6.2832, d = Math.sqrt(sim.rng.f()) * (D.spread || r * 2), x = m.x + Math.cos(a) * d, y = m.y + Math.sin(a) * d; if (W.inb(x | 0, y | 0)) n += H[hid](sim, Object.assign({}, m, { x, y }), r) || 0; } } else n = H[hid](sim, m, r); }
+    if (n <= 0 && (m.id === 'mend' || m.id === 'revival')) sim.emit('nothing', m.x, m.y, m.id);   // a healing power that found nothing to heal says so instead of staying silent
     sim.stats.powers++; if (sim.stats.pwn && n > 0) sim.stats.pwn[m.id] = (sim.stats.pwn[m.id] || 0) + 1; sim.lastPower = { id: m.id, n }; sim.emit('pw', m.id, m.x, m.y, r); return n; };
   // ------------------------------------------------------------ per-unit states (every 8 ticks per unit)
   function stateTick(sim, i) { const E = sim.E, W = sim.world, n = W.n, rng = sim.rng, t1 = E.traits1[i], x = E.x[i], y = E.y[i], ti = (y | 0) * n + (x | 0);
