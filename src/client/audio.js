@@ -25,7 +25,7 @@
     A.ready = true; A.buses = buses; return A;
   };
   A.setVolume = function (k, v) { A.vol[k] = v; if (!ctx) return; if (k === 'master') master.gain.setTargetAtTime(v, ctx.currentTime, 0.05); else if (buses[k]) { buses[k].gain.setTargetAtTime(v, ctx.currentTime, 0.05); if (k === 'sfx') buses.ui.gain.setTargetAtTime(v, ctx.currentTime, 0.05); } };
-  A.resume = function () { if (ctx && ctx.state === 'suspended') return ctx.resume(); };
+  A.resume = function () { if (ctx && (ctx.state === 'suspended' || ctx.state === 'interrupted')) return ctx.resume(); };
 
   function noiseBuf(color) {
     if (noiseBufs[color]) return noiseBufs[color];

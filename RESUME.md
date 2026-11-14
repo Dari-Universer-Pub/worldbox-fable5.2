@@ -6,9 +6,17 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0, C.1 and C.3 to C.6 done; next task: **C.7 touch and phone**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0, C.1 and C.3 to C.7 done; next task: **C.8 screenshots never looked at**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**C.7 — tactile et téléphone (fait).** Client seulement.
+- Gestes (`src/client/main.js`) : un doigt = toucher pour agir (une seule fois), glisser avec la main pour déplacer la vue, glisser avec un pinceau ou un pouvoir traînant pour peindre ; l'outil ne part qu'après 6 px ou 140 ms, donc le premier doigt d'un pincement ne lance plus rien ; deux doigts = déplacer et zoomer ; doigt posé 0,5 s sur un être avec la main = le suivre ; `touchcancel` géré.
+- Son sur iPhone : le déblocage au premier toucher existait (`mixer.js`) ; ajouté : état `interrupted` repris (`audio.js`) et reprise au retour sur la page.
+- Interface ×2 par défaut sur écran tactile assez large (`UI.coarse`, recalculé à chaque redimensionnement) ; sur écran bas la colonne de boutons de gauche se dédouble et le journal se décale ; en portrait étroit, un bandeau invite à tourner le téléphone (`ui.rotate`) ; la première étape de l'aide parle des doigts (`help.touch`).
+- Vu (émulation tactile Chromium 844×390, script jetable, événements tactiles réels par CDP) : glisser à un doigt déplace la caméra (602,829 → 722,869) ; pincement : zoom 1 → 4 ; avec la bombe choisie, un pincement ne lance rien (compteur 0) et un toucher lance une bombe (compteur 1) ; captures `shots/c7-phone-landscape.png` (interface ×2, colonne dédoublée) et `shots/c7-phone-portrait.png` (bandeau).
+- Non vérifié : un vrai iPhone et un vrai Android (son, barre d'adresse, encoche), l'appui long pour suivre, les fenêtres (options, listes) en ×2 sur 195 px de haut, le décalage du journal (fait après la dernière capture).
+- À tester par Sonnet : robots souris (les gestes souris ne sont pas touchés, mais `UI.resize` recalcule la taille d'interface), un robot tactile si besoin, fenêtres en ×2 sur petit écran.
 
 **C.6 — univers (fait).** Documents et noms seulement.
 - `BIBLE.md` réécrit pour Dustcrown : le monde **Orrim**, **la Poussière**, la légende de la couronne trouvée dans la poussière, le dieu **le Sans-Couronne**, le ton, les mots à employer et à éviter ; les dix ères de la section 3 sont maintenant celles des données (`src/data/eras.json`, noms anglais et français, effets chiffrés relus dans les données).
@@ -271,4 +279,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **C.7** — touch and phone: gestures (one finger = tool or pan, two fingers = pan and pinch zoom, long press = sheet), sound unlock on iPhone (resume the audio context on the first touch), interface ×2 on small screens. Read the pointer/touch code in `src/client/main.js` first; test with Playwright touch emulation in a one-off script (not the robots). Then C.8 to C.10.
+First unticked line of `CHANTIER.md`: **C.8** — the screenshots of steps 5 to 10 that were never looked at: list them (`ls shots | grep -E 'step(5|6|7|8|9|10)'`, and what RESUME/REPORT say was not looked at), open each, note and fix what they show. Then C.9 (stumps, mushrooms, rabbit, `chop` sound) and C.10 (trees transparent in front of what they hide).

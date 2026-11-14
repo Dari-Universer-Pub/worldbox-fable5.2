@@ -91,13 +91,24 @@
     window.addEventListener('keydown', e => { if (AL.UI && AL.UI.keyDown(e)) { e.preventDefault(); return; } Game.keys[e.code] = true; const a = Game.codeToAction[e.code]; if (a) { if (!e.repeat && Game.onAction) Game.onAction(a); if (!e.ctrlKey && !e.metaKey) e.preventDefault(); } });
     window.addEventListener('keyup', e => { Game.keys[e.code] = false; });
     window.addEventListener('blur', () => { Game.keys = {}; M.pan = false; M.down = false; });
-    // touch: one finger = tool / tap, two fingers = pan + pinch zoom
-    let tch = null;
-    ui.addEventListener('touchstart', e => { e.preventDefault(); if (e.touches.length === 1) { const t = e.touches[0]; pos(t); if (AL.UI && AL.UI.mouseDown(M.cx, M.cy, 0)) { tch = { ui: true }; return; } M.down = true; tch = { one: true }; if (Game.onPress) Game.onPress(M); }
-      else if (e.touches.length === 2) { if (M.down) { M.down = false; } const a = e.touches[0], b = e.touches[1]; tch = { d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), mx: (a.clientX + b.clientX) / 2, my: (a.clientY + b.clientY) / 2 }; } }, { passive: false });
-    ui.addEventListener('touchmove', e => { e.preventDefault(); if (!tch) return; if (e.touches.length === 1 && tch.one) { pos(e.touches[0]); if (Game.onDrag) Game.onDrag(M); } else if (e.touches.length === 1 && tch.ui) { pos(e.touches[0]); AL.UI.mouseMove(M.cx, M.cy); }
-      else if (e.touches.length === 2 && tch.d) { const a = e.touches[0], b = e.touches[1], d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), mx = (a.clientX + b.clientX) / 2, my = (a.clientY + b.clientY) / 2; Game.cam.x -= (mx - tch.mx) / Game.scale / Game.cam.z; Game.cam.y -= (my - tch.my) / Game.scale / Game.cam.z; tch.mx = mx; tch.my = my; if (d > tch.d * 1.35) { Game.zoomAt(1, mx / Game.scale, my / Game.scale); tch.d = d; } else if (d < tch.d * 0.74) { Game.zoomAt(-1, mx / Game.scale, my / Game.scale); tch.d = d; } } }, { passive: false });
-    ui.addEventListener('touchend', e => { e.preventDefault(); if (tch && tch.ui) AL.UI.mouseUp(M.cx, M.cy, 0); else if (M.down) { M.down = false; if (Game.onRelease) Game.onRelease(M); } if (e.touches.length === 0) tch = null; }, { passive: false });
+    // touch (chantier C.7). One finger: a tap is a click (select, cast a power once); a drag pans the camera with the select hand and paints with
+    // a brush or a dragged power. The tool only fires once the finger has moved 6 px or stayed 140 ms, so the first finger of a pinch never
+    // casts anything. Two fingers: pan and smooth pinch zoom around the middle of the fingers. A long press (0.5 s, without moving) with the
+    // select hand follows the being under the finger.
+    let tch = null; const tapTool = () => { M.down = true; M.lastTX = M.tileX; M.lastTY = M.tileY; if (Game.onPress) Game.onPress(M); }, endTool = () => { if (M.down) { M.down = false; if (Game.onRelease) Game.onRelease(M); } };
+    const cancelT = () => { if (tch && tch.timer) { clearTimeout(tch.timer); tch.timer = 0; } };
+    ui.addEventListener('touchstart', e => { e.preventDefault(); Game.touch = true; if (e.touches.length === 1) { const t = e.touches[0]; pos(t); if (AL.UI) AL.UI.mouseMove(M.cx, M.cy); if (AL.UI && AL.UI.mouseDown(M.cx, M.cy, 0)) { tch = { ui: true }; return; }
+        const hand = Game.tool.id === 'none'; tch = { one: true, hand, x0: t.clientX, y0: t.clientY, px: M.x, py: M.y, fired: false, moved: false, timer: 0 };
+        const me = tch; tch.timer = setTimeout(() => { if (tch !== me || me.moved) return; me.timer = 0; if (me.hand) { const i = AL.Scene && AL.Scene.pick ? AL.Scene.pick(M.wx, M.wy + 8) : -1; if (i >= 0) { Game.follow = i; me.fired = true; me.long = true; } } else if (!me.fired) { me.fired = true; tapTool(); } }, hand ? 500 : 140); }
+      else if (e.touches.length === 2) { cancelT(); if (tch && tch.one && tch.fired && !tch.long) endTool(); const a = e.touches[0], b = e.touches[1]; tch = { d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), mx: (a.clientX + b.clientX) / 2, my: (a.clientY + b.clientY) / 2 }; } }, { passive: false });
+    ui.addEventListener('touchmove', e => { e.preventDefault(); if (!tch) return; if (e.touches.length === 1 && tch.one) { const t = e.touches[0]; pos(t); if (!tch.moved && Math.hypot(t.clientX - tch.x0, t.clientY - tch.y0) > 6) { tch.moved = true; if (tch.hand) cancelT(); }
+        if (tch.hand) { if (tch.moved) { Game.cam.x -= (M.x - tch.px) / Game.cam.z; Game.cam.y -= (M.y - tch.py) / Game.cam.z; Game.follow = -1; } tch.px = M.x; tch.py = M.y; }
+        else if (tch.moved) { if (!tch.fired) { cancelT(); tch.fired = true; tapTool(); } else if (Game.onDrag) Game.onDrag(M); } }
+      else if (e.touches.length === 1 && tch.ui) { pos(e.touches[0]); AL.UI.mouseMove(M.cx, M.cy); }
+      else if (e.touches.length === 2 && tch.d) { const a = e.touches[0], b = e.touches[1], d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), mx = (a.clientX + b.clientX) / 2, my = (a.clientY + b.clientY) / 2, c = Game.cam; c.x -= (mx - tch.mx) / Game.scale / c.z; c.y -= (my - tch.my) / Game.scale / c.z; tch.mx = mx; tch.my = my; Game.follow = -1;
+        if (d > tch.d * 1.35) { Game.zoomAt(1, mx / Game.scale, my / Game.scale); tch.d = d; } else if (d < tch.d * 0.74) { Game.zoomAt(-1, mx / Game.scale, my / Game.scale); tch.d = d; } } }, { passive: false });
+    const tend = e => { e.preventDefault(); if (tch && tch.ui) { AL.UI.mouseUp(M.cx, M.cy, 0); AL.UI.mouseMove(-99, -99); } else if (tch && tch.one) { cancelT(); if (!tch.fired && !tch.moved && e.type === 'touchend') tapTool(); endTool(); } if (e.touches.length === 0) tch = null; else if (tch && !tch.d) tch = null; };
+    ui.addEventListener('touchend', tend, { passive: false }); ui.addEventListener('touchcancel', tend, { passive: false });
     window.addEventListener('resize', Game.layout);
     document.addEventListener('visibilitychange', () => { if (document.hidden) { Game.hiddenSpeed = Game.speed; Link.send({ t: 'speed', v: 0 }); if (AL.Audio.ctx && AL.Audio.ctx.suspend) AL.Audio.ctx.suspend(); } else { Link.send({ t: 'speed', v: Game.hiddenSpeed == null ? Game.speed : Game.hiddenSpeed }); if (AL.Audio.ctx && AL.Audio.ctx.resume) AL.Audio.ctx.resume(); } });
   }
