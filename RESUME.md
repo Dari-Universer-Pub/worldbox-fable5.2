@@ -6,9 +6,17 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0, C.1, C.3 and C.4 done; next task: **C.5 title and loading screens**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0, C.1, C.3, C.4 and C.5 done; next task: **C.6 universe**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**C.5 — écran-titre et chargement (fait).** Client seulement.
+- Logo animé (`titleLogo` dans `src/client/ui.js`, à partir du même dessin `logo/word`) : les lettres tombent une à une et rebondissent, la couronne se pose en dernier, la ligne de poussière se trace de gauche à droite ; ensuite vague lente des lettres, bande de lumière qui traverse l'or toutes les 6,5 s, éclat sur la couronne, grains de poussière qui tombent.
+- Crédits : fenêtre `credits` (bouton sur l'écran-titre), texte défilant `credits.1` à `credits.11` en anglais et en français, icône du jeu en tête, molette pour faire défiler.
+- Barre de chargement continue (`src/client/index.html`) : chaque étape glisse vers la marque suivante en ralentissant (transform, donc elle bouge aussi pendant l'analyse des scripts), fin en 0,18 s.
+- Vu : `shots/c5-logo-a.png` (entrée : N encore en chute, poussière en train de se tracer), `shots/c5-logo-b.png` (bande de lumière sur W et N), `shots/c5-credits.png`, `shots/c5-loading.png` ; valeurs de la barre relevées pendant un chargement : 0,30 → 0,47 → 0,51 → 1.
+- Non vérifié : l'animation en mouvement (captures fixes), l'éclat de la couronne et les grains (trop petits sur les captures), la barre sur une connexion lente (le chargement local dure moins d'une demi-seconde), le défilement des crédits jusqu'au bout et en français.
+- À tester par Sonnet : robot de l'écran-titre (le bouton Crédits s'ajoute sous Options : positions des boutons), temps de chargement mesuré (`AL_LOAD_MS`, la fin de l'écran dure 0,2 s de plus), interface ×2 et petite fenêtre (cinq ou six boutons en hauteur).
 
 **C.4 — interface (fait).** Client seulement.
 - Icônes redessinées dans `tools/art/icons.js` : `cat_creatures` (tête de renard au lieu d'une tache), `peace` (colombe de face, rameau), `truce` (drapeau blanc, pour ne plus doubler la colombe), `export` et `import` (caisse, flèche qui sort ou qui entre), `culture` (lyre), `flood` (maison dans l'eau).
@@ -256,4 +264,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **C.5** — title and loading screens: animate the logo (source `tools/art/logo.js`, title screen in `src/client/app.js` and `titleScreen` in `src/client/ui.js`), add a credits window reachable from the title (texts through `AL.t`), make the loading bar continuous (see `src/client/boot.js` and `main.js`). Screenshot each, then C.6 to C.10 in order.
+First unticked line of `CHANTIER.md`: **C.6** — universe: rewrite `BIBLE.md` for the name Dustcrown (the line says "if Julien wants it": he asked for every task, so do it), check era names and music track names in `src/data` and `i18n.json` against the bible. Then C.7 to C.10 in order.

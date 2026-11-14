@@ -117,12 +117,34 @@
     if (tip && tipT > 0.25 && !UI.remap) { const name = tip.tip, lines = tip.tipd ? UI.wrap(tip.tipd, 170) : [], w = Math.max(UI.textW(name), ...lines.map(l => UI.textW(l))) + 8, h = 15 + lines.length * 11; let x = Math.round(mx + 10), y = Math.round(my - h - 4); if (x + w > W) x = W - w; if (y < 14) y = Math.round(my + 14); const zl = z.length; panel(x, y, w, h, C.bg2); z.length = zl; UI.text(name, x + 4, y + 2, C.accent); lines.forEach((l, i) => UI.text(l, x + 4, y + 13 + i * 11, C.text)); }
     click = false; wheelD = 0; };
   // ------------------------------------------------------------ title screen (AL.App): logo, tagline, menu over the living world
+  // the animated word mark (chantier C.5). The letters fall in one after the other and settle with a bounce, the crown lands last on the O,
+  // the dust line is drawn from left to right; then the letters breathe in a slow wave, a band of light crosses the gold every few
+  // seconds, the crown glints and grains of dust fall from under the word. Geometry from tools/art/logo.js (letters 9 wide every 11 px from x=4).
+  let logoFull = null, logoShine = null;
+  function titleLogo(T, y0, sc) { const f = A.frames['logo/word']; if (!logoFull) { logoFull = A.toCanvas(f); logoShine = document.createElement('canvas'); logoShine.width = logoFull.width; logoShine.height = logoFull.height; }
+    const LW = logoFull.width, LH = logoFull.height, x0 = (W - LW * sc) >> 1, drop = (d) => { const u = (T - d) / 0.55; if (u <= 0) return null; if (u >= 1) return 0; const e = 1 - u; return -Math.round(e * e * 70) + (u > 0.8 ? Math.round(Math.sin((u - 0.8) * 15.7) * 2) : 0); };
+    let src = logoFull; const sw = (T - 2.2) % 6.5; if (T > 2.2 && sw < 0.9) { const c = logoShine.getContext('2d'); c.globalCompositeOperation = 'source-over'; c.clearRect(0, 0, LW, LH); c.drawImage(logoFull, 0, 0); c.globalCompositeOperation = 'source-atop'; const bx = Math.round(-12 + sw / 0.9 * (LW + 30));
+      for (let yy = 8; yy < 25; yy++) { c.fillStyle = 'rgba(255,248,214,0.62)'; c.fillRect(bx - yy, yy, 4, 1); c.fillStyle = 'rgba(255,248,214,0.3)'; c.fillRect(bx - yy + 6, yy, 2, 1); } src = logoShine; }
+    // dust line and motes under the word: wiped in from the left
+    const wipe = AL.clamp((T - 0.9) / 0.7, 0, 1); if (wipe > 0) { const ww = Math.round(LW * wipe); g.drawImage(src, 0, 25, ww, LH - 25, x0, y0 + 25 * sc, ww * sc, (LH - 25) * sc); }
+    for (let k = 0; k < 9; k++) { const d = drop(k * 0.08); if (d == null) continue; const lx = k === 0 ? 0 : 3 + k * 11, lw = k === 0 ? 14 : k === 8 ? LW - lx : 11, wave = T > 1.6 ? Math.round(Math.sin(T * 1.5 - k * 0.55) * 1.2) : 0; g.drawImage(src, lx, 8, lw, 17, x0 + lx * sc, y0 + 8 * sc + d + wave, lw * sc, 17 * sc); }
+    // the crown (and the motes of the top band, which come with it)
+    { const d = drop(0.95); if (d != null) { const bob = T > 1.6 ? Math.round(Math.sin(T * 1.5 - 6 * 0.55) * 1.2 + Math.sin(T * 2.3) * 0.8) : 0; g.drawImage(src, 0, 0, LW, 8, x0, y0 + d + bob, LW * sc, 8 * sc);
+        const gl = (T - 1.8) % 2.6; if (T > 1.8 && gl < 0.45) { const q = ((T - 1.8) / 2.6) | 0, px = x0 + (69 + [1, 6, 11][q % 3]) * sc + (sc >> 1), py = y0 + ([2, 1, 2][q % 3]) * sc + bob, r = gl < 0.15 ? 1 : gl < 0.3 ? 3 : 2; g.fillStyle = css('ice', 5); g.fillRect(px - r, py, 2 * r + 1, 1); g.fillRect(px, py - r, 1, 2 * r + 1); } } }
+    // grains of dust falling from under the letters
+    if (T > 1.6) for (let k = 0; k < 14; k++) { const per = 2.2 + AL.hash2(k, 1, 77) * 2.4, u = ((T + AL.hash2(k, 2, 77) * per) % per) / per, gx = x0 + (6 + AL.hash2(k, 3, 77) * (LW - 12)) * sc + u * 10 * sc, gy = y0 + 27 * sc + u * u * 16 * sc; if (u > 0.85 && ((T * 10) | 0) & 1) continue; g.fillStyle = css('sand', k % 3 === 0 ? 5 : k % 3 === 1 ? 4 : 3); g.fillRect(Math.round(gx), Math.round(gy), sc > 2 ? 2 : 1, sc > 2 ? 2 : 1); }
+    return LH * sc; }
+  // credits (chantier C.5): what the game is made of, scrolling slowly; the wheel moves it too
+  function winCredits(X, Y, Wd, Hd, dt) { const L = []; for (let k = 1; k <= 12; k++) { const s = t('credits.' + k); if (s === 'credits.' + k) break; if (s[0] === '#') L.push([s.slice(1).trim(), 1]); else for (const l of UI.wrap(s, Wd - 20)) L.push([l, 0]); L.push(['', 0]); }
+    const total = L.length * 11 + 40; UI.credY = (UI.credY == null || UI.winT < 0.05 ? -Hd * 0.35 : UI.credY) + dt * 9 + wheelD * 18; if (UI.credY > total) UI.credY = -Hd; g.save(); g.beginPath(); g.rect(X, Y, Wd, Hd); g.clip();
+    const ic = sprite('logo/icon', 0); let y = Y - Math.round(UI.credY); if (ic) { g.drawImage(ic, X + ((Wd - ic.width) >> 1), y); y += ic.height + 8; }
+    for (const [l, h] of L) { if (y > Y - 12 && y < Y + Hd) UI.text(l, X + ((Wd - UI.textW(l)) >> 1), y, h ? C.accent : C.text); y += 11; } g.restore(); }
   function titleScreen(dt) { const App = AL.App; App.frame(dt); const lg = sprite('logo/word', 0), sc = W >= 560 && H >= 300 ? 3 : 2, T0 = Math.min(1, App.t / 1.2), ease = 1 - (1 - T0) * (1 - T0);
     g.fillStyle = 'rgba(22,18,40,0.38)'; g.fillRect(0, 0, W, H); g.fillStyle = 'rgba(22,18,40,0.45)'; g.fillRect(0, 0, W, 10); g.fillRect(0, H - 16, W, 16);
-    let y = Math.round(H * 0.09 - (1 - ease) * 60); if (lg) { g.drawImage(lg, (W - lg.width * sc) >> 1, y + Math.round(Math.sin(App.t * 1.1) * 1.5), lg.width * sc, lg.height * sc); y += lg.height * sc + 4; }
+    let y = Math.round(H * 0.09); if (lg) { y += titleLogo(App.t, y, sc) + 4; }
     const tag = t('menu.tag'); UI.text(tag, (W - UI.textW(tag)) >> 1, y, C.text); y += 20;
     const items = [['tplay', 'menu.play', 'play', () => App.play()]]; if (App.hasAuto) items.push(['tcont', 'menu.continue', 'saves', () => { App.resume(); }]);
-    items.push(['tnew', 'win.new', 'newworld', () => UI.openWin('new')], ['tload', 'menu.load', 'saves', () => UI.openWin('saves')], ['topt', 'win.options', 'options', () => UI.openWin('options')]);
+    items.push(['tnew', 'win.new', 'newworld', () => UI.openWin('new')], ['tload', 'menu.load', 'saves', () => UI.openWin('saves')], ['topt', 'win.options', 'options', () => UI.openWin('options')], ['tcred', 'win.credits', 'history', () => UI.openWin('credits')]);
     const bw = 150, bh = 20, x = (W - bw) >> 1, a = Math.max(0, Math.min(1, (App.t - 0.5) / 0.6)); if (a > 0) { g.globalAlpha = a; items.forEach(([id, name, ic, fn], k) => { if (button(id, x, y + k * (bh + 3), bw, bh, { label: t(name), icon: ic, col: k === 0 ? C.accent : null }) && !UI.win && a >= 1) fn(); }); g.globalAlpha = 1; }
     if (button('tlen', 3, H - 15, 22, 14, { label: 'EN', sel: AL.lang === 'en' })) { Game.options.lang = 'en'; UI.applyOptions(); UI.saveOptions(); } if (button('tlfr', 27, H - 15, 22, 14, { label: 'FR', sel: AL.lang === 'fr' })) { Game.options.lang = 'fr'; UI.applyOptions(); UI.saveOptions(); }
     const made = t('menu.made'); UI.text(made, W - UI.textW(made) - 4, H - 12, C.dim); }
@@ -210,7 +232,7 @@
   function helpEnd() { UI.help = null; Game.options.helpDone = true; UI.saveOptions(); }
   function windowFrame(dt) { const w = Math.min(W - 44, 440), h = Math.min(H - 70, 250), x = (W - w) >> 1, y = 22, e = UI.winT * (2 - UI.winT), hh = Math.max(16, Math.round(h * e)); g.save(); g.beginPath(); g.rect(x, y, w, hh); g.clip(); panel(x, y, w, h); UI.zones.length -= 4; zone(x, y, w, hh);
     g.fillStyle = C.bg2; g.fillRect(x + 1, y + 1, w - 2, 15); UI.text(t('win.' + UI.win), x + 6, y + 3, C.accent); if (button('wx', x + w - 16, y + 1, 14, 14, { icon: 'close', tip: t('ui.close') })) { g.restore(); UI.closeWin(); return; }
-    const X = x + 6, Y = y + 20, Wd = w - 12, Hd = h - 26; ({ lists: winLists, history: winHistory, stats: winStats, options: winOptions, saves: winSaves, new: winNew, keys: winKeys })[UI.win](X, Y, Wd, Hd, dt); g.restore(); }
+    const X = x + 6, Y = y + 20, Wd = w - 12, Hd = h - 26; ({ lists: winLists, history: winHistory, stats: winStats, options: winOptions, saves: winSaves, new: winNew, keys: winKeys, credits: winCredits })[UI.win](X, Y, Wd, Hd, dt); g.restore(); }
   function tabs(id, names, X, Y) { let x = X; const cur = UI.tab[id] || 0; names.forEach((n, k) => { const s = t(n), w = UI.textW(s) + 10; if (button(id + k, x, Y, w, 15, { label: s, sel: cur === k })) { UI.tab[id] = k; UI.scroll = 0; UI.askT = 0; } x += w + 1; }); return cur; }
   // rows: [{cells:[..], col, go:[x,y]}]; cols: x offsets
   function table(rows, cols, X, Y, Wd, Hd, head) { const vis = Math.floor((Hd - (head ? 12 : 0)) / 11); UI.scroll = AL.clamp(UI.scroll + wheelD * 3, 0, Math.max(0, rows.length - vis)); let y = Y; if (head) { head.forEach((hd, k) => UI.text(hd, X + cols[k], y, C.dim)); y += 12; }

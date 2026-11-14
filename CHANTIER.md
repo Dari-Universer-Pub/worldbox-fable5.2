@@ -41,7 +41,7 @@ Règles qui restent valables (voir `CLAUDE.md`) : aucun asset validé sans planc
 - [x] **C.1 Retouches à la main des poses clés** des 6 peuples (`tools/art/patches/people.json`) ; scintillement et pixels isolés sous les seuils de `tools/measure-sprite.js`.
 - [x] **C.3 Effets** : pluie, éclaboussures, sang, acide, fissures plus lisibles ; sol brûlé dessiné (47 cas) ; ombres de nuages.
 - [x] **C.4 Interface** : icônes faibles à redessiner (créatures, paix, import/export, culture, inondation) ; indication en contrôle direct ; aide de première partie.
-- [ ] **C.5 Écran-titre et chargement** : animation du logo, crédits, barre continue.
+- [x] **C.5 Écran-titre et chargement** : animation du logo, crédits, barre continue.
 - [ ] **C.6 Univers** : réécrire `BIBLE.md` pour le nom Dustcrown (si Julien le veut), noms d'ères et de pistes.
 - [ ] **C.7 Tactile et téléphone** : gestes, déblocage du son sur iPhone, taille d'interface ×2.
 - [ ] **C.8 Captures jamais regardées** des étapes 5 à 10 : les regarder et corriger ce qu'elles montrent.
