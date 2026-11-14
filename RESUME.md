@@ -21,6 +21,15 @@ Julien a ajouté après avoir joué onze tâches, D.1 à D.11, dans `CHANTIER.md
 
 ### Chantier — journal des tâches (le plus récent en haut)
 
+**D.4 — taille des pouvoirs (fait).**
+- Méthode : un audit sous Node lance chaque pouvoir de zone (65) à la taille 1 puis à la taille 14 sur deux copies identiques d'un monde peuplé et compare tuiles et êtres changés. Avant : 19 pouvoirs donnaient exactement le même résultat aux deux tailles (`shots/d4-audit-avant.txt`).
+- Corrigés (la taille par défaut garde l'ancien comportement exact) : `bomb` et `bigbomb` (rayon, puissance et cratère suivent la taille), `thunderclap` (nombre de bonds), `firestorm`, `twister` (rayon du tourbillon ; `phenTick` utilisait un 2 fixe), `meteorshower` (étendue et nombre de météores), `spring` (mare et longueur de la rivière), `firecracker` (rayon d'effroi), `minefield` (étendue et nombre de mines), `carpetbomb` (longueur du tapis), `acidflood` (largeur et portée de la coulée), et `hex`, `venom`, `pestilence`, `delirium` (la ville la plus proche comme avant, plus toute autre ville à moins de 4 × la taille du clic). `teleport` : la taille compte déjà (rayon des êtres déplacés).
+- Pouvoirs à cible unique, sans taille : `smite`, `might`, `genius` portent `"single": true` dans `src/data/powers.json` (champ ajouté au schéma de `tools/validate-data.js`) ; l'interface n'affiche plus les boutons de taille pour eux.
+- Pinceaux : les 9 pinceaux changent bien de zone avec la taille (vérifié, forêt 1 → 43 tuiles, herbe 0 → 9, effacer 0 → 12 sur de la terre).
+- Vu : audit après correction (`shots/d4-audit-apres.txt`) : tous les pouvoirs à zone changent avec la taille, sauf les 3 à cible unique ; deux villes à 26 tuiles : `venom` taille 3 frappe une ville, taille 14 les deux ; captures `shots/d4-bomb.png` (boutons de taille présents) et `shots/d4-smite.png` (absents) ; validate-data, build, syntaxe OK.
+- Non vérifié : l'aspect visuel des effets agrandis (grosse bombe, long tapis, rivière longue) ; l'équilibre des tailles extrêmes (taille 40).
+- À tester par Sonnet : robots de pouvoirs existants (le comportement par défaut doit être inchangé) ; équilibre des bombes de grande taille.
+
 **D.6 — fiche d'un animal apprivoisé (fait).**
 - `src/sim/culture.js` : la réponse `q:'unit'` porte maintenant `herd` (id de la ville) et `herdName`. `src/client/ui.js` : un animal de troupeau affiche « Apprivoisé » (`sheet.tamed`) et une ligne « Appartient à : <ville> » (`sheet.owner`), les autres restent « Sauvage ». Textes en anglais et en français.
 - Vu : sous Node (graine 7), une brebis apprivoisée renvoie `herd 0, herdName "Brianholm"`, une bête sauvage `herd -1` ; dans le jeu à ×50, capture `shots/d6-tamed.png` : fiche d'une vache « Tamed / Belongs to Tastanstead » ; la fiche d'un cerf sauvage disait bien « Wild ». validate-data, build et syntaxe OK.

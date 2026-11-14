@@ -95,7 +95,8 @@
   H.fire = (sim, m, r) => { const W = sim.world, n = W.n, R = Math.ceil(r); let c = 0; for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) { const X = (m.x | 0) + dx, Y = (m.y | 0) + dy; if (W.inb(X, Y) && dx * dx + dy * dy <= r * r && Pw.ignite(sim, Y * n + X, true)) c++; } return c; };
   H.acid = (sim, m, r) => { const W = sim.world, n = W.n, R = Math.ceil(r); for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) { const X = (m.x | 0) + dx, Y = (m.y | 0) + dy; if (!W.inb(X, Y) || dx * dx + dy * dy > r * r) continue; const i = Y * n + X; if (W.feature[i] && !(W.flags[i] & 2)) { W.feature[i] = 0; W.mark(X, Y); } const g = W.ground[i]; if (!AL.gWater[g] && g !== AL.G.lava && AL.gFert[g] > 0.05 && !(W.flags[i] & 2)) { W.setGround(i, AL.G.sand); W.flags[i] &= ~8; } W.road[i] = 0; }
     Pw.bldsAround(sim, m.x, m.y, r, b => T.damage(sim, b, 45, -1)); return each(sim, m, r, i => { Pw.hurt(sim, i, 45, 'acid'); }); };
-  const boom = (r, power, crater) => (sim, m) => { const k = Pw.explode(sim, m.x, m.y, r, power, crater); sim.emit('boom', m.x, m.y, r); return k + 1; };
+  // the size the player picks is the blast radius (the default size is the one the bomb was tuned with); yield and crater grow with it
+  const boom = (r0, power, crater) => (sim, m, r) => { const s = Math.max(0.3, (r || r0) / r0), rr = r0 * s; const k = Pw.explode(sim, m.x, m.y, rr, power * (0.6 + 0.4 * s), crater * s); sim.emit('boom', m.x, m.y, rr); return k + 1; };
   H.bomb = boom(2.5, 120, 6); H.bigbomb = boom(6, 260, 16);
   H.nuke = (sim, m, r) => { const k = Pw.explode(sim, m.x, m.y, r, 900, 28); Pw.addZone(sim, ZN.fallout, m.x, m.y, r * 1.5, 3000); sim.emit('nuke', m.x, m.y, r); if (AL.Realm && sim.chron) AL.Realm.log(sim, 'nuke', ['log.nuke'], m.x, m.y); return k + 1; };
   H.tornado = (sim, m) => { sim.phen.push({ k: 'tornado', x: m.x, y: m.y, dx: 0.1, dy: 0, until: sim.tick + 450 }); return 1; };

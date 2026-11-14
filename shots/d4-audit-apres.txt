@@ -1,0 +1,65 @@
+rain           zone  r0 14   small t/e/z 7 6 1  big t/e/z 41 5 14 
+acidrain       zone  r0 10   small t/e/z 8 13 1  big t/e/z 213 51 14 
+storm          zone  r0 16   small t/e/z 8 15 1  big t/e/z 41 6 14 
+drought        zone  r0 16   small t/e/z 8 5 1  big t/e/z 79 6 14 
+coldsnap       zone  r0 16   small t/e/z 6 12 1  big t/e/z 111 50 14 
+heatwave       zone  r0 16   small t/e/z 8 5 1  big t/e/z 70 7 14 
+fire           area  r0 1.5  small t/e/z 11 11 0  big t/e/z 232 46 0 
+earthquake     area  r0 12   small t/e/z 11 8 0  big t/e/z 33 43 0 
+meteor         area  r0 5    small t/e/z 18 11 0  big t/e/z 408 60 0 
+flood          area  r0 14   small t/e/z 0 0 0  big t/e/z 10 0 0 
+bomb           area  r0 2.5  small t/e/z 6 14 0  big t/e/z 375 57 0 
+bigbomb        area  r0 6    small t/e/z 13 13 0  big t/e/z 374 59 0 
+nuke           area  r0 15   small t/e/z 6 15 1.5  big t/e/z 426 64 21 
+acid           area  r0 2    small t/e/z 11 8 0  big t/e/z 382 47 0 
+heal           area  r0 5    small t/e/z 0 2 0  big t/e/z 2 46 0 
+strength       area  r0 5    small t/e/z 0 3 0  big t/e/z 0 36 0 
+fertility      area  r0 6    small t/e/z 0 1 0  big t/e/z 4 11 0 
+curse          area  r0 5    small t/e/z 0 2 0  big t/e/z 0 43 0 
+poison         area  r0 3    small t/e/z 0 2 0  big t/e/z 5 46 0 
+plague         area  r0 3    small t/e/z 6 13 0  big t/e/z 6 47 0 
+rage           area  r0 4    small t/e/z 7 9 0  big t/e/z 7 49 0 
+madness        area  r0 4    small t/e/z 7 7 0  big t/e/z 10 41 0 
+inspire        area  r0 2    small t/e/z 3 6 0  big t/e/z 5 41 0 
+resurrect      area  r0 6    small t/e/z 0 0 0  big t/e/z 7 11 0 
+death          area  r0 1.5  small t/e/z 4 5 0  big t/e/z 7 12 0 
+teleport       move  r0 3    small t/e/z 0 0 0  big t/e/z 0 0 0   <<< IDENTICAL
+drizzle        zone  r0 8    small t/e/z 8 4 1  big t/e/z 45 6 14 
+monsoon        zone  r0 28   small t/e/z 11 5 1  big t/e/z 89 5 14 
+hailstorm      zone  r0 10   small t/e/z 9 7 1  big t/e/z 76 31 14 
+tempest        zone  r0 28   small t/e/z 9 13 1  big t/e/z 49 48 14 
+blizzard       zone  r0 26   small t/e/z 12 12 1  big t/e/z 314 52 14 
+frostbite      zone  r0 7    small t/e/z 4 12 1  big t/e/z 120 49 14 
+scorch         zone  r0 8    small t/e/z 10 6 1  big t/e/z 201 9 14 
+greatdrought   zone  r0 30   small t/e/z 11 4 1  big t/e/z 140 5 14 
+acidfog        zone  r0 18   small t/e/z 7 10 1  big t/e/z 217 51 14 
+thunderclap    area  r0 6    small t/e/z 7 13 0  big t/e/z 4 25 0 
+firestorm      area  r0 3    small t/e/z 26 13 0  big t/e/z 26 13 0   <<< IDENTICAL
+wildfire       area  r0 9    small t/e/z 7 11 0  big t/e/z 54 15 0 
+twister        area  r0 4    small t/e/z 17 34 0  big t/e/z 11 16 0 
+tremor         area  r0 5    small t/e/z 12 13 0  big t/e/z 54 17 0 
+cataclysm      area  r0 24   small t/e/z 13 12 0  big t/e/z 74 45 0 
+meteorshower   area  r0 9    small t/e/z 43 22 0  big t/e/z 68 11 0 
+comet          area  r0 10   small t/e/z 10 18 4  big t/e/z 1396 174 56 
+tsunami        area  r0 26   small t/e/z 26 1 0  big t/e/z 133 20 0 
+spring         area  r0 3    small t/e/z 48 8 0  big t/e/z 276 7 0 
+caldera        area  r0 8    small t/e/z 16 8 2.5  big t/e/z 838 39 35 
+firecracker    area  r0 7    small t/e/z 5 4 0  big t/e/z 5 7 0 
+minefield      area  r0 6    small t/e/z 16 14 0  big t/e/z 86 36 0 
+carpetbomb     area  r0 6    small t/e/z 35 23 0  big t/e/z 84 29 0 
+megabomb       area  r0 10   small t/e/z 3 8 0  big t/e/z 130 54 0 
+tsar           area  r0 24   small t/e/z 15 24 5.2  big t/e/z 1056 132 72.80000000000001 
+acidflood      area  r0 2    small t/e/z 37 18 0  big t/e/z 37 18 0   <<< IDENTICAL
+smite          area  r0 3    small t/e/z 9 7 0  big t/e/z 9 7 0   <<< IDENTICAL
+annihilate     area  r0 6    small t/e/z 9 8 0  big t/e/z 601 49 0 
+mend           area  r0 2    small t/e/z 0 0 0  big t/e/z 2 6 0 
+sanctuary      area  r0 12   small t/e/z 0 0 1  big t/e/z 6 7 14 
+might          area  r0 4    small t/e/z 4 6 0  big t/e/z 4 6 0   <<< IDENTICAL
+bloom          area  r0 14   small t/e/z 10 5 0  big t/e/z 204 5 0 
+hex            area  r0 6    small t/e/z 2 40 0  big t/e/z 2 40 0   <<< IDENTICAL
+venom          area  r0 6    small t/e/z 0 37 0  big t/e/z 0 37 0   <<< IDENTICAL
+pestilence     area  r0 6    small t/e/z 5 14 0  big t/e/z 5 14 0   <<< IDENTICAL
+frenzy         area  r0 12   small t/e/z 0 0 0  big t/e/z 7 16 0 
+delirium       area  r0 6    small t/e/z 9 26 0  big t/e/z 9 26 0   <<< IDENTICAL
+genius         area  r0 4    small t/e/z 4 5 0  big t/e/z 4 5 0   <<< IDENTICAL
+revival        area  r0 16   small t/e/z 0 0 0  big t/e/z 7 11 0 

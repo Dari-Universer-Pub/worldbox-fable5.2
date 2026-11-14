@@ -500,6 +500,7 @@
  "smite": {
   "cat": "destruction",
   "kind": "area",
+  "single": true,
   "r": 3,
   "fx": "smite",
   "snd": "smite"
@@ -529,6 +530,7 @@
  "might": {
   "cat": "divine",
   "kind": "area",
+  "single": true,
   "r": 4,
   "fx": "aura",
   "snd": "might"
@@ -578,6 +580,7 @@
  "genius": {
   "cat": "divine",
   "kind": "area",
+  "single": true,
   "r": 4,
   "fx": "idea",
   "snd": "genius"
