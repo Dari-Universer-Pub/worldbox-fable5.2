@@ -3039,7 +3039,23 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=vec4(texture(uScene,q).rgb,texture(uE
     AGE[i] = -(o.delay || 0); LIFE[i] = o.life || f.length / 12; FL[i] = 32 | (EM[name] ? 8 : 0) | (o.flip ? 1 : 0); SC[i] = o.scale || 1; ZB[i] = o.zb == null ? 6 : o.zb; AL0[i] = o.alpha || 1; FIX[i] = o.fix == null ? -1 : o.fix; END[i] = o.end || 0; TONE[i] = o.tone || 0; Fx.counts[name] = (Fx.counts[name] || 0) + 1; return i; };
   Fx._o = {};
   Fx.vis = function (wx, wy, m) { const c = Game.cam; m = m || 60; return wx > c.x - m && wy > c.y - m && wx < c.x + G.W / c.z + m && wy < c.y + G.H / c.z + m; };
-  Fx.snd = function (name, wx, wy, vol) { const A = AL.Audio; if (!A || !A.play) return; const c = Game.cam, sx = (wx - c.x) * c.z / G.W, sy = (wy - c.y) * c.z / G.H, off = Math.max(0, -sx, sx - 1, -sy, sy - 1); if (off > 1.2) return; A.play(name, { vol: (vol || 1) * (1 - off * 0.7) * AL.clamp(0.45 + c.z * 0.3, 0.4, 1), pan: AL.clamp(sx * 2 - 1, -1, 1) }); };
+  // positioned sounds (chantier D.1). Measured before: a sound anywhere on screen played at the same volume, and at zoom 0.5 or 1 the screen
+  // covers 160 or 80 tiles of a 256-tile map, so a town 70 tiles from the middle of the view hammered as loud as one under the cursor.
+  // Now the listener is the MIDDLE of the screen and every sound has a reach in world pixels:
+  //  - near sounds (work, fights, voices, animals): reach 300 px (37 tiles), full volume within 70 px, silent in the far views (zoom 0.5 and under);
+  //  - far sounds (explosions, quakes, collapses, horns, giants): reach of at least 1.5 screens, still heard in the far views;
+  //  - a ceiling by family: at most 4 work sounds and 6 fight sounds per second, each one softer when many play.
+  const FARSND = { boom: 1, boom_big: 1, nuke: 1, quake: 1, meteor_fall: 1, wave: 1, collapse: 1, thunder: 1, horn: 1, town: 1, stage: 1, stomp: 1, colossus_step: 1, dragon_roar: 1, leviathan_call: 1, giant_shout: 1, tornado: 1, eruption: 1 };
+  const FAM = { chop: 'work', pick: 'work', hammer: 'work', anvil: 'work', hit: 'fight', hit_heavy: 'fight', sword: 'fight', shield: 'fight', bow: 'fight', death: 'fight', death_beast: 'fight', siege: 'fight' }, FAMMAX = { work: 4, fight: 6 }, famT = { work: [], fight: [] };
+  Fx.NEAR = 300;
+  // how loud a near thing at (wx, wy) is for the listener, 0..1 (also used by the mixer for its ambience)
+  Fx.hear = function (wx, wy, reach) { const c = Game.cam, d = Math.hypot(wx - (c.x + G.W / c.z / 2), wy - (c.y + G.H / c.z / 2)), R = reach || Fx.NEAR, r0 = R * 0.23, q = (R - d) / (R - r0); return q <= 0 ? 0 : q >= 1 ? 1 : q * Math.pow(q, 0.3); }; // full within a quarter of the reach, then fading to nothing at the reach
+  Fx.zoomNear = function () { const z = Game.cam.z; return z <= 0.5 ? 0 : z < 1 ? (z - 0.5) * 1.5 : Math.min(1, 0.75 + (z - 1) * 0.25); };
+  Fx.snd = function (name, wx, wy, vol) { const A = AL.Audio; if (!A || !A.play) return; const c = Game.cam, sx = (wx - c.x) * c.z / G.W, far = FARSND[name]; let g;
+    if (far) g = Fx.hear(wx, wy, Math.max(Fx.NEAR * 2, G.W / c.z * 1.5)) * AL.clamp(0.5 + c.z * 0.25, 0.5, 1); else g = Fx.hear(wx, wy) * Fx.zoomNear();
+    if (g < 0.02) return; const fam = FAM[name];
+    if (fam) { const now = performance.now(), T = famT[fam]; while (T.length && now - T[0] > 1000) T.shift(); if (T.length >= FAMMAX[fam]) return; g /= 1 + T.length * 0.35; T.push(now); }
+    A.play(name, { vol: (vol || 1) * g, pan: AL.clamp(sx * 2 - 1, -1, 1) }); };
   Fx.kick = function (shake, flash, stop) { if (shake > Fx.shake) Fx.shake = shake; if (flash > Fx.flash) Fx.flash = flash; if (stop) Game.hitStop = Math.max(Game.hitStop || 0, stop); };
   const burst = (name, wx, wy, n, spread, o) => { for (let k = 0; k < n; k++) { const a = Math.random() * 6.283, d = Math.random() * spread; Fx.add(name, wx + Math.cos(a) * d, wy + Math.sin(a) * d * 0.7, o); } };
   const fling = (name, wx, wy, n, sp, up, life) => { for (let k = 0; k < n; k++) { const a = Math.random() * 6.283, v = sp * (0.4 + Math.random() * 0.6); Fx.add(name, wx, wy, { vx: Math.cos(a) * v, vy: Math.sin(a) * v * 0.6, vz: up * (0.5 + Math.random() * 0.7), g: 260, life: life * (0.7 + Math.random() * 0.5), fix: (Math.random() * 3) | 0 }); } };
@@ -3322,12 +3338,16 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=vec4(texture(uScene,q).rgb,texture(uE
         tr = Mx.track; }
       const town = S.nBlds > 2 ? 1 : 0, far = c.z < 0.74;
       A.Music.setLayers(tr === 'disaster' ? { base: 1, melody: 1, pad: 0.9, rhythm: 1, tension: fires > 3 || (AL.Fx && AL.Fx.shake > 2) ? 1 : 0.6, bells: far ? 0.4 : 0.8 } : tr === 'war' ? { base: 1, melody: war ? 1 : 0.4, pad: 0.8, rhythm: soldiers >= 6 || dis ? 1 : 0.5, tension: dis ? 1 : 0.3 } : tr === 'night' ? { base: 1, melody: 0.9, bells: far ? 0.3 : 0.8, pad: 0.7, rhythm: town * 0.6, tension: monsters ? 1 : fires > 3 ? 0.6 : 0 } : { base: 1, melody: 1, pad: far ? 1 : 0.6, bells: town ? 0.8 : 0.3, rhythm: town && people > 6 ? 0.9 : 0, tension: fires > 3 ? 0.8 : 0 });
-      // ambience from the ground under the camera (5x5 samples)
-      const am = { wind: 0.15, waves: 0, forest: 0, desert: 0, ice: 0, rain: 0, fire: 0, night: 0, town: 0, battle: 0 }; let ns = 0;
-      for (let sy = 0; sy < 5; sy++) for (let sx = 0; sx < 5; sx++) { const X = Math.floor(x0 + (x1 - x0) * (sx + 0.5) / 5), Y = Math.floor(y0 + (y1 - y0) * (sy + 0.5) / 5); if (X < 0 || Y < 0 || X >= M.n || Y >= M.n) continue; ns++; const g = AL.GROUND[M.ground[Y * M.n + X]], b = AMBG[g.name]; if (b) am[b] += AL.fKind[M.feature[Y * M.n + X]] === 1 && b !== 'forest' ? 0.5 : 1; if (AL.fKind[M.feature[Y * M.n + X]] === 1) am.forest += 0.6; }
-      for (const k of ['waves', 'forest', 'desert', 'ice', 'wind']) am[k] = Math.min(1, am[k] / Math.max(1, ns) * (k === 'wind' ? 1.4 : 1.2) + (k === 'wind' ? 0.15 + (far ? 0.25 : 0) : 0)); if (night) { am.forest *= 0.3; am.night = 0.8 * (1 - am.waves) * (1 - am.ice); }
+      // ambience (chantier D.1): from what is NEAR the middle of the screen, not from the whole screen. Measured before: 25 points spread over the
+      // screen, sand counting as sea, gave waves at 0.6 in every far view, and a town anywhere on screen gave the full town murmur. Now the 5x5
+      // samples cover a disc of 40 tiles at most around the middle, the closest count the most, sand is silent, and the beds are lower in the far views.
+      const am = { wind: 0.15, waves: 0, forest: 0, desert: 0, ice: 0, rain: 0, fire: 0, night: 0, town: 0, battle: 0 }; let ns = 0; const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, rx = Math.min((x1 - x0) / 2, 40), ry = Math.min((y1 - y0) / 2, 40), zf = far ? 0.45 : 1;
+      for (let sy = 0; sy < 5; sy++) for (let sx = 0; sx < 5; sx++) { const ux = (sx - 2) / 2, uy = (sy - 2) / 2, X = Math.floor(cx + ux * rx), Y = Math.floor(cy + uy * ry), wgt = 1 - 0.75 * Math.min(1, Math.hypot(ux, uy)); ns += wgt; if (X < 0 || Y < 0 || X >= M.n || Y >= M.n) continue; const g = AL.GROUND[M.ground[Y * M.n + X]], b = g.name === 'sand' ? null : AMBG[g.name], tree = AL.fKind[M.feature[Y * M.n + X]] === 1; if (b) am[b] += (tree && b !== 'forest' ? 0.5 : 1) * wgt; if (tree) am.forest += 0.6 * wgt; }
+      for (const k of ['waves', 'forest', 'desert', 'ice', 'wind']) am[k] = Math.min(1, am[k] / Math.max(1, ns) * (k === 'wind' ? 1.4 : 1.2) + (k === 'wind' ? 0.15 + (far ? 0.25 : 0) : 0)) * (k === 'wind' ? 1 : zf); if (night) { am.forest *= 0.3; am.night = 0.8 * (1 - am.waves) * (1 - am.ice) * zf; }
       let rain = hud.wx === 1 ? 0.7 : hud.wx === 2 ? 1 : 0; for (const zn of hud.zones) if ((zn[0] === 1 || zn[0] === 2 || zn[0] === 3) && zn[1] > x0 - zn[3] && zn[1] < x1 + zn[3] && zn[2] > y0 - zn[3] && zn[2] < y1 + zn[3]) rain = Math.max(rain, 0.8); am.rain = rain; if (hud.wx === 2 || hud.wx === 3) am.wind = Math.min(1, am.wind + 0.4);
-      am.fire = Math.min(1, fires / 14); am.town = Math.min(1, people / 25) * (night ? 0.3 : 1) * (far ? 0.4 : 1); am.battle = Math.min(1, soldiers / 10); Mx.amb = am; A.ambience(am); }
+      // town murmur and battle din: people and soldiers weighed by their distance to the middle of the screen (reach of the near sounds), silent in the far views
+      let nearP = 0, nearS = 0; { const zn = AL.Fx.zoomNear(); if (m && zn > 0) for (let i = 0; i < m.n; i++) { if (!m.alive[i] || m.kind[i] >= AL.NPEOPLE || m.x[i] < x0 || m.x[i] > x1 || m.y[i] < y0 || m.y[i] > y1) continue; const h = AL.Fx.hear(m.x[i] * 8, m.y[i] * 8); if (h <= 0) continue; nearP += h; if (m.flags[i] & 4096) nearS += h; } nearP *= zn; nearS *= zn; }
+      am.fire = Math.min(1, fires / 14); am.town = Math.min(1, nearP / 12) * (night ? 0.3 : 1); am.battle = Math.min(1, nearS / 5); Mx.amb = am; A.ambience(am); }
     // life: a call from something that is on screen, a bird, a bell, voices
     if (Mx.life <= 0 && Game.map && S.cur && !Mx.menu) { Mx.life = 2.5 + Math.random() * 5; const m = S.cur, far = c.z < 0.74; if (far) return; let pick = -1;
       for (let k = 0; k < 40 && pick < 0; k++) { const i = (Math.random() * m.n) | 0; if (m.alive[i] && !(m.flags[i] & 1) && AL.Fx.vis(m.x[i] * 8, m.y[i] * 8, 0)) pick = i; }

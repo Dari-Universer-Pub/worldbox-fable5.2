@@ -16,7 +16,23 @@
     AGE[i] = -(o.delay || 0); LIFE[i] = o.life || f.length / 12; FL[i] = 32 | (EM[name] ? 8 : 0) | (o.flip ? 1 : 0); SC[i] = o.scale || 1; ZB[i] = o.zb == null ? 6 : o.zb; AL0[i] = o.alpha || 1; FIX[i] = o.fix == null ? -1 : o.fix; END[i] = o.end || 0; TONE[i] = o.tone || 0; Fx.counts[name] = (Fx.counts[name] || 0) + 1; return i; };
   Fx._o = {};
   Fx.vis = function (wx, wy, m) { const c = Game.cam; m = m || 60; return wx > c.x - m && wy > c.y - m && wx < c.x + G.W / c.z + m && wy < c.y + G.H / c.z + m; };
-  Fx.snd = function (name, wx, wy, vol) { const A = AL.Audio; if (!A || !A.play) return; const c = Game.cam, sx = (wx - c.x) * c.z / G.W, sy = (wy - c.y) * c.z / G.H, off = Math.max(0, -sx, sx - 1, -sy, sy - 1); if (off > 1.2) return; A.play(name, { vol: (vol || 1) * (1 - off * 0.7) * AL.clamp(0.45 + c.z * 0.3, 0.4, 1), pan: AL.clamp(sx * 2 - 1, -1, 1) }); };
+  // positioned sounds (chantier D.1). Measured before: a sound anywhere on screen played at the same volume, and at zoom 0.5 or 1 the screen
+  // covers 160 or 80 tiles of a 256-tile map, so a town 70 tiles from the middle of the view hammered as loud as one under the cursor.
+  // Now the listener is the MIDDLE of the screen and every sound has a reach in world pixels:
+  //  - near sounds (work, fights, voices, animals): reach 300 px (37 tiles), full volume within 70 px, silent in the far views (zoom 0.5 and under);
+  //  - far sounds (explosions, quakes, collapses, horns, giants): reach of at least 1.5 screens, still heard in the far views;
+  //  - a ceiling by family: at most 4 work sounds and 6 fight sounds per second, each one softer when many play.
+  const FARSND = { boom: 1, boom_big: 1, nuke: 1, quake: 1, meteor_fall: 1, wave: 1, collapse: 1, thunder: 1, horn: 1, town: 1, stage: 1, stomp: 1, colossus_step: 1, dragon_roar: 1, leviathan_call: 1, giant_shout: 1, tornado: 1, eruption: 1 };
+  const FAM = { chop: 'work', pick: 'work', hammer: 'work', anvil: 'work', hit: 'fight', hit_heavy: 'fight', sword: 'fight', shield: 'fight', bow: 'fight', death: 'fight', death_beast: 'fight', siege: 'fight' }, FAMMAX = { work: 4, fight: 6 }, famT = { work: [], fight: [] };
+  Fx.NEAR = 300;
+  // how loud a near thing at (wx, wy) is for the listener, 0..1 (also used by the mixer for its ambience)
+  Fx.hear = function (wx, wy, reach) { const c = Game.cam, d = Math.hypot(wx - (c.x + G.W / c.z / 2), wy - (c.y + G.H / c.z / 2)), R = reach || Fx.NEAR, r0 = R * 0.23, q = (R - d) / (R - r0); return q <= 0 ? 0 : q >= 1 ? 1 : q * Math.pow(q, 0.3); }; // full within a quarter of the reach, then fading to nothing at the reach
+  Fx.zoomNear = function () { const z = Game.cam.z; return z <= 0.5 ? 0 : z < 1 ? (z - 0.5) * 1.5 : Math.min(1, 0.75 + (z - 1) * 0.25); };
+  Fx.snd = function (name, wx, wy, vol) { const A = AL.Audio; if (!A || !A.play) return; const c = Game.cam, sx = (wx - c.x) * c.z / G.W, far = FARSND[name]; let g;
+    if (far) g = Fx.hear(wx, wy, Math.max(Fx.NEAR * 2, G.W / c.z * 1.5)) * AL.clamp(0.5 + c.z * 0.25, 0.5, 1); else g = Fx.hear(wx, wy) * Fx.zoomNear();
+    if (g < 0.02) return; const fam = FAM[name];
+    if (fam) { const now = performance.now(), T = famT[fam]; while (T.length && now - T[0] > 1000) T.shift(); if (T.length >= FAMMAX[fam]) return; g /= 1 + T.length * 0.35; T.push(now); }
+    A.play(name, { vol: (vol || 1) * g, pan: AL.clamp(sx * 2 - 1, -1, 1) }); };
   Fx.kick = function (shake, flash, stop) { if (shake > Fx.shake) Fx.shake = shake; if (flash > Fx.flash) Fx.flash = flash; if (stop) Game.hitStop = Math.max(Game.hitStop || 0, stop); };
   const burst = (name, wx, wy, n, spread, o) => { for (let k = 0; k < n; k++) { const a = Math.random() * 6.283, d = Math.random() * spread; Fx.add(name, wx + Math.cos(a) * d, wy + Math.sin(a) * d * 0.7, o); } };
   const fling = (name, wx, wy, n, sp, up, life) => { for (let k = 0; k < n; k++) { const a = Math.random() * 6.283, v = sp * (0.4 + Math.random() * 0.6); Fx.add(name, wx, wy, { vx: Math.cos(a) * v, vy: Math.sin(a) * v * 0.6, vz: up * (0.5 + Math.random() * 0.7), g: 260, life: life * (0.7 + Math.random() * 0.5), fix: (Math.random() * 3) | 0 }); } };
