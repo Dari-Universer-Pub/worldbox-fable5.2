@@ -96,7 +96,7 @@
   H.firestorm = (sim, m, r) => { sim.phen.push({ k: 'firewhirl', x: m.x, y: m.y, dx: 0, dy: 0, r: Math.max(1, 2 * (r || 3) / 3), until: sim.tick + 320 }); return 1; };
   // wildfire: a ring of flames that closes on what is inside
   H.wildfire = (sim, m, r) => { let c = 0; const n = sim.world.n; disc(sim, m.x, m.y, r + 0.5, (i, X, Y, d) => { if (d >= r - 0.9 && Pw.ignite(sim, i, true)) c++; }); return c; };
-  H.twister = (sim, m, r) => { const q = Math.max(0.5, (r || 4) / 4); for (let k = 0; k < 3; k++) { const a = k * 2.094 + sim.rng.f(); sim.phen.push({ k: 'twister', x: m.x + Math.cos(a) * 2 * q, y: m.y + Math.sin(a) * 2 * q, dx: Math.cos(a) * 0.4, dy: Math.sin(a) * 0.4, r: 2 * q, until: sim.tick + 170 + k * 15 }); } return 3; };
+  H.twister = (sim, m, r) => { const q = Math.max(0.5, (r || 4) / 4), N = Math.max(1, Math.min(12, Math.round(3 * q))); for (let k = 0; k < N; k++) { const a = k * TAU / N + sim.rng.f(); sim.phen.push({ k: 'twister', x: m.x + Math.cos(a) * 2 * q, y: m.y + Math.sin(a) * 2 * q, dx: Math.cos(a) * 0.4, dy: Math.sin(a) * 0.4, r: 2 * q, until: sim.tick + 170 + k * 15 }); } return N; };
   // tremor: the ground splits along one line — a fissure that cuts roads and swallows what stands on it
   H.tremor = (sim, m, r) => { const W = sim.world, n = W.n, rng = sim.rng, G = AL.G, a = rng.f() * TAU, ux = Math.cos(a), uy = Math.sin(a), L = r * 2 + 4; let c = 0, last = -1;
     for (let s = -L / 2; s <= L / 2; s += 0.5) { const w = Math.sin(s * 0.9) * 1.2, X = (m.x + ux * s - uy * w) | 0, Y = (m.y + uy * s + ux * w) | 0; if (!W.inb(X, Y)) continue; const i = Y * n + X; if (i === last) continue; last = i; const g = W.ground[i]; if (AL.gWater[g]) continue;
