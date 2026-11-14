@@ -204,7 +204,7 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=vec4(texture(uScene,q).rgb,texture(uE
   G.draw = function (cam, env) {
     const W = G.W, H = G.H; gl.viewport(0, 0, W, H); gl.disable(gl.BLEND); let p;
     // the veil fades in between zoom 1 and 1.5 and is off in the far views; G.veilOff turns it off (before/after captures, cost measures)
-    const veil = G.veilOff || !nOcc ? 0 : Math.max(0, Math.min(1, (cam.z - 1) / 0.5)); G.veil = veil;
+    const veil = G.veilOff || !nOcc ? 0 : Math.max(0, Math.min(1, (cam.z - (G.veilStart || 1)) / 0.5)); G.veil = veil;
     if (veil > 0) { gl.bindFramebuffer(gl.FRAMEBUFFER, fboOcc); gl.clearColor(1, 1, 1, 0); gl.clear(gl.COLOR_BUFFER_BIT); p = progM; gl.useProgram(p); gl.bindVertexArray(vaoM); gl.bindBuffer(gl.ARRAY_BUFFER, occBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, occ, 0, nOcc * 6); gl.uniform2f(p.u.uCam, cam.x, cam.y); gl.uniform2f(p.u.uRes, W, H); gl.uniform1f(p.u.uZoom, cam.z);
       gl.enable(gl.BLEND); gl.blendEquationSeparate(gl.MIN, gl.MAX); gl.blendFunc(gl.ONE, gl.ONE); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, nOcc); gl.blendEquation(gl.FUNC_ADD); gl.disable(gl.BLEND); }
     gl.bindFramebuffer(gl.FRAMEBUFFER, fboScene); p = progT; gl.useProgram(p); gl.bindVertexArray(vaoQ);
