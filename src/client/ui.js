@@ -168,7 +168,9 @@
       if (S.layer) UI.text(t('layer.' + S.layer), x + 4, 2, C.blue); }
     // time controls on the right
     let bx = W - 2 - SPEEDS.length * 19 - 18; const paused = Game.speed === 0; if (button('pause', bx, 0, 17, 15, { icon: paused ? 'play' : 'pause', sel: paused, tip: t('key.pause') })) Game.onAction('pause'); bx += 18;
-    for (const sp of SPEEDS) { if (button('sp' + sp, bx, 0, 18, 15, { label: (sp < 1 ? '.5' : sp), sel: Game.speed === sp, tip: t('ui.speed') + ' x' + sp })) Game.setSpeed(sp); bx += 19; } }
+    // when the machine cannot keep up (real speed under 80 % of the asked one, measured by the simulation), the chosen speed button shows the speed really reached, in red
+    const eff = Game.effSpeed || 0, lag = Game.speed >= 5 && eff > 0 && eff < Game.speed * 0.8 && Game.time > 3;
+    for (const sp of SPEEDS) { const lg = lag && sp === Game.speed; if (button('sp' + sp, bx, 0, 18, 15, { label: lg ? String(Math.max(1, Math.round(eff))) : (sp < 1 ? '.5' : sp), col: lg ? C.bad : undefined, sel: Game.speed === sp, tip: t('ui.speed') + ' x' + sp + (lg ? ' (' + t('ui.reached') + ' x' + Math.round(eff) + ')' : '') })) Game.setSpeed(sp); bx += 19; } }
   // ------------------------------------------------------------ side buttons
   // legend of the wars layer (chantier B.5): the four markers, drawn as they are on the map
   const WLEG = [['army/1', 'war.army'], ['front', 'war.front'], ['siege', 'war.siege'], ['taken', 'war.taken']];
