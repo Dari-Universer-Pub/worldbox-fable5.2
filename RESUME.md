@@ -10,7 +10,6 @@
 
 **C.10 est refait et recoché.** Julien a choisi : dès qu'il y a quelque chose à montrer derrière des arbres, un rond autour de lui où les arbres deviennent transparents, proprement (piste 1 de `C10-PISTES.md`). La trame 2×2 est supprimée. Il ne reste que la ligne 0.2 et la passe de tests et d'équilibrage, réservées à Sonnet. Si Julien veut retoucher l'effet : le rond a été élargi en clairière (voir le journal C.10) ; taille des ronds et force dans `src/client/scene.js` (appels `G.occ`), bord du rond dans `FS_M` et opacité minimale (`op=1.-.9*cv`) dans `FS_S` (`src/client/gl.js`).
 
-**Ancienne icône du menu Créatures :** Julien a demandé de la garder sous la main. Elle est dans le dossier temporaire `tmp-ancienne-icone-creatures/` (`LISEZMOI.md`, marche à suivre pour la remettre) et les images agrandies de l'ancienne et de l'actuelle dans `shots/ancienne-icone-creatures/`. Ne la remettre que si Julien le demande ; supprimer le dossier ensuite.
 
 ## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; all of C done (C.0, C.1, C.3 to C.10); what remains is the test and balance pass reserved for Sonnet (line 0.2 and the lists « À tester par Sonnet »).
 
