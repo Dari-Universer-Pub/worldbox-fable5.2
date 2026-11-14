@@ -75,7 +75,7 @@ snd("fire", "disaster", [0.3, 1.6], [400, 5000], variants=[[N(0.5, 0.05, 0.5, 0.
 snd("wind", "disaster", [1.0, 4.5], [200, 2500], [N(0.5, 0.6, 1.2, 1.0, bp(600, 2.5, (0.9, 1300), (2.0, 500)), dur=1.8, nc="pink"), N(0.25, 0.8, 1.0, 0.8, bp(1500, 4, (1.0, 2600), (2.0, 1200)), dur=1.6, nc="pink")])
 snd("acid", "disaster", [0.3, 1.5], [1500, 9000], [N(0.4, 0.02, 0.6, 0.3, bp(4500, 0.7), nc="pink", trem=[31, 0.5]), O("sine", [900, 1500, 0.1], 0.1, 0.01, 0.1, 0.05, at=0.15), O("sine", [1200, 1900, 0.08], 0.1, 0.01, 0.08, 0.05, at=0.35)])
 snd("frost", "disaster", [0.3, 1.8], [2500, 11000], [O("sine", 4200, 0.18, 0.002, 0.5, 0.3, fm=[1.63, 1.0, 0.4, 0.05]), O("sine", 5600, 0.14, 0.002, 0.45, 0.3, at=0.08), O("sine", 6300, 0.12, 0.002, 0.4, 0.3, at=0.17), N(0.15, 0.01, 0.3, 0.2, hp(6000))], rev=0.4)
-snd("rain", "disaster", [0.8, 3.5], [1500, 9000], [N(0.4, 0.4, 1.0, 0.8, hp(2500), nc="pink", dur=1.4), N(0.25, 0.4, 1.0, 0.8, bp(1200, 0.7), nc="pink", dur=1.4)])
+snd("rain", "disaster", [0.8, 3.5], [700, 5000], [N(0.42, 0.4, 1.0, 0.8, bp(2100, 0.6), nc="pink", dur=1.4), N(0.3, 0.4, 1.0, 0.8, bp(900, 0.7), nc="pink", dur=1.4)])  # D.3: no more high-pass hiss
 snd("eruption", "disaster", [1.0, 4.5], [35, 900], [O("sine", [60, 30, 1.5], 0.9, 0.05, 1.6, 0.9), N(0.9, 0.05, 1.5, 1.0, lp(700, 0.7, (1.6, 150)), nc="brown", trem=[15, 0.3]), N(0.3, 0.2, 1.0, 0.6, bp(1500, 0.7), at=0.2)], rev=0.3)
 snd("tornado", "disaster", [1.0, 4.5], [100, 1800], [N(0.6, 0.5, 1.4, 1.0, bp(350, 2, (1.0, 700), (2.2, 300)), nc="brown", trem=[7, 0.4], dur=1.9), N(0.3, 0.5, 1.4, 1.0, bp(1200, 3, (1.0, 1900), (2.2, 900)), dur=1.9)])
 # ---------------- magic and world events
@@ -270,6 +270,8 @@ prov("wildfire", "disaster", [1.0, 4.0], [300, 4500], [N(0.6, 0.4, 1.2, 0.8, lp(
 # ---------------- chantier A.7: one sound per power (43 new patches; the power id is the sound id). Written one by one for
 # their subject and measured; not listened to (no ears here) -> to be judged by Julien.
 # weather
+# single drops heard through the rain bed (chantier D.3): three short falling blips, played now and then by the mixer
+snd("raindrop", "disaster", [0.02, 0.4], [600, 6000], variants=[[O("sine", [f, f * 0.62, 0.04], 0.16, 0.001, 0.045, 0.04), N(0.05, 0.001, 0.012, 0.01, bp(f * 1.4, 2), nc="pink")] for f in (1250, 1700, 2200)], pitchVar=0.12)
 snd("drizzle", "disaster", [0.8, 3.5], [2500, 11000], [N(0.22, 0.5, 1.0, 0.9, bp(5200, 0.7), dur=1.6, nc="pink", trem=[31, 0.25])] + [O("sine", [2900 + 420 * (i % 3), 2300, 0.03], 0.1, 0.001, 0.035, 0.03, at=0.17 * i + 0.1) for i in range(8)])
 snd("monsoon", "disaster", [1.5, 5.0], [300, 5000], [N(0.45, 0.6, 1.6, 1.2, bp(2000, 0.5), dur=2.4, nc="pink"), N(0.5, 0.6, 1.6, 1.2, lp(600, 0.7), dur=2.4, nc="brown", trem=[3, 0.3]), O("sine", [64, 40, 1.2], 0.5, 0.05, 1.0, 0.8, at=0.9)], rev=0.3)
 snd("tempest", "disaster", [1.5, 5.0], [200, 3000], [N(0.6, 0.8, 1.4, 1.1, bp(600, 3.5, (0.9, 1500), (1.7, 700), (2.5, 1300)), dur=2.5, nc="pink"), N(0.3, 0.9, 1.3, 1.0, bp(1700, 6, (1.0, 2700), (2.4, 1500)), dur=2.4, nc="pink"), N(0.4, 0.4, 1.6, 1.0, lp(380, 0.7), dur=2.3, nc="brown", trem=[5, 0.5])])
@@ -325,7 +327,10 @@ S["_ambience"] = {
   "forest": {"nc": "white", "flt": ["bandpass", 4200, 0.8], "lfo": [0.2, 900],  "am": [0.31, 0.3],  "vol": 0.10},
   "desert": {"nc": "pink",  "flt": ["bandpass", 1500, 2.5], "lfo": [0.05, 600], "am": [0.07, 0.5],  "vol": 0.16},
   "ice":    {"nc": "white", "flt": ["bandpass", 2800, 5],   "lfo": [0.09, 1400],"am": [0.05, 0.6],  "vol": 0.10},
-  "rain":   {"nc": "white", "flt": ["highpass", 2200, 0.6], "lfo": [0.3, 300],  "am": [0.9, 0.08],  "vol": 0.26},
+  # rain (chantier D.3): it was white noise through a high-pass at 2200 Hz, measured 13 to 20 dB above the other beds with 75 % of its energy over
+  # 6 kHz (a hiss). Now a soft band of pink noise around 1.5 kHz with nothing left above 5 kHz ("lp"), slowly swelling, over a low rumble ("rainlow").
+  "rain":   {"nc": "pink",  "flt": ["bandpass", 1500, 0.5], "lp": 4800, "lfo": [0.13, 320], "am": [0.19, 0.25], "vol": 0.20},
+  "rainlow":{"nc": "brown", "flt": ["lowpass", 420, 0.6],   "lfo": [0.09, 110], "am": [0.15, 0.3],  "vol": 0.22},
   "fire":   {"nc": "brown", "flt": ["bandpass", 900, 0.7],  "lfo": [3.1, 400],  "am": [7.3, 0.35],  "vol": 0.40},
   "night":  {"nc": "white", "flt": ["bandpass", 5200, 9],   "lfo": [0.15, 300], "am": [13.0, 0.9],  "vol": 0.07},
   "town":   {"nc": "pink",  "flt": ["bandpass", 700, 1.0],  "lfo": [0.4, 250],  "am": [2.1, 0.3],   "vol": 0.10},

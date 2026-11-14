@@ -171,7 +171,8 @@
       if (!b && want > 0.01) { const D = defs[name], src = ctx.createBufferSource(); src.buffer = noiseBuf(D.nc || 'pink'); src.loop = true; const f = ctx.createBiquadFilter(); f.type = D.flt[0]; f.frequency.value = D.flt[1]; f.Q.value = D.flt[2] || 0.7;
         const g = ctx.createGain(); g.gain.value = 0; const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = D.lfo ? D.lfo[0] : 0.1; lg.gain.value = D.lfo ? D.lfo[1] : 0; lfo.connect(lg); lg.connect(f.frequency);
         const al = ctx.createOscillator(), ag = ctx.createGain(), am = ctx.createGain(); al.frequency.value = D.am ? D.am[0] : 0.2; ag.gain.value = D.am ? D.am[1] : 0; am.gain.value = 1; al.connect(ag); ag.connect(am.gain);
-        src.connect(f); f.connect(am); am.connect(g); g.connect(buses.amb); src.start(); lfo.start(); al.start(); b = beds[name] = { g, vol: D.vol || 0.3 }; }
+        let tail = f; if (D.lp) { const l2 = ctx.createBiquadFilter(); l2.type = 'lowpass'; l2.frequency.value = D.lp; l2.Q.value = 0.5; f.connect(l2); tail = l2; } // "lp": nothing above this frequency (the rain has no hiss)
+        src.connect(f); tail.connect(am); am.connect(g); g.connect(buses.amb); src.start(); lfo.start(); al.start(); b = beds[name] = { g, vol: D.vol || 0.3 }; }
       if (b) b.g.gain.setTargetAtTime(want * b.vol, now, 0.8); }
   };
 })(typeof self !== 'undefined' ? (self.AL = self.AL || {}) : (globalThis.AL = globalThis.AL || {}));
