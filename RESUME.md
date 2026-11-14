@@ -21,6 +21,11 @@ Julien a ajouté après avoir joué onze tâches, D.1 à D.11, dans `CHANTIER.md
 
 ### Chantier — journal des tâches (le plus récent en haut)
 
+**D.6 — fiche d'un animal apprivoisé (fait).**
+- `src/sim/culture.js` : la réponse `q:'unit'` porte maintenant `herd` (id de la ville) et `herdName`. `src/client/ui.js` : un animal de troupeau affiche « Apprivoisé » (`sheet.tamed`) et une ligne « Appartient à : <ville> » (`sheet.owner`), les autres restent « Sauvage ». Textes en anglais et en français.
+- Vu : sous Node (graine 7), une brebis apprivoisée renvoie `herd 0, herdName "Brianholm"`, une bête sauvage `herd -1` ; dans le jeu à ×50, capture `shots/d6-tamed.png` : fiche d'une vache « Tamed / Belongs to Tastanstead » ; la fiche d'un cerf sauvage disait bien « Wild ». validate-data, build et syntaxe OK.
+- Non vérifié : l'affichage en français (même mécanisme que l'anglais) ; le cheval de caserne (les chevaux de cavalerie sont comptés par la ville, `town.horses`, et ne sont pas des entités, donc pas de fiche à corriger).
+
 **D.2 — textes « fait par du code » corrigés (fait).**
 - `src/data/i18n.json` (anglais et français) : `credits.3`, `credits.4`, `credits.8`, `menu.made` disent maintenant la vérité (images, animations, bruitages et police par du code ; musique générée avec ElevenLabs). `README.md` et le commentaire d'en-tête de `src/client/audio.js` corrigés ; `PROVENANCE.md` était déjà juste.
 - Vu : captures `shots/d2-title-{en,fr}.png` et `shots/d2-credits-{en,fr}.png` regardées, la phrase du bas de l'écran-titre tient dans la largeur en français ; `validate-data` OK, build OK, syntaxe du paquet OK.
