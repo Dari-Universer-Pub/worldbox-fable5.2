@@ -21,6 +21,8 @@ Julien a ajouté après avoir joué onze tâches, D.1 à D.11, dans `CHANTIER.md
 
 ### Chantier — journal des tâches (le plus récent en haut)
 
+**D.6 (retouche) — libellés de fiche trop larges.** Julien a vu sur son téléphone « Appartient Terdholm » (le « à » écrasé par la valeur) : la colonne des libellés fait 59 px et « Appartient à » en fait 62. Mesuré avec `AL.UI.textW` : étaient trop larges `sheet.owner` (FR), `sheet.loveun` (EN 64 px, FR 59 px). Raccourcis : FR `Ville`, EN `Unrequited`, FR `Amour vain`. Vu : capture `shots/d6-tamed-fr.png`. Règle pour la suite : un libellé de fiche ne dépasse pas 56 px (mesurer avec `AL.UI.textW`).
+
 **D.8 — neige et cimes enneigées refaites (fait ; à regarder par Julien).**
 - Avant (`shots/d8-before-z{1,2,4}.png`) : le sol de neige était un aplat crème à deux tons clairs, sans relief (il se lisait comme du sable) ; les cimes enneigées étaient des cônes gris avec une tache blanche, coupés à la base par un trait noir horizontal.
 - Sol de neige (`tools/bake-terrain.js`, `G.snow`) : congères. Un champ de hauteur répétable, étiré dans le sens du vent, est éclairé du haut-gauche : pentes au soleil en blanc chaud, plats en blanc froid, versants abrités en ombre bleue avec une ligne plus profonde au pied des plus raides, quelques éclats de 2 px. Mesuré : 4 tons, ton dominant 38 % (moins de 40), 3 pixels isolés.
