@@ -24,7 +24,21 @@
       let tr = war || dis ? 'war' : night ? 'night' : 'calm';
       { { const gn = M.ground ? AL.GROUND[M.ground[Math.min(M.n - 1, Math.max(0, ((y0 + y1) / 2) | 0)) * M.n + Math.min(M.n - 1, Math.max(0, ((x0 + x1) / 2) | 0))]] : null, cl = (gn && CLIM[gn.name]) || 'calm', now = performance.now(); if (cl !== Mx.climWant) { Mx.climWant = cl; Mx.climSince = now; } if (now - Mx.climSince > 6000) Mx.clim = cl; } if (dis && !war) tr = 'disaster'; else if (tr === 'calm') tr = Mx.clim || 'calm'; } // a climate takes over only after 6 s under the middle of the screen: no flipping while the camera pans
       Mx.state = (war ? 'war ' : '') + (dis ? 'disaster ' : '') + (night ? 'night' : 'day');
-      if (tr !== Mx.track) { Mx.track = tr; A.Music.play(tr, tr === 'war' ? 1.5 : 4); }
+      // the director: `tr` above is only a wish. A day lasts 30 s at x1 and soldiers come and go around the thresholds, so obeying the wish
+      // at once changed the music every few seconds. Rules: a quiet piece (calm, night, a climate) is played to the end of its loop, and
+      // gives way there, to a wish that has held for 5 s; war and disaster come in after 1.5 s of the same wish, stay at least 25 s, and
+      // stay 20 s after the last sign of trouble before a quiet piece returns.
+      { const now = performance.now() / 1000, urgent = tr === 'war' || tr === 'disaster', curUrg = Mx.track === 'war' || Mx.track === 'disaster';
+        if (tr !== Mx.wish) { Mx.wish = tr; Mx.wishSince = now; } if (urgent) Mx.urgLast = now;
+        const age = now - (Mx.since || 0), stable = now - Mx.wishSince, cur = A.Music.cur; let go = false;
+        if (!Mx.track || Mx.track === 'menu') go = stable >= 3;                            // first piece of a game: a world is born at midnight, wait for the wish to settle
+        else if (tr === Mx.track) go = false;
+        else if (urgent) go = stable >= 1.5 && (!curUrg || age >= 25);
+        else if (curUrg) go = now - (Mx.urgLast || 0) >= 20 && stable >= 3;
+        else if (cur && cur.rec && cur.id === Mx.track) { const m = cur.meta, pos = A.ctx.currentTime - cur.t0, toEnd = pos < m.loopStart ? m.loopStart + m.loop - pos : m.loop - ((pos - m.loopStart) % m.loop); go = stable >= 5 && pos > 20 && toEnd <= 1.2; }
+        else go = stable >= 5 && age >= 60;                                                // synthesized fallback, or a piece still loading
+        if (go) { Mx.track = tr; Mx.since = now; A.Music.play(tr, urgent ? 1.5 : 4); }
+        tr = Mx.track; }
       const town = S.nBlds > 2 ? 1 : 0, far = c.z < 0.74;
       A.Music.setLayers(tr === 'disaster' ? { base: 1, melody: 1, pad: 0.9, rhythm: 1, tension: fires > 3 || (AL.Fx && AL.Fx.shake > 2) ? 1 : 0.6, bells: far ? 0.4 : 0.8 } : tr === 'war' ? { base: 1, melody: war ? 1 : 0.4, pad: 0.8, rhythm: soldiers >= 6 || dis ? 1 : 0.5, tension: dis ? 1 : 0.3 } : tr === 'night' ? { base: 1, melody: 0.9, bells: far ? 0.3 : 0.8, pad: 0.7, rhythm: town * 0.6, tension: monsters ? 1 : fires > 3 ? 0.6 : 0 } : { base: 1, melody: 1, pad: far ? 1 : 0.6, bells: town ? 0.8 : 0.3, rhythm: town && people > 6 ? 0.9 : 0, tension: fires > 3 ? 0.8 : 0 });
       // ambience from the ground under the camera (5x5 samples)
