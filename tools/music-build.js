@@ -14,7 +14,7 @@
 'use strict';
 const fs = require('fs'), path = require('path'), { execFileSync } = require('child_process');
 const L = require('./music-lib.js');
-const ROOT = path.join(__dirname, '..'), SRC = path.join(ROOT, 'tools/art/music-src/raw'), OUT = path.join(ROOT, 'assets/music'), SHOT = path.join(ROOT, 'shots/musique'), TMP = path.join(require('os').tmpdir(), 'dustcrown-music');
+const ROOT = path.join(__dirname, '..'), SRC = path.join(ROOT, 'tools/art/music-src/raw3'), OUT = path.join(ROOT, 'assets/music'), SHOT = path.join(ROOT, 'shots/musique'), TMP = path.join(require('os').tmpdir(), 'dustcrown-music');
 const D = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/data/music.json'), 'utf8')), SR = 44100, TARGET = D.audio.lufs, POST = 0.35, PRE = 0.012, INSIDE = 0.03;
 for (const d of [OUT, SHOT, TMP]) fs.mkdirSync(d, { recursive: true });
 const only = process.argv.slice(2), report = [], summary = {};
@@ -25,6 +25,11 @@ function decode(file) { const b = execFileSync('ffmpeg', ['-v', 'error', '-i', f
 function writeRaw(file, x) { fs.writeFileSync(file, Buffer.from(x.buffer, x.byteOffset, x.byteLength)); }
 function encodeMp3(x, file, kbps, mono) { const raw = path.join(TMP, 'enc.f32'); writeRaw(raw, x);
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-f', 'f32le', '-ar', String(SR), '-ac', '2', '-i', raw, '-map_metadata', '-1', '-fflags', '+bitexact', '-flags:a', '+bitexact', '-ac', mono ? '1' : '2', '-c:a', 'libmp3lame', '-b:a', kbps + 'k', '-write_xing', '0', '-id3v2_version', '0', file]); }
+// zero-phase low-pass (a 2-pole Butterworth run forward then backward on each channel): x - lowpass(x) is then the exact complement,
+// so a 'low' layer and a 'high' layer cut from the same stems add back to them
+function lowpass(x, hz) { const w = 2 * Math.PI * hz / SR, al = Math.sin(w) / (2 * Math.SQRT1_2), c = Math.cos(w), a0 = 1 + al, b0 = (1 - c) / 2 / a0, b1 = (1 - c) / a0, b2 = b0, a1 = -2 * c / a0, a2 = (1 - al) / a0, y = new Float32Array(x.length), n = x.length >> 1;
+  for (let ch = 0; ch < 2; ch++) { let x1 = 0, x2 = 0, y1 = 0, y2 = 0; for (let i = 0; i < n; i++) { const v = x[i * 2 + ch], o = b0 * v + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2; x2 = x1; x1 = v; y2 = y1; y1 = o; y[i * 2 + ch] = o; }
+    x1 = x2 = y1 = y2 = 0; for (let i = n - 1; i >= 0; i--) { const v = y[i * 2 + ch], o = b0 * v + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2; x2 = x1; x1 = v; y2 = y1; y1 = o; y[i * 2 + ch] = o; } } return y; }
 const mono = x => { const m = new Float32Array(x.length >> 1); for (let i = 0; i < m.length; i++) m[i] = (x[2 * i] + x[2 * i + 1]) * 0.5; return m; };
 const rmsDb = (m, a, b) => L.db(L.rms(m, Math.max(0, a | 0), Math.min(m.length, b | 0)));
 // lag (in samples) at which b best matches a, searched around 0 on the 12 s window where b is the loudest
@@ -43,7 +48,8 @@ function build(id) { const T = D.tracks[id], A = T.audio; if (!A) return; say('\
   // 2. groups, cut and loop
   const O = Math.round((A.skip || 0) * SR), X = Math.round(A.xfade * SR), S = Math.max(0, Math.round((A.first + A.introBars * bar - PRE) * SR)), Ln = Math.round(A.loopBars * bar * SR), P = Math.round(POST * SR), total = S + X + Ln + P;
   if ((O + S + Ln + X) * 2 + sh > len) throw new Error(id + ': the source is too short for intro ' + A.introBars + ' + loop ' + A.loopBars + ' bars + cross-fade');
-  const groups = {}; for (const [g, def] of Object.entries(A.stems)) { const o = new Float32Array(total * 2); const at = i => { let v = 0; const k = i + sh + O * 2; if (k >= 0) for (const n of def.from) v += st[n][k] || 0; return v; };
+  const groups = {}, gsrc = {}, glow = {}; for (const [g, def] of Object.entries(A.stems)) { const o = new Float32Array(total * 2); const key = def.from.join('+'); if (!gsrc[key]) { const a = new Float32Array(len); for (const n of def.from) { const x = st[n]; for (let i = Math.max(0, -sh); i < len - Math.max(0, sh); i++) a[i] += x[i + sh]; } gsrc[key] = a; if (def.band) glow[key] = lowpass(a, A.split || 600); }
+    const src = gsrc[key], low = glow[key], band = def.band, at = i => { const k = i + O * 2; if (k < 0 || k >= len) return 0; return band === 'low' ? low[k] : band === 'high' ? src[k] - low[k] : src[k]; };
     for (let i = 0; i < (S + Ln) * 2; i++) o[i] = at(i);                                                                 // intro, then the loop once, untouched
     for (let t = 0; t < X; t++) { const a = t / X, gi = Math.sin(a * Math.PI / 2), go = Math.cos(a * Math.PI / 2); for (let c = 0; c < 2; c++) o[(S + Ln + t) * 2 + c] = at((S + Ln + t) * 2 + c) * go + at((S + t) * 2 + c) * gi; } // tail of the loop over its head
     for (let i = 0; i < P * 2; i++) o[(S + X + Ln) * 2 + i] = o[(S + X) * 2 + i];                                           // the head again, for late decoders
@@ -60,7 +66,7 @@ function build(id) { const T = D.tracks[id], A = T.audio; if (!A) return; say('\
   // 4. encode
   const js = { id, bpm: A.bpm, bar: +bar.toFixed(5), first: +(A.first).toFixed(4), loopStart: +loopStart.toFixed(5), loop: +loopLen.toFixed(5), seconds: +(total / SR).toFixed(4), stems: {}, layers: {} }; let bytes = 0; const dec = {};
   for (const [g, def] of Object.entries(A.stems)) { const f = path.join(TMP, id + '-' + g + '.mp3'); encodeMp3(groups[g], f, def.kbps, !!def.mono); const b = fs.readFileSync(f); bytes += b.length; js.stems[g] = b.toString('base64'); js.layers[g] = def.layers; dec[g] = decode(f);
-    say('  layer ' + g.padEnd(7) + ' <- ' + def.from.join('+').padEnd(18) + ' level ' + rmsDb(mono(groups[g]), 0, total).toFixed(1).padStart(6) + ' dB, ' + def.kbps + ' kbit/s' + (def.mono ? ' mono' : '') + ', ' + (b.length / 1024).toFixed(0) + ' KB'); }
+    say('  layer ' + g.padEnd(7) + ' <- ' + (def.from.join('+') + (def.band ? ' (' + def.band + ' band)' : '')).padEnd(34) + ' level ' + rmsDb(mono(groups[g]), 0, total).toFixed(1).padStart(6) + ' dB, ' + def.kbps + ' kbit/s' + (def.mono ? ' mono' : '') + ', ' + (b.length / 1024).toFixed(0) + ' KB'); }
   const file = path.join(OUT, 'music-' + id + '.js'); fs.writeFileSync(file, '/* generated by tools/music-build.js from tools/art/music-src (music generated with ElevenLabs, see PROVENANCE.md) */\n(window.AL_MUSIC=window.AL_MUSIC||{})[' + JSON.stringify(id) + ']=' + JSON.stringify(js) + ';\n');
   const jsBytes = fs.statSync(file).size;
   // 5. measures on what was written

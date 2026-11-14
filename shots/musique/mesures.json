@@ -1,0 +1,173 @@
+{
+ "calm": {
+  "title": "Fields Before Noon",
+  "bpmWanted": 84,
+  "bpm": 84.04,
+  "introSeconds": 2.04,
+  "loopSeconds": 68.54,
+  "loopBars": 24,
+  "lufs": -18,
+  "peak": -6.4,
+  "gainDb": -5.7,
+  "layers": [
+   "base",
+   "melody"
+  ],
+  "stemLagMs": 25.1,
+  "layerSpreadMs": 0,
+  "seamStep": 0.0146,
+  "seamP999": 0.0326,
+  "seamLevelDb": -1.1,
+  "kb": 1017
+ },
+ "night": {
+  "title": "Lanterns",
+  "bpmWanted": 60,
+  "bpm": 60.08,
+  "introSeconds": 2.05,
+  "loopSeconds": 59.92,
+  "loopBars": 15,
+  "lufs": -18,
+  "peak": -1.7,
+  "gainDb": 3.2,
+  "layers": [
+   "base",
+   "melody"
+  ],
+  "stemLagMs": 25.1,
+  "layerSpreadMs": 0.05,
+  "seamStep": 0.0034,
+  "seamP999": 0.027,
+  "seamLevelDb": -3,
+  "kb": 893
+ },
+ "war": {
+  "title": "Iron Oaths",
+  "bpmWanted": 132,
+  "bpm": 131.68,
+  "introSeconds": 0.3,
+  "loopSeconds": 80.19,
+  "loopBars": 44,
+  "lufs": -18,
+  "peak": -5.5,
+  "gainDb": -4.5,
+  "layers": [
+   "base",
+   "melody",
+   "rhythm"
+  ],
+  "stemLagMs": 25.1,
+  "layerSpreadMs": 0,
+  "seamStep": 0.0134,
+  "seamP999": 0.0497,
+  "seamLevelDb": -2,
+  "kb": 1685
+ },
+ "menu": {
+  "title": "The Crown in the Dust",
+  "bpmWanted": 72,
+  "bpm": 72.02,
+  "introSeconds": 0.4,
+  "loopSeconds": 79.98,
+  "loopBars": 24,
+  "lufs": -18,
+  "peak": -5.6,
+  "gainDb": -0.8,
+  "layers": [
+   "base",
+   "melody"
+  ],
+  "stemLagMs": 25.1,
+  "layerSpreadMs": 0.05,
+  "seamStep": 0.0085,
+  "seamP999": 0.0325,
+  "seamLevelDb": 6.2,
+  "kb": 1472
+ },
+ "disaster": {
+  "title": "Ashfall",
+  "bpmWanted": 120,
+  "bpm": 120.18,
+  "introSeconds": 1.63,
+  "loopSeconds": 79.88,
+  "loopBars": 40,
+  "lufs": -18,
+  "peak": -3.8,
+  "gainDb": -3.2,
+  "layers": [
+   "base",
+   "melody",
+   "rhythm"
+  ],
+  "stemLagMs": 25.1,
+  "layerSpreadMs": 0.05,
+  "seamStep": 0.0126,
+  "seamP999": 0.0538,
+  "seamLevelDb": -0.3,
+  "kb": 1706
+ },
+ "frost": {
+  "title": "White Silence",
+  "bpmWanted": 54,
+  "bpm": 54.12,
+  "introSeconds": 3.04,
+  "loopSeconds": 79.82,
+  "loopBars": 18,
+  "lufs": -18,
+  "peak": -5,
+  "gainDb": 1.7,
+  "layers": [
+   "base",
+   "melody"
+  ],
+  "stemLagMs": 25.1,
+  "layerSpreadMs": 0,
+  "seamStep": 0.0146,
+  "seamP999": 0.04,
+  "seamLevelDb": 0.2,
+  "kb": 1192
+ },
+ "dunes": {
+  "title": "Caravan of Embers",
+  "bpmWanted": 96,
+  "bpm": 96.14,
+  "introSeconds": 0.39,
+  "loopSeconds": 79.88,
+  "loopBars": 32,
+  "lufs": -18,
+  "peak": -3.5,
+  "gainDb": -2.2,
+  "layers": [
+   "base",
+   "melody",
+   "rhythm"
+  ],
+  "stemLagMs": 25.1,
+  "layerSpreadMs": 0.05,
+  "seamStep": 0.0096,
+  "seamP999": 0.0482,
+  "seamLevelDb": -4.3,
+  "kb": 1680
+ },
+ "tide": {
+  "title": "Salt Wind",
+  "bpmWanted": 80,
+  "bpm": 80.12,
+  "introSeconds": 2.06,
+  "loopSeconds": 86.87,
+  "loopBars": 29,
+  "lufs": -18,
+  "peak": -5.1,
+  "gainDb": -3,
+  "layers": [
+   "base",
+   "melody"
+  ],
+  "stemLagMs": 25.1,
+  "layerSpreadMs": 0.05,
+  "seamStep": 0.0228,
+  "seamP999": 0.0396,
+  "seamLevelDb": -1.4,
+  "kb": 1628
+ }
+}

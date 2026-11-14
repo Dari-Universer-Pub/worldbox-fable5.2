@@ -429,7 +429,43 @@
       "B": "b3+f#4/16 | b3+g4/16 | a3+f#4/16 | a3+e4/16"
      }
     }
-   ]
+   ],
+   "audio": {
+    "bpm": 84.04,
+    "first": 0.02,
+    "skip": 0,
+    "introBars": 0,
+    "loopBars": 24,
+    "xfade": 2,
+    "split": 600,
+    "stems": {
+     "base": {
+      "from": [
+       "other",
+       "guitar",
+       "drums"
+      ],
+      "band": "low",
+      "layers": {
+       "base": 1
+      },
+      "kbps": 32
+     },
+     "melody": {
+      "from": [
+       "other",
+       "guitar",
+       "drums"
+      ],
+      "band": "high",
+      "layers": {
+       "melody": 0.7,
+       "pad": 0.3
+      },
+      "kbps": 56
+     }
+    }
+   }
   },
   "night": {
    "title": "Lanterns",
@@ -524,7 +560,41 @@
       "B2": "-/4 c5/4 -/4 c5/4 | -/4 c5/4 -/4 c5/4 | -/4 c5/4 -/4 c5/4 | -/4 c5/4 -/4 c5/4"
      }
     }
-   ]
+   ],
+   "audio": {
+    "bpm": 60.08,
+    "first": 0.03,
+    "skip": 0,
+    "introBars": 0,
+    "loopBars": 15,
+    "xfade": 2,
+    "split": 600,
+    "stems": {
+     "base": {
+      "from": [
+       "piano",
+       "other"
+      ],
+      "band": "low",
+      "layers": {
+       "base": 1
+      },
+      "kbps": 32
+     },
+     "melody": {
+      "from": [
+       "piano",
+       "other"
+      ],
+      "band": "high",
+      "layers": {
+       "melody": 0.7,
+       "pad": 0.3
+      },
+      "kbps": 56
+     }
+    }
+   }
   },
   "war": {
    "title": "Iron Oaths",
@@ -620,7 +690,52 @@
       "B": "g5/16 | f5/16 | e5/16 | e5/8 a5/8"
      }
     }
-   ]
+   ],
+   "audio": {
+    "bpm": 131.68,
+    "first": 0.035,
+    "skip": 0,
+    "introBars": 0,
+    "loopBars": 44,
+    "xfade": 0.25,
+    "split": 600,
+    "stems": {
+     "base": {
+      "from": [
+       "other",
+       "bass"
+      ],
+      "band": "low",
+      "layers": {
+       "base": 1
+      },
+      "kbps": 32
+     },
+     "melody": {
+      "from": [
+       "other",
+       "bass"
+      ],
+      "band": "high",
+      "layers": {
+       "melody": 0.7,
+       "pad": 0.3
+      },
+      "kbps": 56
+     },
+     "rhythm": {
+      "from": [
+       "drums"
+      ],
+      "layers": {
+       "rhythm": 0.75,
+       "tension": 0.25
+      },
+      "kbps": 40,
+      "mono": true
+     }
+    }
+   }
   },
   "menu": {
    "title": "The Crown in the Dust",
@@ -728,7 +843,37 @@
       "B2": "c5/4 c5/4 c5/2 c5/2 c5/4 | c5/4 c5/4 c5/2 c5/2 c5/4 | c5/4 c5/4 c5/2 c5/2 c5/4 | c5/4 c5/4 c5/2 c5/2 c5/4"
      }
     }
-   ]
+   ],
+   "audio": {
+    "bpm": 72.02,
+    "first": 0.078,
+    "skip": 0,
+    "introBars": 0,
+    "loopBars": 24,
+    "xfade": 0.3,
+    "stems": {
+     "base": {
+      "from": [
+       "guitar",
+       "drums"
+      ],
+      "layers": {
+       "base": 1
+      },
+      "kbps": 56
+     },
+     "melody": {
+      "from": [
+       "other"
+      ],
+      "layers": {
+       "melody": 0.7,
+       "pad": 0.3
+      },
+      "kbps": 56
+     }
+    }
+   }
   },
   "disaster": {
    "title": "Ashfall",
@@ -841,7 +986,54 @@
      "gate": 0.8,
      "pan": 0.2
     }
-   ]
+   ],
+   "audio": {
+    "bpm": 120.18,
+    "first": 0.113,
+    "skip": 0,
+    "introBars": 0,
+    "loopBars": 40,
+    "xfade": 1.5,
+    "split": 600,
+    "stems": {
+     "base": {
+      "from": [
+       "other",
+       "guitar",
+       "bass"
+      ],
+      "band": "low",
+      "layers": {
+       "base": 1
+      },
+      "kbps": 32
+     },
+     "melody": {
+      "from": [
+       "other",
+       "guitar",
+       "bass"
+      ],
+      "band": "high",
+      "layers": {
+       "melody": 0.7,
+       "pad": 0.3
+      },
+      "kbps": 56
+     },
+     "rhythm": {
+      "from": [
+       "drums"
+      ],
+      "layers": {
+       "rhythm": 0.75,
+       "tension": 0.25
+      },
+      "kbps": 40,
+      "mono": true
+     }
+    }
+   }
   },
   "frost": {
    "title": "White Silence",
@@ -942,7 +1134,39 @@
       "C": "-/16 | -/12 c5/4 | -/16 | -/12 c5/4"
      }
     }
-   ]
+   ],
+   "audio": {
+    "bpm": 54.12,
+    "first": 0.02,
+    "skip": 0,
+    "introBars": 0,
+    "loopBars": 18,
+    "xfade": 3,
+    "split": 600,
+    "stems": {
+     "base": {
+      "from": [
+       "other"
+      ],
+      "band": "low",
+      "layers": {
+       "base": 1
+      },
+      "kbps": 32
+     },
+     "melody": {
+      "from": [
+       "other"
+      ],
+      "band": "high",
+      "layers": {
+       "melody": 0.7,
+       "pad": 0.3
+      },
+      "kbps": 56
+     }
+    }
+   }
   },
   "dunes": {
    "title": "Caravan of Embers",
@@ -1054,7 +1278,54 @@
      },
      "gate": 1
     }
-   ]
+   ],
+   "audio": {
+    "bpm": 96.14,
+    "first": 0.122,
+    "skip": 0,
+    "introBars": 0,
+    "loopBars": 32,
+    "xfade": 0.25,
+    "split": 600,
+    "stems": {
+     "base": {
+      "from": [
+       "other",
+       "guitar",
+       "bass"
+      ],
+      "band": "low",
+      "layers": {
+       "base": 1
+      },
+      "kbps": 32
+     },
+     "melody": {
+      "from": [
+       "other",
+       "guitar",
+       "bass"
+      ],
+      "band": "high",
+      "layers": {
+       "melody": 0.7,
+       "pad": 0.3
+      },
+      "kbps": 56
+     },
+     "rhythm": {
+      "from": [
+       "drums"
+      ],
+      "layers": {
+       "rhythm": 0.75,
+       "tension": 0.25
+      },
+      "kbps": 40,
+      "mono": true
+     }
+    }
+   }
   },
   "tide": {
    "title": "Salt Wind",
@@ -1162,7 +1433,38 @@
       "B2": "c5/6 c5/2 c5/6 c5/2 | c5/6 c5/2 c5/6 c5/2 | c5/6 c5/2 c5/6 c5/2 | c5/6 c5/2 c5/6 c5/2"
      }
     }
-   ]
+   ],
+   "audio": {
+    "bpm": 80.12,
+    "first": 0.04,
+    "skip": 0,
+    "introBars": 0,
+    "loopBars": 29,
+    "xfade": 2,
+    "stems": {
+     "base": {
+      "from": [
+       "guitar",
+       "piano",
+       "drums"
+      ],
+      "layers": {
+       "base": 1
+      },
+      "kbps": 56
+     },
+     "melody": {
+      "from": [
+       "other"
+      ],
+      "layers": {
+       "melody": 0.7,
+       "pad": 0.3
+      },
+      "kbps": 56
+     }
+    }
+   }
   }
  },
  "audio": {
