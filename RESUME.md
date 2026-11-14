@@ -6,9 +6,17 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0, C.1 and C.3 to C.9 done; next task: **C.10 trees transparent in front of what they hide**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; all of C done (C.0, C.1, C.3 to C.10); what remains is the test and balance pass reserved for Sonnet (line 0.2 and the lists « À tester par Sonnet »).
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**C.10 — arbres transparents devant ce qu'ils cachent (fait).** Rendu seulement ; aucun dessin d'arbre modifié.
+- Principe (`src/client/gl.js`) : avant la scène, un masque est dessiné (`G.occ`, programme `progM`) : un disque doux par être vivant et par bâtiment visible, qui garde la profondeur de l'objet (le plus au fond gagne) et la force demandée. Dans le shader des sprites, un arbre adulte (drapeau 128, posé dans `src/client/main.js`) qui se trouve DEVANT un objet du masque est aminci à cet endroit seulement par une trame régulière 2×2 (1/4, 1/2 puis 3/4 des pixels retirés vers le centre), calée sur la grille des pixels du MONDE : elle ne rampe pas quand la caméra bouge. Les arbres derrière l'objet, ou sans rien derrière eux, ne changent pas. Force nulle sous le zoom 1, progressive de 1 à 1,5, pleine au-delà ; les ombres des arbres ne sont pas touchées. `AL.Gfx.veilOff = true` coupe l'effet (comparaisons, mesures).
+- Objets pris en compte (`src/client/scene.js`) : unités des peuples, animaux, monstres (rayon selon la taille), bâtiments (force 0,62).
+- Vu : captures avant/après sur une forêt avec un campement humain, des cerfs et des ours, aux zooms 1, 1,5, 2 et 3 (`shots/c10-z*-before.png` / `-after.png`) : regardées aux zooms 1,5, 2 et 3 — colons, loup, ours, tentes et enclos cachés deviennent visibles à travers les feuillages ; quatre images successives `shots/c10-seq0..3.png` (caméra qui glisse d'un demi-pixel).
+- Coût mesuré (rendu logiciel, sans carte graphique, 120 images) : 62,0 / 60,1 ms sans, 62,5 / 57,2 ms avec, puis 56,8 / 57,1 sans, 65,4 / 64,6 avec : l'écart est dans le bruit de la mesure ici.
+- Non vérifié : les images successives n'ont pas été comparées une à une (l'absence de scintillement vient de la construction : trame fixée au monde) ; au zoom 1,5 (non entier) la trame tombe sur des pixels d'écran inégaux ; la capture du zoom 1 n'a pas été ouverte ; un objet devant un arbre et un autre derrière au même endroit ; le goût de Julien pour la trame (un vrai fondu demanderait de séparer la couche d'émission du canal alpha de la scène : idée notée dans IDEAS.md).
+- À tester par Sonnet : coût sur sa machine de test avec carte graphique (`AL.Gfx.veilOff`), robots qui comparent des pixels de forêt au zoom ≥ 1, `node tests/run-all.js`.
 
 **C.9 — petits défauts notés (fait).**
 - Lapin (`tools/art/creatures.js`) : pelage sable clair au lieu de brun, longues oreilles dressées un ton plus clair, tête un peu plus grosse, queue blanche ronde. Champignons (`tools/bake-flora.js`) : un grand et un petit, chapeaux bombés à points blancs, lamelles sombres, pieds clairs. Souche : face coupée vue de dessus avec ses cernes, écorce éclairée à gauche, racines, éclat de bois.
@@ -295,4 +303,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **C.10** — trees become slightly transparent in front of a unit, building, animal or monster they hide (rendering only, tree drawings unchanged): read the full line in `CHANTIER.md`, then the sprite pass in `src/client/gl.js` (`FS_S`, `G.spr`) and where trees are pushed (`src/client/main.js` around line 54). Before/after captures at several zooms, no flicker, measured cost.
+Every line of parts A, B and C of `CHANTIER.md` is ticked. What is left is NOT for this agent: line 0.2 and the test and balance pass (Sonnet): `node tests/run-all.js`, `node tools/balance-bot.js battery`, the Playwright robots, balance tuning, and every item listed under « À tester par Sonnet » in the notes above (C.10 down to A). Start with `node tools/bake-all.js` (reproducibility), `node tools/build.js`, `node tools/validate-data.js`, then the full test suite, and repair what it shows.

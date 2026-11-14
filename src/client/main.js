@@ -58,7 +58,7 @@
       // sway: a gust travels across the map; each plant has its own phase
       const gust = Math.sin(t * 0.7 + x * 0.21 + y * 0.13) * 0.5 + 0.5, ph = (t * (1.2 + wind * 2.2) + h * 4 + x * 0.3) % 4; const fi = (gust < 1 - wind * 1.4) ? 0 : (ph | 0) % fr.length;
       const jx = kind === 1 ? ((h * 5) | 0) - 2 : ((h * 7) | 0) - 3, jy = kind === 1 ? 0 : ((AL.hash2(x, y, 8) * 5) | 0) - 2;
-      G.spr(fr[fi], x * 8 + 4 + jx, y * 8 + 7 + jy, 0, (kind === 3 || kind === 5) ? 32 : 0, frost && kind === 1 && !WARMF[f] ? 1 : 0, 1, 1, kind === 3 ? -6 : 0);
+      G.spr(fr[fi], x * 8 + 4 + jx, y * 8 + 7 + jy, 0, (kind === 3 || kind === 5) ? 32 : (kind === 1 && gw[i] >= 70) ? 128 : 0, frost && kind === 1 && !WARMF[f] ? 1 : 0, 1, 1, kind === 3 ? -6 : 0);
       if (M.fire[i]) { /* fire sprites are added by AL.Fx */ } }
   }
   // ---------------- frame
