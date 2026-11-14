@@ -28,8 +28,9 @@ function fish(sp, anim, i) { const sc = new Scene(), k = sp.scale, t = i / 4 * 2
 const BA = [['idle', 2], ['fly', 4], ['attack', 4], ['death', 2]], FA = [['swim', 4], ['run', 4], ['death', 2]];
 const E0 = ix('stone', 0);
 const SPECIES = {
-  rabbit: { cell: 16, oy: 13, rig: 'quad', eye: E0, spec: { scale: 1.12, bodyLen: 3.4, bodyR: [1.5, 1.6], rump: 1.15, legLen: 1.3, legR: 0.5, legSpread: 0.9, neckLen: 0.8, neckAng: 1.1, neckR: 0.9, headR: [1.15, 1.35, 1.15], earLen: 2.3, earOut: 0.12, ears: 1.1, tail: { len: 0.5, up: 1, r: 0.75 }, mats: { tail: 'white' } },
-    mats: { fur: mat('earth', [3, 4, 5]), white: mat('ice', [3, 4, 5], { ink: 'earth' }) } },
+  // rabbit (chantier C.9): pale sandy coat, long upright ears a tone lighter, a round white tail — it read as a brown lump before
+  rabbit: { cell: 16, oy: 13, rig: 'quad', eye: E0, spec: { scale: 1.2, bodyLen: 3.4, bodyR: [1.5, 1.6], rump: 1.15, legLen: 1.3, legR: 0.5, legSpread: 0.9, neckLen: 0.8, neckAng: 1.1, neckR: 0.9, headR: [1.25, 1.45, 1.25], earLen: 3.1, earOut: 0.1, ears: 1.5, tail: { len: 0.55, up: 1, r: 1.0 }, mats: { tail: 'white', ear: 'ear' } },
+    mats: { fur: mat('sand', [2, 3, 4], { ink: 'earth' }), ear: mat('sand', [3, 4, 5], { ink: 'earth' }), white: mat('ice', [3, 4, 5], { ink: 'earth' }) } },
   deer: { cell: 24, oy: 21, rig: 'quad', eye: E0, spec: { scale: 1.25, bodyLen: 6.2, bodyR: [1.7, 1.9], legLen: 4.2, legR: 0.55, neckLen: 3.2, neckAng: 1.05, headR: [1.15, 1.9, 1.2], snout: 1.0, antlers: 1, earLen: 1.3, tail: { len: 1.0, up: 0.6, r: 0.6 }, mats: { hoof: 'hoof', tail: 'white' } },
     mats: { fur: mat('earth', [3, 4, 5]), bone: mat('sand', [3, 4, 5]), hoof: mat('earth', [0, 1]), white: mat('ice', [3, 4, 5], { ink: 'earth' }) } },
   sheep: { cell: 24, oy: 20, rig: 'quad', eye: ix('ice', 5), spec: { scale: 1.15, bodyLen: 5, bodyR: [2.0, 2.0], wool: 1.45, legLen: 2.5, legR: 0.5, neckLen: 1.4, neckAng: 0.75, headR: [1.0, 1.5, 1.05], snout: 0.6, earLen: 0.8, earOut: 1.2, tail: { len: 0.6, up: -0.4, r: 0.6 }, mats: { head: 'dark', leg: 'dark', ear: 'dark', neck: 'fur' } },

@@ -6,9 +6,17 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0, C.1 and C.3 to C.8 done; next task: **C.9 small defects**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0, C.1 and C.3 to C.9 done; next task: **C.10 trees transparent in front of what they hide**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**C.9 — petits défauts notés (fait).**
+- Lapin (`tools/art/creatures.js`) : pelage sable clair au lieu de brun, longues oreilles dressées un ton plus clair, tête un peu plus grosse, queue blanche ronde. Champignons (`tools/bake-flora.js`) : un grand et un petit, chapeaux bombés à points blancs, lamelles sombres, pieds clairs. Souche : face coupée vue de dessus avec ses cernes, écorce éclairée à gauche, racines, éclat de bois.
+- Souches qui ne repoussent pas : déjà réglé dans la simulation (`creatures.js`, une souche redevient jeune arbre ou disparaît). Vu par une courte simulation Node : 160 souches posées → 49 après 1 an, 4 après 3 ans, 0 après 6 ans.
+- Son `chop` hors fenêtre : déjà dans sa fenêtre (`node tools/measure-audio.js` : `chop#0..2` « ok », durée 0,105 à 0,115 s, centroïde 581 à 881 Hz ; AUDIO OK 189 sons).
+- Vu : `shots/c9-rabbit-before.png` / `c9-rabbit-after.png`, `shots/c9-flora-before.png` / `c9-flora-after.png`, en jeu `shots/c9-game.png` (lapins clairs lisibles sur l'herbe, zoom 3).
+- Non vérifié : champignons et souches en jeu (planche seulement) ; le lapin de face reste une petite boule à oreilles ; mesures `measure-sprite` des créatures après la nouvelle cuisson.
+- À tester par Sonnet : mesures des créatures (scintillement du lapin), `bake-all` reproductible, robots qui comptent des pixels de faune.
 
 **C.8 — captures jamais regardées (fait).** Les captures des étapes 5 à 10 dataient d'anciens états du jeu ; les mêmes vues ont été refaites avec le jeu actuel (script jetable : humains et orques semés, 150 s à ×50, an 63, 2 villes) puis regardées : `shots/c8-*.png` (26 images).
 - Regardées : village orque (zoom 2), fiche de bâtiment, fiche de ville, livre d'histoire, listes (royaumes, cultures), courbes, touches, sauvegardes, calques royaumes et ressources, neige, météore et impact, bombe nucléaire de nuit, fenêtre « nouveau monde » en 660×420.
@@ -287,4 +295,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **C.9** — small defects: stumps, mushrooms, rabbit, `chop` sound. Then C.10.
+First unticked line of `CHANTIER.md`: **C.10** — trees become slightly transparent in front of a unit, building, animal or monster they hide (rendering only, tree drawings unchanged): read the full line in `CHANTIER.md`, then the sprite pass in `src/client/gl.js` (`FS_S`, `G.spr`) and where trees are pushed (`src/client/main.js` around line 54). Before/after captures at several zooms, no flicker, measured cost.
