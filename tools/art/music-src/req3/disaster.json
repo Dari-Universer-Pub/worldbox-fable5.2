@@ -1,0 +1,59 @@
+{
+  "model_id": "music_v2_5",
+  "composition_plan": {
+    "chunks": [
+      {
+        "song_id": "ixIOKqEB43XG2cjR5BCl_upload",
+        "range": {
+          "start_ms": 0,
+          "end_ms": 31952
+        }
+      },
+      {
+        "text": "[Instrumental]",
+        "duration_ms": 55916,
+        "context_adherence": "high",
+        "condition_strength": "high",
+        "conditioning_ref": {
+          "song_id": "ixIOKqEB43XG2cjR5BCl_upload",
+          "range": {
+            "start_ms": 1952,
+            "end_ms": 31952
+          }
+        },
+        "positive_styles": [
+          "instrumental",
+          "warm wooden hall",
+          "same instruments throughout",
+          "full ensemble playing all along",
+          "steady level",
+          "seamless continuation",
+          "catastrophe",
+          "120 bpm",
+          "B minor",
+          "urgent low strings",
+          "big drum hits",
+          "tolling deep bell",
+          "falling horn alarm melody",
+          "dark and urgent"
+        ],
+        "negative_styles": [
+          "vocals",
+          "singing",
+          "spoken word",
+          "choir",
+          "humming",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "long intro",
+          "ending",
+          "fade out",
+          "silence",
+          "soft",
+          "happy"
+        ]
+      }
+    ]
+  }
+}

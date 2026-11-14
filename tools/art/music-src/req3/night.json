@@ -1,0 +1,12 @@
+{
+  "model_id": "music_v2_5",
+  "composition_plan": {
+    "chunks": [
+      { "song_id": "1ypHox2Xh93YbCQPvYEG_upload", "range": { "start_ms": 16000, "end_ms": 24000 } },
+      { "text": "[Instrumental]", "duration_ms": 56000, "context_adherence": "high", "condition_strength": "high",
+        "conditioning_ref": { "song_id": "1ypHox2Xh93YbCQPvYEG_upload", "range": { "start_ms": 16000, "end_ms": 26000 } },
+        "positive_styles": ["instrumental", "quiet night lullaby", "60 bpm", "B minor", "slow soft strings", "sparse lute", "low wooden flute melody", "small bells", "warm wooden hall", "same instruments throughout", "full ensemble playing all along", "steady level", "seamless continuation"],
+        "negative_styles": ["vocals", "singing", "spoken word", "choir", "humming", "electronic", "synthesizer", "drums", "long intro", "ending", "fade out", "silence"] }
+    ]
+  }
+}

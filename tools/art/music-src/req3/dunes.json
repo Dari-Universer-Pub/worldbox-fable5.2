@@ -1,0 +1,56 @@
+{
+  "model_id": "music_v2_5",
+  "composition_plan": {
+    "chunks": [
+      {
+        "song_id": "wOotjoWwmryYo2reMSrl_upload",
+        "range": {
+          "start_ms": 0,
+          "end_ms": 29956
+        }
+      },
+      {
+        "text": "[Instrumental]",
+        "duration_ms": 59913,
+        "context_adherence": "high",
+        "condition_strength": "high",
+        "conditioning_ref": {
+          "song_id": "wOotjoWwmryYo2reMSrl_upload",
+          "range": {
+            "start_ms": 0,
+            "end_ms": 29956
+          }
+        },
+        "positive_styles": [
+          "instrumental",
+          "warm wooden hall",
+          "same instruments throughout",
+          "full ensemble playing all along",
+          "steady level",
+          "seamless continuation",
+          "desert caravan",
+          "96 bpm",
+          "Phrygian dominant on D",
+          "frame drum and finger cymbals",
+          "winding lute riff",
+          "ornamented wooden flute melody",
+          "low string drone"
+        ],
+        "negative_styles": [
+          "vocals",
+          "singing",
+          "spoken word",
+          "choir",
+          "humming",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "long intro",
+          "ending",
+          "fade out",
+          "silence"
+        ]
+      }
+    ]
+  }
+}

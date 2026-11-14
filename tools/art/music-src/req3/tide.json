@@ -1,0 +1,57 @@
+{
+  "model_id": "music_v2_5",
+  "composition_plan": {
+    "chunks": [
+      {
+        "song_id": "U9YZfWvUjWL3LuQ6Op2L_upload",
+        "range": {
+          "start_ms": 0,
+          "end_ms": 29955
+        }
+      },
+      {
+        "text": "[Instrumental]",
+        "duration_ms": 59910,
+        "context_adherence": "high",
+        "condition_strength": "high",
+        "conditioning_ref": {
+          "song_id": "U9YZfWvUjWL3LuQ6Op2L_upload",
+          "range": {
+            "start_ms": 0,
+            "end_ms": 29955
+          }
+        },
+        "positive_styles": [
+          "instrumental",
+          "warm wooden hall",
+          "same instruments throughout",
+          "full ensemble playing all along",
+          "steady level",
+          "seamless continuation",
+          "open sea voyage",
+          "80 bpm",
+          "G major",
+          "rolling lute arpeggios",
+          "swelling warm strings",
+          "bright wooden flute melody",
+          "sparkling small bells"
+        ],
+        "negative_styles": [
+          "vocals",
+          "singing",
+          "spoken word",
+          "choir",
+          "humming",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "long intro",
+          "ending",
+          "fade out",
+          "silence",
+          "drums"
+        ]
+      }
+    ]
+  }
+}

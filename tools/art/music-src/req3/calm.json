@@ -1,0 +1,57 @@
+{
+  "model_id": "music_v2_5",
+  "composition_plan": {
+    "chunks": [
+      {
+        "song_id": "1Q1WwrFcG55fjykurby0_upload",
+        "range": {
+          "start_ms": 11423,
+          "end_ms": 28558
+        }
+      },
+      {
+        "text": "[Instrumental]",
+        "duration_ms": 59971,
+        "context_adherence": "high",
+        "condition_strength": "high",
+        "conditioning_ref": {
+          "song_id": "1Q1WwrFcG55fjykurby0_upload",
+          "range": {
+            "start_ms": 11423,
+            "end_ms": 28558
+          }
+        },
+        "positive_styles": [
+          "instrumental",
+          "warm wooden hall",
+          "same instruments throughout",
+          "full ensemble playing all along",
+          "steady level",
+          "seamless continuation",
+          "pastoral village morning",
+          "84 bpm",
+          "D major",
+          "flowing lute arpeggio",
+          "happy wooden flute melody",
+          "soft strings",
+          "small bells"
+        ],
+        "negative_styles": [
+          "vocals",
+          "singing",
+          "spoken word",
+          "choir",
+          "humming",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "long intro",
+          "ending",
+          "fade out",
+          "silence",
+          "drums"
+        ]
+      }
+    ]
+  }
+}

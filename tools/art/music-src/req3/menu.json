@@ -1,0 +1,57 @@
+{
+  "model_id": "music_v2_5",
+  "composition_plan": {
+    "chunks": [
+      {
+        "song_id": "G6JUYxfanYHww6PJbVN4_upload",
+        "range": {
+          "start_ms": 6665,
+          "end_ms": 29992
+        }
+      },
+      {
+        "text": "[Instrumental]",
+        "duration_ms": 59983,
+        "context_adherence": "high",
+        "condition_strength": "high",
+        "conditioning_ref": {
+          "song_id": "G6JUYxfanYHww6PJbVN4_upload",
+          "range": {
+            "start_ms": 6665,
+            "end_ms": 29992
+          }
+        },
+        "positive_styles": [
+          "instrumental",
+          "warm wooden hall",
+          "same instruments throughout",
+          "full ensemble playing all along",
+          "steady level",
+          "seamless continuation",
+          "noble wistful main theme",
+          "72 bpm",
+          "E minor",
+          "memorable wooden flute melody",
+          "lute arpeggio",
+          "warm strings",
+          "small bells"
+        ],
+        "negative_styles": [
+          "vocals",
+          "singing",
+          "spoken word",
+          "choir",
+          "humming",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "long intro",
+          "ending",
+          "fade out",
+          "silence",
+          "drums"
+        ]
+      }
+    ]
+  }
+}

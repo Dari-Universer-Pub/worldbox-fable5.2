@@ -1,0 +1,58 @@
+{
+  "model_id": "music_v2_5",
+  "composition_plan": {
+    "chunks": [
+      {
+        "song_id": "RHkbsxLYa85jIQcSdpkL_upload",
+        "range": {
+          "start_ms": 4444,
+          "end_ms": 26667
+        }
+      },
+      {
+        "text": "[Instrumental]",
+        "duration_ms": 62222,
+        "context_adherence": "high",
+        "condition_strength": "high",
+        "conditioning_ref": {
+          "song_id": "RHkbsxLYa85jIQcSdpkL_upload",
+          "range": {
+            "start_ms": 4444,
+            "end_ms": 26667
+          }
+        },
+        "positive_styles": [
+          "instrumental",
+          "warm wooden hall",
+          "same instruments throughout",
+          "full ensemble playing all along",
+          "steady level",
+          "seamless continuation",
+          "frozen silent land",
+          "54 bpm",
+          "B minor",
+          "slow sparse crystal bells melody",
+          "high thin cold strings",
+          "single lute notes",
+          "cold and beautiful"
+        ],
+        "negative_styles": [
+          "vocals",
+          "singing",
+          "spoken word",
+          "choir",
+          "humming",
+          "electronic",
+          "synthesizer",
+          "electric guitar",
+          "long intro",
+          "ending",
+          "fade out",
+          "silence",
+          "drums",
+          "loud"
+        ]
+      }
+    ]
+  }
+}
