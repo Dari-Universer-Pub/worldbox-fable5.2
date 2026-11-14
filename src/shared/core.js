@@ -22,7 +22,7 @@
   // {0}, {1}… in a template. An argument can name something to translate: '~key' (a text), '%e:id' (an age), '%d:1,2,3' (dogmas).
   AL.fmt = function (tpl, args, lang) {
     const T = AL.DATA && AL.DATA.i18n, nm = o => o ? (o[lang] || o.en || o.name || '') : '';
-    const val = a => { a = String(a); if (a[0] === '~') { const k = a.slice(1); return (T && ((T[lang] && T[lang][k]) || (T.en && T.en[k]))) || k; } if (a.startsWith('%e:')) return nm(AL.ERAS ? AL.ERAS[+a.slice(3)] : (AL.DATA && AL.DATA.eras ? Object.values(AL.DATA.eras).find(q => q.id === +a.slice(3)) : null)); if (a.startsWith('%d:')) return a.slice(3).split(',').map(d => nm(AL.DOGMAS ? AL.DOGMAS[+d] : (AL.DATA && AL.DATA.dogmas ? Object.values(AL.DATA.dogmas).find(q => q.id === +d) : null))).join(', '); return a; };
+    const val = a => { a = String(a); if (a[0] === '~') { const k = a.slice(1), v = (T && ((T[lang] && T[lang][k]) || (T.en && T.en[k]))) || k; return k.startsWith('res.') ? v.charAt(0).toLowerCase() + v.slice(1) : v; } if (a.startsWith('%e:')) return nm(AL.ERAS ? AL.ERAS[+a.slice(3)] : (AL.DATA && AL.DATA.eras ? Object.values(AL.DATA.eras).find(q => q.id === +a.slice(3)) : null)); if (a.startsWith('%d:')) return a.slice(3).split(',').map(d => nm(AL.DOGMAS ? AL.DOGMAS[+d] : (AL.DATA && AL.DATA.dogmas ? Object.values(AL.DATA.dogmas).find(q => q.id === +d) : null))).join(', '); return a; };
     return String(tpl).replace(/\{(\d+)\}/g, (m, n) => args[+n] != null ? val(args[+n]) : '');
   };
   // text of a chronicle entry in the language now selected (older saves only have the English sentence)

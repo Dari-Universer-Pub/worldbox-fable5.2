@@ -6,9 +6,17 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0, C.1 and C.3 to C.7 done; next task: **C.8 screenshots never looked at**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0, C.1 and C.3 to C.8 done; next task: **C.9 small defects**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**C.8 — captures jamais regardées (fait).** Les captures des étapes 5 à 10 dataient d'anciens états du jeu ; les mêmes vues ont été refaites avec le jeu actuel (script jetable : humains et orques semés, 150 s à ×50, an 63, 2 villes) puis regardées : `shots/c8-*.png` (26 images).
+- Regardées : village orque (zoom 2), fiche de bâtiment, fiche de ville, livre d'histoire, listes (royaumes, cultures), courbes, touches, sauvegardes, calques royaumes et ressources, neige, météore et impact, bombe nucléaire de nuit, fenêtre « nouveau monde » en 660×420.
+- Corrigé d'après ce qu'elles montrent : jauge de loyauté décalée par rapport aux lignes de la fiche (les jauges suivent maintenant la grille des lignes) ; « founded » et « members » sans majuscule ; onglet Cultures sans titre de colonne pour les valeurs et valeurs nommées par des noms de bâtiments ou de pouvoirs (« Incite war 75 ») → colonne « Valeurs » et noms propres (`cval.*`) ; légende des courbes coupée (« Zombie… ») ; calque des ressources sans légende → légende au-dessus de la minicarte (`resLegend`) ; touches affichées en codes bruts (« BracketLeft », « NumpadSub… ») → `UI.keyLabel` ; nom de ressource en majuscule au milieu d'une phrase de chronique (« carry off its Food ») → minuscule dans `AL.fmt`.
+- Vu : `shots/c8-fix-legend.png` (légende des ressources, en-têtes de l'onglet Cultures) ; la fiche avec jauge réalignée sur `shots/c8-fix-legend.png` d'avant déplacement (fiche de bâtiment).
+- Non vérifié : les 9 images non ouvertes parmi les 26 (calques 2, 3, 4, 5, 7, `era-rime`, `meteor`, `nuke-a`, `win-options`, `lists-tab1`, `sheet-bld`, `impact-after`) ; la chronique après correction de la majuscule ; les touches renommées à l'écran.
+- Constaté, laissé à Sonnet (équilibrage) : dans cette partie les humains passent de 297 à une dizaine vers l'an 58 (famines en série, « 272 bouches »), le village humain est abandonné ; la couverture de neige de saison est en gros carrés ; les calques sont sombres pendant l'Âge de la Pénombre.
+- À tester par Sonnet : robots de l'interface (hauteur des jauges 9 → 10 px dans les fiches, libellés des touches, en-têtes), famine humaine en duel.
 
 **C.7 — tactile et téléphone (fait).** Client seulement.
 - Gestes (`src/client/main.js`) : un doigt = toucher pour agir (une seule fois), glisser avec la main pour déplacer la vue, glisser avec un pinceau ou un pouvoir traînant pour peindre ; l'outil ne part qu'après 6 px ou 140 ms, donc le premier doigt d'un pincement ne lance plus rien ; deux doigts = déplacer et zoomer ; doigt posé 0,5 s sur un être avec la main = le suivre ; `touchcancel` géré.
@@ -279,4 +287,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **C.8** — the screenshots of steps 5 to 10 that were never looked at: list them (`ls shots | grep -E 'step(5|6|7|8|9|10)'`, and what RESUME/REPORT say was not looked at), open each, note and fix what they show. Then C.9 (stumps, mushrooms, rabbit, `chop` sound) and C.10 (trees transparent in front of what they hide).
+First unticked line of `CHANTIER.md`: **C.9** — small defects: stumps, mushrooms, rabbit, `chop` sound. Then C.10.
