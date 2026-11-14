@@ -6,9 +6,17 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0, C.1 and C.3 done; next task: **C.4 interface**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0, C.1, C.3 and C.4 done; next task: **C.5 title and loading screens**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**C.4 — interface (fait).** Client seulement.
+- Icônes redessinées dans `tools/art/icons.js` : `cat_creatures` (tête de renard au lieu d'une tache), `peace` (colombe de face, rameau), `truce` (drapeau blanc, pour ne plus doubler la colombe), `export` et `import` (caisse, flèche qui sort ou qui entre), `culture` (lyre), `flood` (maison dans l'eau).
+- Contrôle direct : le bandeau d'une ligne devient un panneau (`controlHint` dans `src/client/ui.js`) : clic sur le sol, clic sur un être, Maj + clic, touche d'annulation lue dans les touches réglées. Il ne bloque pas les clics.
+- Aide de première partie : six étapes (`firstHelp`), ouverte une fois quand le joueur entre dans un monde, boutons Passer / Retour / Suite, mémorisée dans les options (`helpDone`), rejouable par le bouton « Revoir les premiers pas » des options. Pas affichée sous `?play` (robots) sauf avec `?play&help`. Textes `ctl.*`, `help.*`, `opt.help` en anglais et en français.
+- Vu : `shots/c4-before.png`, `shots/c4-after.png` (couleur ×8), `shots/c4-after-sil.png` (silhouettes ×2) ; en jeu `shots/c4-help1.png` (anglais, étape 1), `shots/c4-help2.png` (français, étape 2), `shots/c4-control.png` (panneau de contrôle, marqueur violet). build et validate-data OK.
+- Non vérifié : les clics réels sur Passer / Suite / Retour et le bouton des options (captures seulement) ; l'aide en interface ×2 et sur petit écran ; les étapes 3 à 6 n'ont pas été regardées en capture ; le rameau de la colombe se lit mal à taille réelle.
+- À tester par Sonnet : robot d'interface (clics réels sur l'aide, mémorisation après rechargement, absence sous `?play`), contrôle direct avec le nouveau panneau, mesures des icônes (`tools/measure-*.js`, silhouettes distinctes en gris).
 
 **C.3 — effets (fait).** Client et assets seulement, aucune règle de simulation touchée (donc pas de partie Node).
 - Effets redessinés (`tools/art/fx.js`, `fx-powers.js`) : `splash` (colonne, couronne, gouttes, anneau qui s'ouvre, 6 images), `acid` (même geste en vert, bulles qui crèvent, fumerolle), `blood` (discret : trois gouttes puis une petite flaque), `crack` (cœur large qui s'effile, paroi, lèvre éclairée, éclats), `scorch` (trois tons, cendres), `fissure` (paroi du fond, vide, lèvre claire, gravats), pluie `p/rain`, `p/rain2`, `p/acid` (traits de 6 px à deux tons et queue sombre), nouveau `rainhit` (goutte qui touche le sol, semée sous la pluie par `src/client/fx.js`).
@@ -248,4 +256,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **C.4** — interface: redraw the weak icons (creatures, peace, import/export, culture, flood) in the icon sources of `tools/bake-ui.js`, look at the sheet in colour and greyscale at real size; add a hint shown during direct control (keys for move, attack, special, release; texts through `AL.t`, EN and FR); add a first-game help (short steps shown once, dismissable, remembered in the options). Then C.5 to C.10 in order.
+First unticked line of `CHANTIER.md`: **C.5** — title and loading screens: animate the logo (source `tools/art/logo.js`, title screen in `src/client/app.js` and `titleScreen` in `src/client/ui.js`), add a credits window reachable from the title (texts through `AL.t`), make the loading bar continuous (see `src/client/boot.js` and `main.js`). Screenshot each, then C.6 to C.10 in order.

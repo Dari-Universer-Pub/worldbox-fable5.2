@@ -107,7 +107,10 @@
       if (S.sel >= 0 && S.selPos) { const sx = Math.round((S.selPos[0] - c.x) * c.z), sy = Math.round((S.selPos[1] - 8 - c.y) * c.z), r = 9 + ((now / 350) & 1), arm = 4; const corner = (ax, ay, col, grow) => { g.fillStyle = col; const x0 = sx + ax * r - (ax > 0 ? arm : 0), y0 = sy + ay * r - (ay > 0 ? arm : 0); g.fillRect(x0 - grow, sy + ay * r - (ay > 0 ? 1 : 0) - grow, arm + 1 + 2 * grow, 2 + 2 * grow); g.fillRect(sx + ax * r - (ax > 0 ? 1 : 0) - grow, y0 - grow, 2 + 2 * grow, arm + 1 + 2 * grow); };
         for (const [ax, ay] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) corner(ax, ay, C.ink, 1); for (const [ax, ay] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) corner(ax, ay, ctl ? C.magic : C.accent, 0); }
       const om = UI.orderMark; if (om && now - om.t < 1800) { const sx = Math.round((om.x - c.x) * c.z), sy = Math.round((om.y - c.y) * c.z), k = ((now - om.t) / 300) & 1 ? 3 : 4; g.fillStyle = C.magic; g.fillRect(sx - k, sy, 2 * k + 1, 1); g.fillRect(sx, sy - k, 1, 2 * k + 1); g.fillRect(sx - 1, sy - 1, 3, 3); } }
-    if (Game.hud && Game.hud.ctl >= 0) { const s = t('ui.controlled'), w = UI.textW(s) + 10; panel((W - w) >> 1, 38, w, 15); UI.text(s, ((W - w) >> 1) + 5, 40, C.magic); }
+    if (Game.hud && Game.hud.ctl >= 0) controlHint();
+    // the first steps open once, when the player first stands in a world (not under ?play, which the robots use, unless ?help asks for it)
+    if (!UI.helpAsked) { UI.helpAsked = true; const forced = /(^|[?&#])help\b/.test(location.search.slice(1)); if (forced || (!Game.options.helpDone && !(AL.App && AL.App.skip()))) { UI.help = 0; UI.helpT = 0; } }
+    if (UI.help != null && !UI.win && !(Game.hud && Game.hud.ctl >= 0)) firstHelp(dt);
     if (UI.debug) { const st = Game.stats, s = st.fps + ' fps  ' + st.frameMs.toFixed(1) + ' ms  max ' + st.maxMs.toFixed(0) + '  spr ' + st.sprites + '  units ' + S.nUnits + '  x' + (Game.effSpeed || 0).toFixed(1) + '  fx ' + (AL.Fx ? AL.Fx.n : 0) + '  ' + AL.Link.mode; UI.text(s, 22, H - 76, C.accent); }
     // tooltip
     if (hotNow !== lastHot) { lastHot = hotNow; tipT = 0; } else tipT += dt;
@@ -189,6 +192,22 @@
     yy += 3; if (sh.type === 'unit') { if (button('shf', x + 4, yy, 46, 16, { label: t('ui.follow'), sel: Game.follow === sh.id })) Game.follow = Game.follow === sh.id ? -1 : sh.id; if (button('shc', x + 52, yy, 54, 16, { label: t('ui.control'), sel: d.ctl })) { if (d.ctl) AL.Tools.release(); else { AL.Link.send({ t: 'control', i: sh.id }); Game.follow = sh.id; Game.tool = { id: 'control', size: 1, shape: 'round' }; } } if (d.townId >= 0 && button('sht', x + 108, yy, 38, 16, { icon: 'town', tip: t('sheet.town') })) { UI.sheet = { type: 'town', id: d.townId, d: null }; UI.askT = 0; } }
     else if (button('shg', x + 4, yy, 50, 16, { label: t('ui.goto') })) goTo(sh.type === 'bld' ? d.x : d.cx, sh.type === 'bld' ? d.y : d.cy); }
   // ------------------------------------------------------------ windows
+  const keyName = a => ((Game.bind && Game.bind[a]) || []).slice(0, 1).map(c => c.replace(/^Key|^Digit/, '').replace('Arrow', '').replace('Escape', 'Esc')).join('') || '?';
+  // a key drawn as a small cap, returns its width
+  function keycap(s, x, y) { const w = UI.textW(s) + 6; g.fillStyle = C.ink; g.fillRect(x, y, w, 12); g.fillStyle = C.hi; g.fillRect(x + 1, y + 1, w - 2, 9); g.fillStyle = C.bg2; g.fillRect(x + 1, y + 2, w - 2, 8); UI.text(s, x + 3, y + 2, C.text); return w; }
+  // direct control (chantier C.4): what the god can do with the being he guides
+  function controlHint() { const rows = [[[t('ctl.click')], t('ctl.move')], [[t('ctl.click')], t('ctl.attack')], [['Shift', t('ctl.click')], t('ctl.special')], [[keyName('cancel')], t('ctl.release')]], title = t('ctl.title');
+    let w = UI.textW(title) + 12; const kw = rows.map(r => r[0].reduce((a, k) => a + UI.textW(k) + 8, 0)), km = Math.max(...kw); for (const r of rows) w = Math.max(w, km + UI.textW(r[1]) + 16);
+    const x = (W - w) >> 1, y = 36, h = 17 + rows.length * 13; panel(x, y, w, h); UI.text(title, x + 6, y + 3, C.magic); g.fillStyle = C.hi; g.fillRect(x + 4, y + 14, w - 8, 1);
+    rows.forEach((r, k) => { let kx = x + 6; const yy = y + 17 + k * 13; for (const c of r[0]) kx += keycap(c, kx, yy) + 2; UI.text(r[1], x + 10 + km, yy + 2, C.text); }); }
+  // first-game help (chantier C.4): a few steps shown once on the first world the player makes, each pointing at a part of the screen
+  const HELP = [['help.1', null], ['help.2', 'cat_peoples'], ['help.3', 'cat_world'], ['help.4', 'pause'], ['help.5', 'history'], ['help.6', 'control']];
+  function firstHelp(dt) { const k = UI.help, st = HELP[k]; UI.helpT = (UI.helpT || 0) + dt; const w = 250, lines = UI.wrap(t(st[0]).replace('{pan}', keyName('panUp') + ' ' + keyName('panLeft') + ' ' + keyName('panDown') + ' ' + keyName('panRight')).replace('{pause}', keyName('pause')).replace('{zin}', keyName('zoomIn')).replace('{zout}', keyName('zoomOut')), w - (st[1] ? 34 : 14));
+    const h = 38 + lines.length * 11, x = (W - w) >> 1, y = Math.round(40 - Math.max(0, 0.25 - UI.helpT) * 40); panel(x, y, w, h); zone(x, y, w, h); UI.text(t('help.title') + '  ' + (k + 1) + ' / ' + HELP.length, x + 6, y + 3, C.accent); g.fillStyle = C.hi; g.fillRect(x + 4, y + 14, w - 8, 1);
+    const ic = st[1] && icon(st[1]); if (ic) { panel(x + 6, y + 18, 20, 20, C.bg2); g.drawImage(ic, x + 8, y + 20); } lines.forEach((l, q) => UI.text(l, x + (ic ? 30 : 7), y + 18 + q * 11, C.text));
+    const by = y + h - 18; if (button('helpskip', x + 6, by, 70, 15, { label: t('help.skip') })) { helpEnd(); return; } if (k > 0 && button('helpprev', x + w - 130, by, 60, 15, { label: t('help.prev') })) { UI.help = k - 1; UI.helpT = 1; return; }
+    if (button('helpnext', x + w - 66, by, 60, 15, { label: t(k === HELP.length - 1 ? 'help.done' : 'help.next'), col: C.accent })) { if (k === HELP.length - 1) helpEnd(); else { UI.help = k + 1; UI.helpT = 1; } } }
+  function helpEnd() { UI.help = null; Game.options.helpDone = true; UI.saveOptions(); }
   function windowFrame(dt) { const w = Math.min(W - 44, 440), h = Math.min(H - 70, 250), x = (W - w) >> 1, y = 22, e = UI.winT * (2 - UI.winT), hh = Math.max(16, Math.round(h * e)); g.save(); g.beginPath(); g.rect(x, y, w, hh); g.clip(); panel(x, y, w, h); UI.zones.length -= 4; zone(x, y, w, hh);
     g.fillStyle = C.bg2; g.fillRect(x + 1, y + 1, w - 2, 15); UI.text(t('win.' + UI.win), x + 6, y + 3, C.accent); if (button('wx', x + w - 16, y + 1, 14, 14, { icon: 'close', tip: t('ui.close') })) { g.restore(); UI.closeWin(); return; }
     const X = x + 6, Y = y + 20, Wd = w - 12, Hd = h - 26; ({ lists: winLists, history: winHistory, stats: winStats, options: winOptions, saves: winSaves, new: winNew, keys: winKeys })[UI.win](X, Y, Wd, Hd, dt); g.restore(); }
@@ -228,7 +247,7 @@
     const tog = (k, name, on, fn) => { lab(name, y); if (button('tg' + k, bx, y, 40, 16, { label: t(on ? 'ui.yes' : 'ui.no'), sel: on })) { fn(); UI.saveOptions(); } y += 17; };
     tog('fill', 'opt.fill', o.fill !== false, () => { o.fill = o.fill === false; Game.layout(); }); tog('shake', 'opt.shake', !o.noShake, () => { o.noShake = !o.noShake; }); tog('hc', 'opt.contrast', !!o.contrast, () => { o.contrast = !o.contrast; buildColors(); }); tog('as', 'opt.autosave', !!o.autosave, () => { o.autosave = !o.autosave; });
     lab('opt.fullscreen', y); if (button('fs', bx, y, 40, 16, { icon: 'fullscreen' })) UI.action('fullscreen'); y += 17;
-    if (button('okeys', X, y, 120, 16, { label: t('opt.keys'), icon: 'keys' })) { UI.win = 'keys'; UI.scroll = 0; } }
+    if (button('okeys', X, y, 120, 16, { label: t('opt.keys'), icon: 'keys' })) { UI.win = 'keys'; UI.scroll = 0; } if (button('ohelp', X + 124, y, 120, 16, { label: t('opt.help') })) { UI.closeWin(); UI.help = 0; UI.helpT = 0; } }
   function winKeys(X, Y, Wd, Hd) { const acts = Object.keys(AL.DATA.keys), vis = Math.floor((Hd - 20) / 17) * 2; UI.scroll = AL.clamp(UI.scroll + wheelD * 2, 0, Math.max(0, acts.length - vis)); const half = Wd >> 1;
     for (let k = UI.scroll; k < Math.min(acts.length, UI.scroll + vis); k++) { const a = acts[k], q = k - UI.scroll, x = X + (q % 2) * half, y = Y + (q >> 1) * 17; UI.text(fit(t('key.' + a), half - 92), x, y + 3, C.text); const lbl = UI.remap === a ? t('ui.presskey') : Game.bind[a].map(c => c.replace(/^Key|^Digit/, '').replace('Arrow', '')).join(' / '); if (button('rk' + a, x + half - 90, y, 84, 16, { label: fit(lbl, 80), sel: UI.remap === a })) UI.remap = a; }
     if (button('kreset', X, Y + Hd - 16, 110, 16, { label: t('opt.reset') })) { try { localStorage.removeItem('aeonloom.keys'); } catch (e) { } Game.loadBinds(); } if (button('kback', X + 114, Y + Hd - 16, 40, 16, { icon: 'back' })) { UI.win = 'options'; UI.remap = null; } }
