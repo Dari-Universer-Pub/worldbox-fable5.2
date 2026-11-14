@@ -1,4 +1,4 @@
-// "Loomscript" — the game's pixel font, drawn glyph by glyph (pipeline B). Caps 5x7, x-height 5, descenders 2.
+// "Dustscript" — the game's pixel font, drawn glyph by glyph (pipeline B). Caps 5x7, x-height 5, descenders 2.
 // Rows are top-aligned to the cap line; glyphs with 9 rows have descenders. Accents are composed by tools/bake-font.js.
 'use strict';
 const G = {

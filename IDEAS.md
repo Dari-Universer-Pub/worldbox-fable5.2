@@ -49,7 +49,7 @@
 - Icônes de ressources manquantes (cuivre, fer, or, aéthérite, outils, armes, armures) : signalé par `tools/validate-data.js`.
 
 ## Après l'étape 13 (titre, chargement, renommage en Dustcrown)
-- Le jeu s'appelle maintenant Dustcrown, mais l'univers écrit dans `BIBLE.md` (le Tisserand, la Trame, le fil) date de l'ancien nom : à réécrire si Julien veut un univers accordé au nouveau nom (poussière, couronne). Les noms d'ères et la piste « Loom of Morning » viennent aussi de l'ancien thème.
+- (Fait au chantier C.6) L'univers de `BIBLE.md` est réécrit pour Dustcrown : le monde Orrim, la Poussière, la couronne trouvée dans la poussière, le dieu « le Sans-Couronne » ; noms d'ères accordés aux données, pistes et police renommées. Reste à Julien de dire si cet univers lui plaît.
 - Les sauvegardes du navigateur gardent leurs anciens identifiants internes (`aeonloom.options`, base `aeonloom`, en-tête de fichier `AEON`) pour ne pas perdre les mondes déjà enregistrés ; l'export s'appelle maintenant `.dust` et l'import accepte `.dust` et `.aeon`.
 - Écran-titre : pas d'animation propre du logo (léger flottement seulement), pas de crédits, pas de bouton plein écran ; le bouton « Continuer » n'apparaît que s'il existe une sauvegarde automatique (non vérifié par le robot).
 - Écran de chargement : la barre avance par étapes (images, code, monde), pas en continu ; non testé sur une connexion lente ni sur téléphone.

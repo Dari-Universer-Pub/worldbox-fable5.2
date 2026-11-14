@@ -327,6 +327,7 @@
  },
  "tracks": {
   "calm": {
+   "title": "Fields Before Noon",
    "bpm": 84,
    "vol": 0.9,
    "form": [
@@ -431,6 +432,7 @@
    ]
   },
   "night": {
+   "title": "Lanterns",
    "bpm": 60,
    "vol": 0.9,
    "form": [
@@ -525,6 +527,7 @@
    ]
   },
   "war": {
+   "title": "Iron Oaths",
    "bpm": 132,
    "vol": 0.9,
    "form": [
@@ -620,7 +623,7 @@
    ]
   },
   "menu": {
-   "title": "Weaver's Threshold",
+   "title": "The Crown in the Dust",
    "bpm": 72,
    "vol": 0.85,
    "form": [

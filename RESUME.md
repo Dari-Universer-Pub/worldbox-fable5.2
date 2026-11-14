@@ -6,9 +6,16 @@
 
 **Read this first** (then CLAUDE.md for the rules and conventions). Updated at every commit.
 
-## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0, C.1, C.3, C.4 and C.5 done; next task: **C.6 universe**.
+## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; C.0, C.1 and C.3 to C.6 done; next task: **C.7 touch and phone**.
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**C.6 — univers (fait).** Documents et noms seulement.
+- `BIBLE.md` réécrit pour Dustcrown : le monde **Orrim**, **la Poussière**, la légende de la couronne trouvée dans la poussière, le dieu **le Sans-Couronne**, le ton, les mots à employer et à éviter ; les dix ères de la section 3 sont maintenant celles des données (`src/data/eras.json`, noms anglais et français, effets chiffrés relus dans les données).
+- Pistes : « Weaver's Threshold » devient « The Crown in the Dust » (source `tools/art/music-scores.py` et `src/data/music.json`) ; les trois pistes écrites à la main reçoivent un titre (`Fields Before Noon`, `Lanterns`, `Iron Oaths`). Police renommée « Dustscript » (commentaire et `TOOLS.md`).
+- Vu : validate-data OK, build OK, `music-scores.py` relancé (les titres des pistes à la main sont conservés), plus aucun mot de l'ancien univers dans `BIBLE.md` hors la note d'en-tête.
+- Non vérifié : rien ne s'affiche en jeu à partir de ces titres (ils ne sont pas montrés au joueur) ; l'univers lui-même est à juger par Julien (la ligne de CHANTIER disait « si Julien le veut »).
+- À tester par Sonnet : `node tests/run-all.js` (un test pourrait lire le titre de la piste du menu), `measure-audio`.
 
 **C.5 — écran-titre et chargement (fait).** Client seulement.
 - Logo animé (`titleLogo` dans `src/client/ui.js`, à partir du même dessin `logo/word`) : les lettres tombent une à une et rebondissent, la couronne se pose en dernier, la ligne de poussière se trace de gauche à droite ; ensuite vague lente des lettres, bande de lumière qui traverse l'or toutes les 6,5 s, éclat sur la couronne, grains de poussière qui tombent.
@@ -264,4 +271,4 @@ node tools/sheet.js <atlas> --match <regex> --scale 4 [--silhouette] [--cols N] 
 ```
 
 ### Precise next action
-First unticked line of `CHANTIER.md`: **C.6** — universe: rewrite `BIBLE.md` for the name Dustcrown (the line says "if Julien wants it": he asked for every task, so do it), check era names and music track names in `src/data` and `i18n.json` against the bible. Then C.7 to C.10 in order.
+First unticked line of `CHANTIER.md`: **C.7** — touch and phone: gestures (one finger = tool or pan, two fingers = pan and pinch zoom, long press = sheet), sound unlock on iPhone (resume the audio context on the first touch), interface ×2 on small screens. Read the pointer/touch code in `src/client/main.js` first; test with Playwright touch emulation in a one-off script (not the robots). Then C.8 to C.10.

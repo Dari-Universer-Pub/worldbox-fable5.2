@@ -38,8 +38,8 @@ def track(title, bpm, vol, form, sections, melody, mel_inst, parts, loop=0):
     return {'title': title, 'bpm': bpm, 'vol': vol, 'form': form, 'loopFrom': loop, 'tracks': out}
 
 T = {}
-# ---- menu: Weaver's Threshold (E minor, slow, a lute that never stops; the bridge C opens to G major before the return)
-T['menu'] = track("Weaver's Threshold", 72, 0.85, ['A', 'B', 'A2', 'C', 'B2'],
+# ---- menu: The Crown in the Dust (E minor, slow, a lute that never stops; the bridge C opens to G major before the return)
+T['menu'] = track("The Crown in the Dust", 72, 0.85, ['A', 'B', 'A2', 'C', 'B2'],
     {'A': ['Em', 'C', 'G', 'D'], 'A2': ['Em', 'C', 'Am', 'B'], 'B': ['Am', 'Em', 'C', 'B'], 'C': ['G', 'D', 'Em', 'Bm'], 'B2': ['Am', 'C', 'D', 'Em']},
     {'A': 'b4/6 e5/2 g5/4 f#5/4 | e5/8 g4/4 c5/4 | d5/6 b4/2 g4/4 b4/4 | a4/12 -/4',
      'A2': 'b4/6 e5/2 g5/4 a5/4 | g5/6 e5/2 c5/8 | c5/4 e5/4 a5/6 g5/2 | f#5/12 d#5/4',

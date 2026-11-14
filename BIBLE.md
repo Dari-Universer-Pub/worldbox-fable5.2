@@ -1,11 +1,20 @@
 # BIBLE — DUSTCROWN
 
-> **Name.** The game was called Aeonloom until step 12; Julien renamed it **Dustcrown**. The universe below (the Weaver, the Weft, the thread) was written for the old name and has not been rewritten.
+> **Name.** The game was called Aeonloom until step 12; Julien renamed it **Dustcrown**. This bible was rewritten for that name in chantier C.6: the old universe (the Weaver, the Weft, the thread) is gone. Only the storage keys of saves and options keep the old word (`aeonloom.*`), so that existing saves still load.
 
 ## 1. Name, pitch, tone
-**Dustcrown** — *you are the Weaver; the world is your cloth.*
+**Dustcrown** — *every crown ends as dust; you are the one who stays.*
 A top-down pixel-art god sandbox. The player has no mana, no score, no goal other than curiosity: shape the land, seed life, watch peoples build, pray, trade, betray and fight, and step in whenever the urge comes.
-Tone: a warm, slightly melancholy fable. The world is called **the Weft**; every age leaves a thread in it. Nothing is grimdark; violence is readable but discreet; humour comes from the little lives (a king dying of a rabbit bite belongs in the chronicle).
+
+**The world** is called **Orrim** (French: Orrim). Its peoples call the bare ground they were set down on **the Dust** (la Poussière): everything they raise is raised out of it and goes back to it — fields, walls, dynasties.
+
+**The legend.** The first settlers of every people tell the same story in their own tongue: at the dawn a crown lay in the dust, and no hand had made it. Whoever lifted it became the first ruler; when that ruler died the crown was dust again by morning. Since then every kingdom claims its crown is *that* crown, found again. This is why rulers are crowned kneeling, with a pinch of earth on the brow, and why a fallen kingdom is said to have "given the crown back". The game's mark shows it: a small crown resting on the world, with motes of dust around.
+
+**The god** (the player) has no name in Orrim. Chronicles say **the Crownless** (le Sans-Couronne): the only power that needs no crown, that was there before the first one and will see the last one fall. Prophets speak for it, temples are raised to it under a hundred names, and none of them is right. Its acts are written in the history book as "the will of the god".
+
+**Tone**: a warm, slightly melancholy fable about things that do not last and are worth building anyway. Nothing is grimdark; violence is readable but discreet; humour comes from the little lives (a king dying of a rabbit bite belongs in the chronicle). Words to use in texts: dust, crown, hearth, oath, reign, ruin, harvest. Words to avoid: thread, weave, loom, cloth (the old universe).
+
+**Names of made things.** The pixel font is **Dustscript**. The eight music tracks: *The Crown in the Dust* (menu), *Fields Before Noon* (calm day), *Lanterns* (night), *Iron Oaths* (war), *Ashfall* (disaster), *White Silence* (frost), *Caravan of Embers* (dunes), *Salt Wind* (tides).
 
 ## 2. The peoples (6 in the final vision; ★ = complete in the first pass)
 | id | Name | Silhouette | Temper | Architecture | Default kingdom ramp |
@@ -20,17 +29,17 @@ Tone: a warm, slightly melancholy fable. The world is called **the Weft**; every
 People traits in data: `devSpeed, strength, fertility, lifespan, maturity, speed, courage, likesBiomes, hatesBiomes, diet, buildSet`.
 
 ## 3. World history frame (the ages)
-The Weaver's ages change climate, creatures and tempers. Ten ages in the final vision (★ = active effects in first pass):
-1. **Age of the First Thread** ★ — neutral dawn. 
-2. **Age of Gilded Sheaves** ★ — golden age: +30% crop growth, +20% fertility, relations drift up.
-3. **Age of Iron Oaths** ★ — war age: ambition ×2, war weariness halved.
-4. **Age of Long Frost** ★ — ice age: temperature −2 bands, snow spreads, crops −50%.
-5. **Age of Cinders** ★ — ash: volcano activity ×4, fires spread ×2, dim red light.
-6. **Age of Veiled Stars** ★ — darkness: nights twice as dark, monsters rise from graves.
-7. **Age of Frayed Skies** — chaos: storms, madness, mutations ×5.
-8. **Age of Deep Tides** — sea level +1, rain ×3.
-9. **Age of Verdance** — forests spread ×3, animals ×2.
-10. **Age of Quiet Looms** — peace and decline: births −30%, wars rare, scholars ×2.
+Orrim passes through ages; each one changes climate, creatures and tempers, and has its own light and music. Ten ages, all active (data: `src/data/eras.json`, names in English and French there). The names say what the Dust does in that age.
+1. **Age of First Light** (Âge de la Première Lueur) — the dawn in which the crown was found: neutral, births +10 %.
+2. **Age of Bloom** (Âge de la Floraison) — plants grow ×1.8, crops +30 %, births +20 %, fewer storms, tempers ease.
+3. **Gilded Age** (Âge Doré) — crops +50 %, births +40 %, storms halved, relations drift up: the age kingdoms remember.
+4. **Age of Rime** (Âge du Givre) — one band colder, growth ×0.6, crops −22 %, births −20 %, tempers harden.
+5. **Age of Embers** (Âge des Braises) — one band hotter, storms ×1.5, mutations ×1.5, embers in the air, war music.
+6. **Age of Ash** (Âge des Cendres) — growth ×0.55, crops −28 %, births −30 %, mutations ×2, ash falls, a few dead rise.
+7. **Age of Gloam** (Âge de la Pénombre) — dim days, a third of the dead do not stay down, storms ×1.3.
+8. **Age of Tumult** (Âge du Tumulte) — mutations ×5, storms ×2.5, strife at its highest: crowns change heads fast.
+9. **Age of Tides** (Âge des Marées) — rain ×2.5, storms ×2, growth ×1.3: the age of sailors and floods.
+10. **Age of Silence** (Âge du Silence) — births −40 %, storms rare, wars rare: the Dust settles, kingdoms grow old.
 An age lasts 40–90 years; the next one is drawn by weight, or forced by a god power.
 
 ## 4. Time and scale (identical in every document)
