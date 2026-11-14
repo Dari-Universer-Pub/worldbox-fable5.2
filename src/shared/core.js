@@ -1,10 +1,6 @@
 // AL core shared by the simulation and the client: constants, seeded RNG, hashing, noise, data lookups.
 (function (AL) {
   'use strict';
-  // Day and night last as long as each other (asked by Julien, so that night music is heard as much as day music). The rest of the game keeps
-  // thinking in the former phase q, where the day ran from 0.04 to 0.72 and the night was shorter: AL.dayQ turns the real phase p of the day
-  // (0..1) into q, the day being 0.04..0.54 of p and the night the other half. Simulation (sleep, evening, spirits) and lighting both use q.
-  AL.dayQ = p => p < 0.04 ? 0.0144 + 0.64 * p : p < 0.54 ? 0.04 + (p - 0.04) * 1.36 : (0.72 + (p - 0.54) * 0.64) % 1;
   AL.TICK_HZ = 10; AL.DAY = 300; AL.YEAR = 1200; AL.TILE = 8; AL.SEA = 100;
   AL.SIZES = { small: 128, medium: 256, large: 384, giant: 512 };
   // xoshiro128** — every random number of the simulation comes from here

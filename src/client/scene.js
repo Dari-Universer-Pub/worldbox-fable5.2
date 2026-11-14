@@ -77,7 +77,7 @@
   const STINT = [[0.99, 1.03, 0.98], [1.04, 1.02, 0.95], [1.07, 0.98, 0.88], [0.92, 0.97, 1.07]];
   const SCOVER = [null, null, { a: ['sand', 3], b: ['earth', 4], w: { forest: 34, grass: 14, hills: 8, swamp: 10, soil: 10 } }, { a: ['ice', 5], b: ['ice', 4], w: { grass: 55, forest: 50, soil: 50, road: 22, hills: 65, mountain: 70, tundra: 75, swamp: 35, sand: 12, volcanic: 20 } }];
   const KEYS = [[0.00, 0.50, 0.52, 0.80], [0.05, 0.86, 0.72, 0.74], [0.12, 1.0, 0.98, 0.94], [0.50, 1.02, 1.0, 0.96], [0.62, 1.0, 0.86, 0.72], [0.70, 0.78, 0.60, 0.74], [0.76, 0.46, 0.48, 0.78], [1.0, 0.50, 0.52, 0.80]];
-  S.update = function (dt, env) { const p = Game.tick == null ? 0.3 : AL.dayQ(((Game.tick + (S.cur && Game.simSpeed ? 0 : 0)) % AL.DAY) / AL.DAY); let k = 0; while (k < KEYS.length - 2 && p > KEYS[k + 1][0]) k++; const a = KEYS[k], b = KEYS[k + 1], f = (p - a[0]) / (b[0] - a[0]);
+  S.update = function (dt, env) { const p = Game.tick == null ? 0.3 : ((Game.tick + (S.cur && Game.simSpeed ? 0 : 0)) % AL.DAY) / AL.DAY; let k = 0; while (k < KEYS.length - 2 && p > KEYS[k + 1][0]) k++; const a = KEYS[k], b = KEYS[k + 1], f = (p - a[0]) / (b[0] - a[0]);
     if (!env.lockAmbient) { env.ambient[0] = a[1] + (b[1] - a[1]) * f; env.ambient[1] = a[2] + (b[2] - a[2]) * f; env.ambient[2] = a[3] + (b[3] - a[3]) * f; }
     // seasons (chantier B.8): colour of the light, cover on the ground (snow, fallen leaves), frost on the trees
     { const h = Game.hud, se = h && h.season != null ? h.season : 1, sp = h && h.seasonP != null ? h.seasonP : 0.5, edge = Math.min(1, sp / 0.15, (1 - sp) / 0.15), G = AL.Gfx, A = AL.Assets, T = STINT[se], N = STINT[(se + 1) % 4], P = STINT[(se + 3) % 4], wn = sp > 0.85 ? (sp - 0.85) / 0.3 : 0, wp = sp < 0.15 ? (0.15 - sp) / 0.3 : 0;

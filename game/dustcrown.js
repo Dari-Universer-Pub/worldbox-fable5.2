@@ -5,10 +5,6 @@ var AL_SIM_BUNDLE=function(){
 // AL core shared by the simulation and the client: constants, seeded RNG, hashing, noise, data lookups.
 (function (AL) {
   'use strict';
-  // Day and night last as long as each other (asked by Julien, so that night music is heard as much as day music). The rest of the game keeps
-  // thinking in the former phase q, where the day ran from 0.04 to 0.72 and the night was shorter: AL.dayQ turns the real phase p of the day
-  // (0..1) into q, the day being 0.04..0.54 of p and the night the other half. Simulation (sleep, evening, spirits) and lighting both use q.
-  AL.dayQ = p => p < 0.04 ? 0.0144 + 0.64 * p : p < 0.54 ? 0.04 + (p - 0.04) * 1.36 : (0.72 + (p - 0.54) * 0.64) % 1;
   AL.TICK_HZ = 10; AL.DAY = 300; AL.YEAR = 1200; AL.TILE = 8; AL.SEA = 100;
   AL.SIZES = { small: 128, medium: 256, large: 384, giant: 512 };
   // xoshiro128** — every random number of the simulation comes from here
@@ -569,8 +565,8 @@ var AL_SIM_BUNDLE=function(){
   const U = AL.Units = {}, ACT = U.ACT = { NONE: 0, WANDER: 1, EAT: 2, SLEEP: 3, WORK: 4, HAUL: 5, BUILD: 6, SOCIAL: 7, PRAY: 8, FLEE: 9, FIGHT: 10, FOUND: 11, SETTLE: 12, FORAGE: 13, GUARD: 14, MARCH: 15, GOTO: 16, CONTROL: 17, BOARD: 18, CORPSE: 255 };
   const F = AL.Ents.F, T = AL.Towns;
   U.ACTN = Object.keys(ACT);
-  U.dayPhase = sim => AL.dayQ((sim.tick % AL.DAY) / AL.DAY);       // 0..1 in the former phase (see AL.dayQ); night when > 0.72
-  U.isNight = sim => { const p = AL.dayQ((sim.tick % AL.DAY) / AL.DAY); return p > 0.72 || p < 0.04; };
+  U.dayPhase = sim => (sim.tick % AL.DAY) / AL.DAY;       // 0..1; night when > 0.7
+  U.isNight = sim => { const p = (sim.tick % AL.DAY) / AL.DAY; return p > 0.72 || p < 0.04; };
   // ------------------------------------------------------------ movement
   // start a trip. returns 1 arrived already, 2 started, 0 failed/unreachable, -1 deferred (budget)
   U.goTo = function (sim, i, tx, ty) { const E = sim.E, W = sim.world, n = W.n, sx = E.x[i] | 0, sy = E.y[i] | 0; E.tx[i] = tx; E.ty[i] = ty; E.flow[i] = -1; E.pathLen[i] = 0; E.pathPos[i] = 0;
@@ -2216,10 +2212,6 @@ var AL_SIM_BUNDLE=function(){
 // AL core shared by the simulation and the client: constants, seeded RNG, hashing, noise, data lookups.
 (function (AL) {
   'use strict';
-  // Day and night last as long as each other (asked by Julien, so that night music is heard as much as day music). The rest of the game keeps
-  // thinking in the former phase q, where the day ran from 0.04 to 0.72 and the night was shorter: AL.dayQ turns the real phase p of the day
-  // (0..1) into q, the day being 0.04..0.54 of p and the night the other half. Simulation (sleep, evening, spirits) and lighting both use q.
-  AL.dayQ = p => p < 0.04 ? 0.0144 + 0.64 * p : p < 0.54 ? 0.04 + (p - 0.04) * 1.36 : (0.72 + (p - 0.54) * 0.64) % 1;
   AL.TICK_HZ = 10; AL.DAY = 300; AL.YEAR = 1200; AL.TILE = 8; AL.SEA = 100;
   AL.SIZES = { small: 128, medium: 256, large: 384, giant: 512 };
   // xoshiro128** — every random number of the simulation comes from here
@@ -2957,7 +2949,7 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=vec4(texture(uScene,q).rgb,texture(uE
   const STINT = [[0.99, 1.03, 0.98], [1.04, 1.02, 0.95], [1.07, 0.98, 0.88], [0.92, 0.97, 1.07]];
   const SCOVER = [null, null, { a: ['sand', 3], b: ['earth', 4], w: { forest: 34, grass: 14, hills: 8, swamp: 10, soil: 10 } }, { a: ['ice', 5], b: ['ice', 4], w: { grass: 55, forest: 50, soil: 50, road: 22, hills: 65, mountain: 70, tundra: 75, swamp: 35, sand: 12, volcanic: 20 } }];
   const KEYS = [[0.00, 0.50, 0.52, 0.80], [0.05, 0.86, 0.72, 0.74], [0.12, 1.0, 0.98, 0.94], [0.50, 1.02, 1.0, 0.96], [0.62, 1.0, 0.86, 0.72], [0.70, 0.78, 0.60, 0.74], [0.76, 0.46, 0.48, 0.78], [1.0, 0.50, 0.52, 0.80]];
-  S.update = function (dt, env) { const p = Game.tick == null ? 0.3 : AL.dayQ(((Game.tick + (S.cur && Game.simSpeed ? 0 : 0)) % AL.DAY) / AL.DAY); let k = 0; while (k < KEYS.length - 2 && p > KEYS[k + 1][0]) k++; const a = KEYS[k], b = KEYS[k + 1], f = (p - a[0]) / (b[0] - a[0]);
+  S.update = function (dt, env) { const p = Game.tick == null ? 0.3 : ((Game.tick + (S.cur && Game.simSpeed ? 0 : 0)) % AL.DAY) / AL.DAY; let k = 0; while (k < KEYS.length - 2 && p > KEYS[k + 1][0]) k++; const a = KEYS[k], b = KEYS[k + 1], f = (p - a[0]) / (b[0] - a[0]);
     if (!env.lockAmbient) { env.ambient[0] = a[1] + (b[1] - a[1]) * f; env.ambient[1] = a[2] + (b[2] - a[2]) * f; env.ambient[2] = a[3] + (b[3] - a[3]) * f; }
     // seasons (chantier B.8): colour of the light, cover on the ground (snow, fallen leaves), frost on the trees
     { const h = Game.hud, se = h && h.season != null ? h.season : 1, sp = h && h.seasonP != null ? h.seasonP : 0.5, edge = Math.min(1, sp / 0.15, (1 - sp) / 0.15), G = AL.Gfx, A = AL.Assets, T = STINT[se], N = STINT[(se + 1) % 4], P = STINT[(se + 3) % 4], wn = sp > 0.85 ? (sp - 0.85) / 0.3 : 0, wp = sp < 0.15 ? (0.15 - sp) / 0.3 : 0;
