@@ -2520,7 +2520,7 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=vec4(texture(uScene,q).rgb,texture(uE
   G.draw = function (cam, env) {
     const W = G.W, H = G.H; gl.viewport(0, 0, W, H); gl.disable(gl.BLEND); let p;
     // the veil fades in between zoom 1 and 1.5 and is off in the far views; G.veilOff turns it off (before/after captures, cost measures)
-    const veil = G.veilOff || !nOcc ? 0 : Math.max(0, Math.min(1, (cam.z - (G.veilStart || 1)) / 0.5)); G.veil = veil;
+    const veil = G.veilOff || !nOcc ? 0 : Math.max(0, Math.min(1, (cam.z - (G.veilStart || 1)) / (G.veilFade || 0.5))); G.veil = veil;
     if (veil > 0) { gl.bindFramebuffer(gl.FRAMEBUFFER, fboOcc); gl.clearColor(1, 1, 1, 0); gl.clear(gl.COLOR_BUFFER_BIT); p = progM; gl.useProgram(p); gl.bindVertexArray(vaoM); gl.bindBuffer(gl.ARRAY_BUFFER, occBuf); gl.bufferSubData(gl.ARRAY_BUFFER, 0, occ, 0, nOcc * 6); gl.uniform2f(p.u.uCam, cam.x, cam.y); gl.uniform2f(p.u.uRes, W, H); gl.uniform1f(p.u.uZoom, cam.z);
       gl.enable(gl.BLEND); gl.blendEquationSeparate(gl.MIN, gl.MAX); gl.blendFunc(gl.ONE, gl.ONE); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, nOcc); gl.blendEquation(gl.FUNC_ADD); gl.disable(gl.BLEND); }
     gl.bindFramebuffer(gl.FRAMEBUFFER, fboScene); p = progT; gl.useProgram(p); gl.bindVertexArray(vaoQ);
@@ -2966,8 +2966,8 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=vec4(texture(uScene,q).rgb,texture(uE
   let bellF = null;
   const LOADF = [], LOX = [0, -5, 0, 5], LOY = [-2, -3, -3, -3], LOZ = [4, 5, 5, 5], loadOf = r => LOADF[r] !== undefined ? LOADF[r] : (LOADF[r] = AL.Assets.frames['load/' + AL.RESN[r]] || null);
   const markUnit = () => S._mk || (S._mk = AL.Assets.frames['mark/unit/0']);
-  const VEILM = [0, 0.55, 1, 1.6], VEILZ = [0.75, 1, 1.5, 2, 3];   // clearing size; zoom from which the clearing starts to open (option, default x1)
-  S.draw = function (env) { const G = AL.Gfx, c = Game.cam, z = c.z, A = AL.Assets, vx0 = c.x - 40, vy0 = c.y - 40, vx1 = c.x + G.W / z + 40, vy1 = c.y + G.H / z + 70, far = z < 0.74, night = S.night > 0.5, vz = VEILZ[Game.options && Game.options.veilz != null ? Game.options.veilz : 1] || 1, vm = z < vz ? 0 : VEILM[Game.options && Game.options.veil != null ? Game.options.veil : 2] || 0; G.veilStart = vz; // size of the clearing opened in the trees (option: off, small, medium, large)
+  const VEILM = [0, 0.55, 1, 1.6], VEILZ = [0.75, 1, 1.5, 2, 3];   // old saved choices (index into this list); the option now stores the zoom itself in veilzv   // clearing size; zoom from which the clearing starts to open (option, default x1)
+  S.draw = function (env) { const G = AL.Gfx, c = Game.cam, z = c.z, A = AL.Assets, vx0 = c.x - 40, vy0 = c.y - 40, vx1 = c.x + G.W / z + 40, vy1 = c.y + G.H / z + 70, far = z < 0.74, night = S.night > 0.5, vz = Game.options && Game.options.veilzv != null ? Game.options.veilzv : (Game.options && Game.options.veilz != null ? VEILZ[Game.options.veilz] : 1) || 1, vs = Math.max(vz, 0.75), vm = z < vs ? 0 : VEILM[Game.options && Game.options.veil != null ? Game.options.veil : 2] || 0; G.veilStart = vz < 0.75 ? 0.74 : vz; G.veilFade = vz < 0.75 ? 0.1 : 0.5; // size of the clearing opened in the trees (option: off, small, medium, large)
     // buildings
     const B = S.blds; let nb = 0;
     if (B) { const fr = S.bldFrames || (S.bldFrames = new Array(B.n)); for (let b = 0; b < B.n; b++) { if (!B.alive[b]) continue; const T = AL.BTYPES[B.type[b]], w = T.fp[0], h = T.fp[1], wx = (B.x[b] + w / 2) * 8, wy = (B.y[b] + h) * 8; if (wx < vx0 - 30 || wx > vx1 + 30 || wy < vy0 || wy > vy1 + 20) continue;
@@ -3664,7 +3664,7 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=vec4(texture(uScene,q).rgb,texture(uE
     lab('opt.uisize', y); for (const s of [1, 2]) if (button('uis' + s, bx + (s - 1) * 32, y, 30, 16, { label: 'x' + s, sel: K === s, dis: s === 2 && G.W < 560 })) { o.uiSize = s; UI.applyOptions(); UI.saveOptions(); } y += 17;
     lab('opt.scale', y); [0, 1, 2, 3, 4].forEach((s, k) => { if (button('sc' + s, bx + k * 32, y, 30, 16, { label: s ? 'x' + s : t('opt.auto'), sel: (o.scale || 0) === s })) { o.scale = s; Game.layout(); UI.saveOptions(); } }); y += 17;
     lab('opt.veil', y); { const cur = o.veil == null ? 2 : o.veil; ['opt.veil0', 'opt.veil1', 'opt.veil2', 'opt.veil3'].forEach((nm, k) => { if (button('vl' + k, bx + k * 50, y, 48, 16, { label: t(nm), sel: cur === k })) { o.veil = k; UI.saveOptions(); } }); } y += 17;
-    lab('opt.veilz', y); { const cur = o.veilz == null ? 1 : o.veilz; [0.75, 1, 1.5, 2, 3].forEach((zv, k) => { if (button('vz' + k, bx + k * 38, y, 36, 16, { label: 'x' + zv, sel: cur === k })) { o.veilz = k; UI.saveOptions(); } }); } y += 17;
+    lab('opt.veilz', y); { const cur = o.veilzv != null ? o.veilzv : [0.75, 1, 1.5, 2, 3][o.veilz == null ? 1 : o.veilz]; [0.5, 0.75, 1, 1.5, 2, 3].forEach((zv, k) => { if (button('vz' + k, bx + k * 38, y, 36, 16, { label: 'x' + zv, sel: cur === zv })) { o.veilzv = zv; UI.saveOptions(); } }); } y += 17;
     const tog = (k, name, on, fn) => { lab(name, y); if (button('tg' + k, bx, y, 40, 16, { label: t(on ? 'ui.yes' : 'ui.no'), sel: on })) { fn(); UI.saveOptions(); } y += 17; };
     tog('fill', 'opt.fill', o.fill !== false, () => { o.fill = o.fill === false; Game.layout(); }); tog('shake', 'opt.shake', !o.noShake, () => { o.noShake = !o.noShake; }); tog('hc', 'opt.contrast', !!o.contrast, () => { o.contrast = !o.contrast; buildColors(); }); tog('as', 'opt.autosave', !!o.autosave, () => { o.autosave = !o.autosave; });
     lab('opt.fullscreen', y); if (button('fs', bx, y, 40, 16, { icon: 'fullscreen' })) UI.action('fullscreen'); y += 17;

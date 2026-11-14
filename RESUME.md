@@ -21,6 +21,8 @@ Julien a ajouté après avoir joué onze tâches, D.1 à D.11, dans `CHANTIER.md
 
 ### Chantier — journal des tâches (le plus récent en haut)
 
+**C.10 (retouche) — distance du voile des arbres, encore plus basse.** La taille de la clairière redevient les quatre boutons d'avant (non / petite / moyenne / grande ; le curseur a été annulé à la demande de Julien). C'est la ligne « Clairière dès le zoom » qui s'étend vers le bas : ×0,5 s'ajoute à ×0,75, ×1, ×1,5, ×2, ×3 (réglage enregistré en valeur dans `Game.options.veilzv`, un ancien `veilz` est converti). Limite technique : sous le zoom 0,74 les arbres ne sont plus des sprites (`src/client/main.js`, `drawFlora` : « canopy marks are drawn by the terrain shader »), il n'y a donc rien à éclaircir plus loin ; ×0,5 veut dire « dès que les arbres sont dessinés un par un », avec un fondu court (0,1 de zoom au lieu de 0,5). Vu : valeur du voile mesurée à cinq zooms pour quatre réglages (×0,5 : 0,1 à zoom 0,75 puis 0,6 puis 1 ; ×1 : 0 jusqu'à zoom 1 puis 0,5 à 1,25), capture `shots/d-veilz-options.png`.
+
 **D.4 (retouche) — descriptions de pouvoirs.** « Une ligne de sept bombes », « Six petits rochers », « Huit mines » étaient devenus faux depuis que la taille choisie règle ces nombres : réécrits sans nombre fixe, en anglais et en français (`pwd.carpetbomb`, `pwd.meteorshower`, `pwd.minefield`). Recherche de « seven », « sept », « série de » dans tout le fichier de textes : plus d'autre occurrence. Règle : une description de pouvoir ne cite pas un nombre que la taille peut changer.
 
 **Retouches demandées par Julien (zoom du voile des arbres, centrage des liens).**
