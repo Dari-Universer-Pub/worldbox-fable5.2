@@ -47,7 +47,13 @@ G.hills = () => [new Tex(R('grass', 3)).patches(R('grass', 4), 0.36, 17).clean()
 G.mountain = () => { const t = new Tex(R('stone', 4)).patches(R('stone', 3), 0.40, 18); // facets + cracks
   for (let i = 0; i < 9; i++) { let x = (hash(i, 1, 40) * N) | 0, y = (hash(i, 2, 40) * N) | 0; const len = 4 + ((hash(i, 3, 40) * 5) | 0); for (let k = 0; k < len; k++) { t.set(x, y, R('stone', 2)); if (k > 0 && k < len - 1) t.set(x - 1, y - 1, R('stone', 5)); x += hash(i, k, 41) < 0.6 ? 1 : 0; y += hash(i, k, 42) < 0.7 ? 1 : 0; } }
   return [t.clean().im]; };
-G.snow = () => [new Tex(R('ice', 5)).patches(R('ice', 4), 0.38, 19).clean().stamps([[[0, 0, R('ice', 3)], [1, 0, R('ice', 3)]], [[0, 0, R('ice', 3)], [1, 1, R('ice', 3)], [1, 0, R('ice', 3)]]], 16, 0.5, 31).im];
+// snow (chantier D.8): windblown drifts. A tileable height field is lit from the top-left: the slopes that face the light are the warm white,
+// the flats the cool white, the lee sides a blue shadow with a deeper line at the foot of the steepest ones; a few two-pixel glints.
+// No tone covers more than 40 % of the tile, so the snow reads as relief and not as a flat cream sheet.
+G.snow = () => { const t = new Tex(R('ice', 4)), h = (x, y) => vn(x, y * 2, 2, 61) * 0.5 + vn(x, y * 2, 4, 62) * 0.36 + vn(x, y, 8, 63) * 0.14; // drifts longer than they are deep (the wind blows along x)
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const g = (h(x - 1, y - 1) - h(x + 1, y + 1)) * 6 + (h(x - 2, y) - h(x + 2, y)) * 1.5; t.set(x, y, R('ice', g > 0.24 ? 5 : g > -0.26 ? 4 : g > -1.15 ? 3 : 2)); }
+  t.clean(); for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (t.get(x, y) === R('ice', 2) && t.get(x - 1, y) !== R('ice', 2) && t.get(x + 1, y) !== R('ice', 2)) t.set(x, y, R('ice', 3)); // deep shadow only as lines of 2 px and more
+  return [t.stamps([[[0, 0, R('ice', 5)], [1, 0, R('ice', 5)]], [[0, 0, R('ice', 5)], [0, 1, R('ice', 5)]]], 16, 0.75, 31).clean().im]; };
 G.ice = () => { const t = new Tex(R('ice', 3)); for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) { const d = mod(x + y * 2, 16), k = vn(x, y, 4, 33); if (d < 2 && k > 0.45) t.set(x, y, R('ice', 4)); else if (d === 8 && k < 0.35) t.set(x, y, R('ice', 2)); }
   return [t.clean().stamps([[[0, 0, R('ice', 5)], [1, 0, R('ice', 5)], [0, 1, R('ice', 4)]]], 16, 0.6, 34).im]; };
 G.tundra = () => [new Tex(R('stone', 4)).patches(R('swamp', 5), 0.42, 20).patches(R('swamp', 4), 0.26, 20).clean().stamps([[[0, 0, R('ice', 4)], [1, 0, R('ice', 4)], [0, 1, R('ice', 3)]], [[0, 0, R('ice', 4)], [1, 0, R('ice', 4)]]], 8, 0.35, 32).stamps(pebbles(R('stone', 5), R('stone', 3)), 16, 0.5, 37).im];

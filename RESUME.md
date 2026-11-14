@@ -8,7 +8,7 @@
 
 ## PROCHAINE ACTION : bloc D de `CHANTIER.md`
 
-Julien a ajouté après avoir joué onze tâches, D.1 à D.11, dans `CHANTIER.md` (bloc D). **Déjà faites (par Sonnet 5.5, les tâches « sans risque ») : D.2, D.4, D.5, D.6, D.7**, journal ci-dessous. **Reste à faire, dans cet ordre : [fait : D.3] [fait : D.1] D.1 (bruits de travail et de mer entendus partout : trouver la cause par la mesure), D.3 (le SON de la pluie casse les oreilles), D.8 (neige à refaire), D.9 (or et æthérite utiles, proposer les usages à Julien avant de coder), D.10 (directeur du monde avec choix large des types d'événements), puis D.11 (refonte complète du son hors musique, après D.1 et D.3).** Les règles de travail sont celles de `CLAUDE.md` (une tâche, un commit, preuve légère, pas de tests lourds).
+Julien a ajouté après avoir joué onze tâches, D.1 à D.11, dans `CHANTIER.md` (bloc D). **Déjà faites (par Sonnet 5.5, les tâches « sans risque ») : D.2, D.4, D.5, D.6, D.7**, journal ci-dessous. **Reste à faire, dans cet ordre : [fait : D.8] [fait : D.3] [fait : D.1] D.1 (bruits de travail et de mer entendus partout : trouver la cause par la mesure), D.3 (le SON de la pluie casse les oreilles), D.8 (neige à refaire), D.9 (or et æthérite utiles, proposer les usages à Julien avant de coder), D.10 (directeur du monde avec choix large des types d'événements), puis D.11 (refonte complète du son hors musique, après D.1 et D.3).** Les règles de travail sont celles de `CLAUDE.md` (une tâche, un commit, preuve légère, pas de tests lourds).
 
 ## PASSATION (à lire en premier) — C.10 refait en vrai fondu, reste la passe de Sonnet
 
@@ -20,6 +20,15 @@ Julien a ajouté après avoir joué onze tâches, D.1 à D.11, dans `CHANTIER.md
 ## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; all of C done (C.0, C.1, C.3 to C.10; C.11 done: music validated by Julien and integrated); what remains is the test and balance pass reserved for Sonnet (line 0.2 and the lists « À tester par Sonnet »).
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**D.8 — neige et cimes enneigées refaites (fait ; à regarder par Julien).**
+- Avant (`shots/d8-before-z{1,2,4}.png`) : le sol de neige était un aplat crème à deux tons clairs, sans relief (il se lisait comme du sable) ; les cimes enneigées étaient des cônes gris avec une tache blanche, coupés à la base par un trait noir horizontal.
+- Sol de neige (`tools/bake-terrain.js`, `G.snow`) : congères. Un champ de hauteur répétable, étiré dans le sens du vent, est éclairé du haut-gauche : pentes au soleil en blanc chaud, plats en blanc froid, versants abrités en ombre bleue avec une ligne plus profonde au pied des plus raides, quelques éclats de 2 px. Mesuré : 4 tons, ton dominant 38 % (moins de 40), 3 pixels isolés.
+- Cimes enneigées (`tools/bake-flora.js`, `snowpeak`) : calotte qui suit l'arête et descend en langues (plus bas côté soleil), côté soleil blanc avec un demi-ton froid, côté abrité bleu avec une ligne plus sombre sous chaque langue, neige retenue sur deux ou trois corniches, roche sombre entre, et une congère au pied dessinée APRÈS le contour : plus de trait noir sous la cime, elle sort de la neige. Les pics rocheux (`peak`) reçoivent de la même façon un pied d'éboulis à la place du trait noir.
+- Vu : planches ×8 `shots/d8-peaks.png` (3 pics rocheux et 3 cimes enneigées) et `shots/d8-snow-tex.png` regardées ; en jeu `shots/d8-after-z2.png`, `-z4.png` (de près), `-z05.png` (vue large : la zone enneigée reste lisible, blanche à reflets bleus), `-night-z2.png` (de nuit) et `-snowfall-z2.png` (neige qui tombe) regardées ; `-z1.png` écrite mais non ouverte. `validate-palette`, `check-provenance`, `validate-data`, build et syntaxe du paquet vérifiés.
+- Non vérifié : la couverture de neige de l'hiver (saisons) à côté du nouveau sol ; les bords neige ↔ herbe et neige ↔ roche de très près (ils passent par les masques de transition communs, non modifiés) ; la toundra et la glace n'ont pas été touchées.
+- À regarder (Julien) : la neige et les cimes en jeu ; la roche des cimes garde des bandes horizontales (corniches) : trop marquées ?
+- À tester par Sonnet : robots qui comparent des pixels sur la neige ou les pics ; `node tools/bake-all.js` complet (seuls `bake-terrain` et `bake-flora` ont été relancés).
 
 **D.3 — le son de la pluie (fait ; l'image n'a pas changé).**
 - Mesure avant (nouvel outil `node tools/measure-ambience.js` : chaque lit d'ambiance rendu seul par le moteur, 10 s, niveau, crête, centroïde, énergie par bande, niveau pondéré A) : pluie −19,2 dB RMS, soit 13 à 20 dB au-dessus des autres lits (vent −32, forêt −33,3, ville −39,8 ; seules les vagues, −22, approchaient), centroïde 11 334 Hz, 75 % de l'énergie au-dessus de 6 kHz et 23 % entre 2 et 6 kHz : un souffle de bruit blanc.

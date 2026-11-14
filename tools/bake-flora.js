@@ -105,7 +105,29 @@ function peak(v, snow) { const c = new Cv(W, H), s = 400 + v, top = [5, 9, 7][v]
       if (lit) tone = u > 0.72 ? 5 : (hash(x >> 1, y >> 2, s) < 0.3 ? 3 : 4); else tone = u < 0.25 ? 2 : (hash(x >> 1, y >> 2, s + 1) < 0.35 ? 1 : 2);
       if (y > base - 3 && hash(x, y, s + 2) < 0.45) tone = Math.min(tone + 1, 4);
       const snowLine = top + (snow ? 9 : 4) + Math.sin(x * 1.1 + v) * 2; if ((snow || v === 1) && y < snowLine) c.set(x, y, 'ice', lit ? 5 : 3); else c.set(x, y, 'stone', tone); } }
-  return c.done(); }
-for (let v = 0; v < 3; v++) { at.add(`peak/${v}/0`, despeckle(peak(v, false)), 12, 30); at.add(`snowpeak/${v}/0`, despeckle(peak(v, true)), 12, 30); }
+  const im = c.done();
+  // scree at the foot, drawn after the outline (chantier D.8): the peak rises out of loose rock instead of being cut by a straight dark line
+  for (let x = 1; x < W - 1; x++) { const hh = 2.2 + 1.1 * Math.sin(x * 0.7 + v * 1.3) + 0.6 * Math.sin(x * 1.9 + v), edge = Math.min(x - 0.5, W - 1.5 - x), hgt = Math.max(1, Math.min(hh, edge * 0.7 + 1)); for (let k = 0; k < hgt; k++) im.set(x, 31 - k, R('stone', k === 0 ? (x < ax ? 3 : 2) : hash(x >> 1, k, s + 9) < 0.3 ? 4 : x < ax ? 4 : 3)); }
+  im.set(0, 31, T); im.set(W - 1, 31, T); return im; }
+// snow-covered peak (chantier D.8): same cone as the rock peak, but the snow is drawn as snow. A cap that follows the ridge and runs down the
+// faces in tongues (lower on the lit face), lit side warm white with a cool half-tone, lee side blue with a deeper line under each tongue;
+// snow caught on ledges lower down; dark rock showing between; and a drift heaped at the foot, so that the peak stands IN the snow
+// instead of being cut by a straight base line.
+function snowpeak(v) { const c = new Cv(W, H), s = 430 + v, top = [4, 8, 6][v], ax = [11, 13, 10][v], base = 29, snowAt = new Uint8Array(W * H);
+  for (let y = top; y <= base; y++) { const t = (y - top) / (base - top), hw = 1 + t * 10.5, l = ax - hw * (1.05 + 0.15 * Math.sin(y * 1.3 + v)), r = ax + hw * (0.95 + 0.15 * Math.sin(y * 0.9 + v * 2)), ridge = ax + Math.sin(y * 0.8 + v * 1.7) * 1.2 * t + t * 1.5;
+    for (let x = Math.round(l); x <= Math.round(r); x++) { if (x < 0 || x >= W) continue; const lit = x < ridge, u = lit ? (x - l) / Math.max(1, ridge - l) : (x - ridge) / Math.max(1, r - ridge);
+      const line = (lit ? 0.62 : 0.48) + 0.12 * Math.sin(x * 0.95 + v * 2.1) + 0.06 * Math.sin(x * 2.3 + v);
+      // two ledges that hold snow, each a few short spans
+      const ledge = (lit && Math.abs(t - (0.72 + 0.04 * v)) < 0.035 && hash(x >> 2, 1, s + 5) < 0.6) || (!lit && Math.abs(t - (0.8 - 0.03 * v)) < 0.03 && hash(x >> 2, 2, s + 5) < 0.55) || (Math.abs(t - 0.9) < 0.03 && hash(x >> 1, 3, s + 5) < 0.3);
+      if (t < line || ledge) { snowAt[y * W + x] = 1; c.set(x, y, 'ice', lit ? (t > line - 0.16 && !ledge ? 4 : 5) : (u < 0.22 && t > 0.12 ? 2 : 3)); }
+      else c.set(x, y, 'stone', lit ? (u > 0.8 ? 4 : hash(x >> 2, y >> 2, s) < 0.3 ? 2 : 3) : (hash(x >> 2, y >> 2, s + 1) < 0.35 ? 1 : 2)); } }
+  // under a tongue of snow the rock is in its shadow, and the last row of the tongue is one tone cooler
+  for (let y = top + 1; y <= base; y++) for (let x = 0; x < W; x++) { if (!snowAt[(y - 1) * W + x] || snowAt[y * W + x] || c.get(x, y) === T) continue; if (c.get(x, y - 1) === R('ice', 3)) c.set(x, y - 1, 'ice', 2); c.set(x, y, 'stone', 1); }
+  const im = c.done();
+  // the drift at the foot, drawn AFTER the outline so that no dark line runs under the peak: an uneven mound across the whole base, lit on the
+  // left, blue on the right and along its last row, which melts into the snow of the ground
+  for (let x = 1; x < W - 1; x++) { const hh = 3 + 1.2 * Math.sin(x * 0.62 + v * 1.9) + 0.7 * Math.sin(x * 1.7 + v), edge = Math.min(x - 0.5, W - 1.5 - x), hgt = Math.max(1, Math.min(hh, edge * 0.8 + 1)); for (let k = 0; k < hgt; k++) { const y = 31 - k; im.set(x, y, R('ice', k === 0 ? (x < ax ? 4 : 3) : k >= hgt - 1 ? (x < ax + 3 ? 5 : 4) : (x < ax - 2 ? 5 : x < ax + 5 ? 4 : 3))); } }
+  im.set(0, 31, T); im.set(W - 1, 31, T); return im; }
+for (let v = 0; v < 3; v++) { at.add(`peak/${v}/0`, despeckle(peak(v, false)), 12, 30); at.add(`snowpeak/${v}/0`, despeckle(snowpeak(v)), 12, 30); }
 at.save();
 console.log('flora atlas ' + at.img.w + 'x' + at.img.h + ', frames ' + Object.keys(at.frames).length);
