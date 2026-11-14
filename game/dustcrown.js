@@ -2389,14 +2389,13 @@ in vec2 vUV; flat in vec4 vP; flat in float vAlpha; flat in float vDepth; in vec
 uniform sampler2D uPage,uPal,uOcc; uniform int uShadow; uniform int uEm; uniform int uGlass; uniform float uVeil; uniform vec2 uCam,uRes; uniform float uZoom;
 void main(){
   int idx=int(texelFetch(uPage,ivec2(vUV),0).r*255.+.5); if(idx==255) discard;
-  if(uShadow==1){ o=vec4(.075,.065,.12,.34); oE=vec4(0.); return; }
   int flags=int(vP.y+.5); float em=0.;
-  // trees in front of a being or a building (chantier C.10): where the mask holds something that stands BEHIND this tree, the tree turns
-  // almost transparent in a soft-edged round window. The mask is read once per WORLD pixel (at its centre), so every screen pixel of one
-  // drawn pixel gets the same opacity and nothing crawls when the camera moves; the window opens over a few pixels of depth behind the tree.
+  // trees around a being or a building (chantier C.10): inside the soft-edged round window of the mask, every grown tree turns almost
+  // transparent, and so does its shadow, so the view around the thing is clear. The mask is read once per WORLD pixel (at its centre):
+  // every screen pixel of one drawn pixel gets the same opacity and nothing crawls when the camera moves.
   float op=1.;
-  if(uVeil>0. && (flags/128)%2==1){ vec2 sp=(floor(vW)+.5-uCam)*uZoom; ivec2 mp=clamp(ivec2(sp.x,uRes.y-sp.y),ivec2(0),ivec2(uRes)-1); vec4 m=texelFetch(uOcc,mp,0);
-    if(m.a>0.){ float dy=(vDepth-m.r)*2.*uRes.y/uZoom; float cv=m.a*uVeil*smoothstep(1.,4.,dy); op=1.-.9*cv; } }
+  if(uVeil>0. && (flags/128)%2==1){ vec2 sp=(floor(vW)+.5-uCam)*uZoom; ivec2 mp=clamp(ivec2(sp.x,uRes.y-sp.y),ivec2(0),ivec2(uRes)-1); op=1.-.9*texelFetch(uOcc,mp,0).a*uVeil; }
+  if(uShadow==1){ o=vec4(.075,.065,.12,.34*op); oE=vec4(0.); return; }
   if(idx>=150){ if((flags/64)%2==1){ idx=uGlass*6+(idx-150)-2; } else { idx=uEm*6+(idx-150); em=1.; } }
   else if(idx>=144){ idx=uEm*6+(idx-144); em=1.; } else if(idx>=128){ idx=int(vP.x+.5)*6+(idx-128); }
   int tone=int(vP.z+.5)-8; if(tone!=0){ int r=idx/6, t=idx-r*6; idx=r*6+clamp(t+tone,0,5); }
@@ -2937,7 +2936,7 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=vec4(texture(uScene,q).rgb,texture(uE
         if (!f || f.key !== key) { const tp = B.town[b] >= 0 ? B.tp[B.town[b]] : 0, set = T.people || ((AL.KINDS[tp] && AL.Assets.frames['bld/' + AL.KINDS[tp].buildSet + '/' + T.name + '/0/0']) ? AL.KINDS[tp].buildSet : 'human'); // a people's own building keeps its people's look whoever holds the town
           f = v < 0 ? A.frames['bld/site/' + w + 'x' + h + '/0'] : A.frames['bld/' + set + '/' + T.name + '/' + B.stage[b] + '/' + v]; if (!f) f = A.frames['bld/human/house/0/0']; f = fr[b] = { f, key, ex: f[6] || null }; }
         const town = B.town[b], team = town >= 0 ? S.teamOf(B.tp[town], B.tk[town]) : 5, lit = night && st === 1 && (AL.hash2(b, 3, 1) < 0.8);
-        G.spr(f.f, wx, wy, team, lit ? 0 : 64, 0, 1, 1, -2); nb++; if (!far) G.occ(wx + f.f[2] / 2 - f.f[4], wy - f.f[5] + f.f[3] * 0.55, Math.max(f.f[2], f.f[3]) * 0.5, 0.9, wy - 2);
+        G.spr(f.f, wx, wy, team, lit ? 0 : 64, 0, 1, 1, -2); nb++; if (!far) G.occ(wx + f.f[2] / 2 - f.f[4], wy - f.f[5] + f.f[3] * 0.55, Math.max(f.f[2], f.f[3]) * 0.95, 0.9, wy - 2);
         if (lit && f.ex && f.ex.light && T.light) G.light(wx + f.ex.light[0], wy + f.ex.light[1] + 4, 26, 0.55 * S.night, 0);
         if (st === 1 && f.ex && f.ex.light && (T.name === 'forge' || T.name === 'temple') && !lit) G.light(wx + f.ex.light[0], wy + f.ex.light[1] + 2, 12, 0.25, 1);
         if (st === 1 && f.ex && f.ex.smoke && AL.Fx && AL.Fx.smoke) AL.Fx.smoke(b, wx + f.ex.smoke[0], wy + f.ex.smoke[1], T.name === 'forge'); } }
@@ -2952,7 +2951,7 @@ void main(){ vec2 q=uv+uShake/uRes; vec4 s=vec4(texture(uScene,q).rgb,texture(uE
       if (pv && i < pv.n && pv.alive[i] && pv.gen[i] === m.gen[i]) { const ox = pv.x[i], oy = pv.y[i], dx = x - ox, dy = y - oy; if (dx * dx + dy * dy < 9) { x = ox + dx * al; y = oy + dy * al; } }
       px[i] = x; py[i] = y; const an = m.anim[i]; if (an !== lastAnim[i] || m.gen[i] !== lastGen[i]) { lastAnim[i] = an; lastGen[i] = m.gen[i]; animStart[i] = t; }
       if (an === 14) continue; // inside a building
-      const wx = x * 8, wy = y * 8 + 2; if (wx < vx0 || wx > vx1 || wy < vy0 || wy > vy1) continue; if (S.sel === i) S.selPos = [wx, wy]; const kind = m.kind[i]; if (!far && an !== 14) { const sz = AL.KINDS[kind].size || 24; G.occ(wx, wy - sz * 0.4, Math.max(13, sz * 0.56), 1, wy); } if (kind >= np && S.drawCreature(m, i, kind, an, wx, wy, t, far)) { if (!far && m.hd && m.hd[i] && an !== 7) { const bf = bellF || (bellF = AL.Assets.frames['mark/bell']); if (bf) G.spr(bf, wx, wy - AL.KINDS[kind].size * 0.42, 0, 0, 0, 1, 1, 14); } nu++; continue; }
+      const wx = x * 8, wy = y * 8 + 2; if (wx < vx0 || wx > vx1 || wy < vy0 || wy > vy1) continue; if (S.sel === i) S.selPos = [wx, wy]; const kind = m.kind[i]; if (!far && an !== 14) { const sz = AL.KINDS[kind].size || 24; G.occ(wx, wy - sz * 0.4, Math.max(30, sz * 1.15), 1, wy); } if (kind >= np && S.drawCreature(m, i, kind, an, wx, wy, t, far)) { if (!far && m.hd && m.hd[i] && an !== 7) { const bf = bellF || (bellF = AL.Assets.frames['mark/bell']); if (bf) G.spr(bf, wx, wy - AL.KINDS[kind].size * 0.42, 0, 0, 0, 1, 1, 14); } nu++; continue; }
       const team = S.teamOf(kind, m.kd[i]), fl = m.flags[i];
       if (far) { if (mk) G.spr(mk, wx, wy, team, 0, 0, 1, 0.8 / z, 0); nu++; continue; }
       const fs = framesOf(kind, m.look[i], an, m.dir[i]); let fi; const el = t - animStart[i];

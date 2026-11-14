@@ -77,14 +77,13 @@ in vec2 vUV; flat in vec4 vP; flat in float vAlpha; flat in float vDepth; in vec
 uniform sampler2D uPage,uPal,uOcc; uniform int uShadow; uniform int uEm; uniform int uGlass; uniform float uVeil; uniform vec2 uCam,uRes; uniform float uZoom;
 void main(){
   int idx=int(texelFetch(uPage,ivec2(vUV),0).r*255.+.5); if(idx==255) discard;
-  if(uShadow==1){ o=vec4(.075,.065,.12,.34); oE=vec4(0.); return; }
   int flags=int(vP.y+.5); float em=0.;
-  // trees in front of a being or a building (chantier C.10): where the mask holds something that stands BEHIND this tree, the tree turns
-  // almost transparent in a soft-edged round window. The mask is read once per WORLD pixel (at its centre), so every screen pixel of one
-  // drawn pixel gets the same opacity and nothing crawls when the camera moves; the window opens over a few pixels of depth behind the tree.
+  // trees around a being or a building (chantier C.10): inside the soft-edged round window of the mask, every grown tree turns almost
+  // transparent, and so does its shadow, so the view around the thing is clear. The mask is read once per WORLD pixel (at its centre):
+  // every screen pixel of one drawn pixel gets the same opacity and nothing crawls when the camera moves.
   float op=1.;
-  if(uVeil>0. && (flags/128)%2==1){ vec2 sp=(floor(vW)+.5-uCam)*uZoom; ivec2 mp=clamp(ivec2(sp.x,uRes.y-sp.y),ivec2(0),ivec2(uRes)-1); vec4 m=texelFetch(uOcc,mp,0);
-    if(m.a>0.){ float dy=(vDepth-m.r)*2.*uRes.y/uZoom; float cv=m.a*uVeil*smoothstep(1.,4.,dy); op=1.-.9*cv; } }
+  if(uVeil>0. && (flags/128)%2==1){ vec2 sp=(floor(vW)+.5-uCam)*uZoom; ivec2 mp=clamp(ivec2(sp.x,uRes.y-sp.y),ivec2(0),ivec2(uRes)-1); op=1.-.9*texelFetch(uOcc,mp,0).a*uVeil; }
+  if(uShadow==1){ o=vec4(.075,.065,.12,.34*op); oE=vec4(0.); return; }
   if(idx>=150){ if((flags/64)%2==1){ idx=uGlass*6+(idx-150)-2; } else { idx=uEm*6+(idx-150); em=1.; } }
   else if(idx>=144){ idx=uEm*6+(idx-144); em=1.; } else if(idx>=128){ idx=int(vP.x+.5)*6+(idx-128); }
   int tone=int(vP.z+.5)-8; if(tone!=0){ int r=idx/6, t=idx-r*6; idx=r*6+clamp(t+tone,0,5); }

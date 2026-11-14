@@ -97,7 +97,7 @@
         if (!f || f.key !== key) { const tp = B.town[b] >= 0 ? B.tp[B.town[b]] : 0, set = T.people || ((AL.KINDS[tp] && AL.Assets.frames['bld/' + AL.KINDS[tp].buildSet + '/' + T.name + '/0/0']) ? AL.KINDS[tp].buildSet : 'human'); // a people's own building keeps its people's look whoever holds the town
           f = v < 0 ? A.frames['bld/site/' + w + 'x' + h + '/0'] : A.frames['bld/' + set + '/' + T.name + '/' + B.stage[b] + '/' + v]; if (!f) f = A.frames['bld/human/house/0/0']; f = fr[b] = { f, key, ex: f[6] || null }; }
         const town = B.town[b], team = town >= 0 ? S.teamOf(B.tp[town], B.tk[town]) : 5, lit = night && st === 1 && (AL.hash2(b, 3, 1) < 0.8);
-        G.spr(f.f, wx, wy, team, lit ? 0 : 64, 0, 1, 1, -2); nb++; if (!far) G.occ(wx + f.f[2] / 2 - f.f[4], wy - f.f[5] + f.f[3] * 0.55, Math.max(f.f[2], f.f[3]) * 0.5, 0.9, wy - 2);
+        G.spr(f.f, wx, wy, team, lit ? 0 : 64, 0, 1, 1, -2); nb++; if (!far) G.occ(wx + f.f[2] / 2 - f.f[4], wy - f.f[5] + f.f[3] * 0.55, Math.max(f.f[2], f.f[3]) * 0.95, 0.9, wy - 2);
         if (lit && f.ex && f.ex.light && T.light) G.light(wx + f.ex.light[0], wy + f.ex.light[1] + 4, 26, 0.55 * S.night, 0);
         if (st === 1 && f.ex && f.ex.light && (T.name === 'forge' || T.name === 'temple') && !lit) G.light(wx + f.ex.light[0], wy + f.ex.light[1] + 2, 12, 0.25, 1);
         if (st === 1 && f.ex && f.ex.smoke && AL.Fx && AL.Fx.smoke) AL.Fx.smoke(b, wx + f.ex.smoke[0], wy + f.ex.smoke[1], T.name === 'forge'); } }
@@ -112,7 +112,7 @@
       if (pv && i < pv.n && pv.alive[i] && pv.gen[i] === m.gen[i]) { const ox = pv.x[i], oy = pv.y[i], dx = x - ox, dy = y - oy; if (dx * dx + dy * dy < 9) { x = ox + dx * al; y = oy + dy * al; } }
       px[i] = x; py[i] = y; const an = m.anim[i]; if (an !== lastAnim[i] || m.gen[i] !== lastGen[i]) { lastAnim[i] = an; lastGen[i] = m.gen[i]; animStart[i] = t; }
       if (an === 14) continue; // inside a building
-      const wx = x * 8, wy = y * 8 + 2; if (wx < vx0 || wx > vx1 || wy < vy0 || wy > vy1) continue; if (S.sel === i) S.selPos = [wx, wy]; const kind = m.kind[i]; if (!far && an !== 14) { const sz = AL.KINDS[kind].size || 24; G.occ(wx, wy - sz * 0.4, Math.max(13, sz * 0.56), 1, wy); } if (kind >= np && S.drawCreature(m, i, kind, an, wx, wy, t, far)) { if (!far && m.hd && m.hd[i] && an !== 7) { const bf = bellF || (bellF = AL.Assets.frames['mark/bell']); if (bf) G.spr(bf, wx, wy - AL.KINDS[kind].size * 0.42, 0, 0, 0, 1, 1, 14); } nu++; continue; }
+      const wx = x * 8, wy = y * 8 + 2; if (wx < vx0 || wx > vx1 || wy < vy0 || wy > vy1) continue; if (S.sel === i) S.selPos = [wx, wy]; const kind = m.kind[i]; if (!far && an !== 14) { const sz = AL.KINDS[kind].size || 24; G.occ(wx, wy - sz * 0.4, Math.max(30, sz * 1.15), 1, wy); } if (kind >= np && S.drawCreature(m, i, kind, an, wx, wy, t, far)) { if (!far && m.hd && m.hd[i] && an !== 7) { const bf = bellF || (bellF = AL.Assets.frames['mark/bell']); if (bf) G.spr(bf, wx, wy - AL.KINDS[kind].size * 0.42, 0, 0, 0, 1, 1, 14); } nu++; continue; }
       const team = S.teamOf(kind, m.kd[i]), fl = m.flags[i];
       if (far) { if (mk) G.spr(mk, wx, wy, team, 0, 0, 1, 0.8 / z, 0); nu++; continue; }
       const fs = framesOf(kind, m.look[i], an, m.dir[i]); let fi; const el = t - animStart[i];
