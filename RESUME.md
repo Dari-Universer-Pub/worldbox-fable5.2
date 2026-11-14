@@ -8,7 +8,7 @@
 
 ## PROCHAINE ACTION : bloc D de `CHANTIER.md`
 
-Julien a ajouté après avoir joué onze tâches, D.1 à D.11, dans `CHANTIER.md` (bloc D). **Commencer par D.1** (bruits de construction et de mer entendus partout sur la carte), puis D.2 (textes « fait par du code » faux pour la musique), et suivre l'ordre. Rien n'est commencé. Les règles de travail sont celles de `CLAUDE.md` (une tâche, un commit, preuve légère, pas de tests lourds).
+Julien a ajouté après avoir joué onze tâches, D.1 à D.11, dans `CHANTIER.md` (bloc D). **Déjà faites (par Sonnet 5.5, les tâches « sans risque ») : D.2, D.4, D.5, D.6, D.7**, journal ci-dessous. **Reste à faire, dans cet ordre : D.1 (bruits de travail et de mer entendus partout : trouver la cause par la mesure), D.3 (le SON de la pluie casse les oreilles), D.8 (neige à refaire), D.9 (or et æthérite utiles, proposer les usages à Julien avant de coder), D.10 (directeur du monde avec choix large des types d'événements), puis D.11 (refonte complète du son hors musique, après D.1 et D.3).** Les règles de travail sont celles de `CLAUDE.md` (une tâche, un commit, preuve légère, pas de tests lourds).
 
 ## PASSATION (à lire en premier) — C.10 refait en vrai fondu, reste la passe de Sonnet
 
@@ -20,6 +20,15 @@ Julien a ajouté après avoir joué onze tâches, D.1 à D.11, dans `CHANTIER.md
 ## Current state: steps 1–13 done. Now working through `CHANTIER.md` — part A and all of B (B.1 to B.9) done; all of C done (C.0, C.1, C.3 to C.10; C.11 done: music validated by Julien and integrated); what remains is the test and balance pass reserved for Sonnet (line 0.2 and the lists « À tester par Sonnet »).
 
 ### Chantier — journal des tâches (le plus récent en haut)
+
+**D.7 — noms cliquables dans les menus et les fiches (fait).**
+- Ce qui existait : dans les listes, une ligne avec un lieu (royaumes, villes, alliances, notables vivants, chronique) emmenait la caméra au lieu. Ce qui manquait : cliquer sur un NOM pour aller à la personne, à sa maison ou à sa ville et ouvrir sa fiche.
+- `src/client/ui.js` : `UI.gotoUnit(i, gen)`, `UI.gotoTown(id)`, `UI.gotoBld(b)` (caméra centrée, fiche ouverte, message « N'est plus là » si la cible n'existe plus ou si l'emplacement a été réutilisé). Les tableaux acceptent `act: {colonne: fonction}` : la cellule est soulignée, surlignée au survol, et un clic agit (la fenêtre se ferme, sauf si la fonction renvoie `false`). Les fiches acceptent un quatrième argument à `row(...)` : ligne soulignée et cliquable.
+- Branché : liste des royaumes (nom → capitale, souverain → sa fiche), des villes (nom → fiche de la ville), des notables (nom → fiche ; les morts mènent à leur lieu de décès) ; fiche d'un être : ville, habitation (nouvelle ligne `sheet.home`), royaume (→ capitale), mère, père, conjoint, amour, ami, rival et chaque enfant (une ligne chacun, plus un texte courant) ; fiche d'un bâtiment : ligne ville ; fiche d'une ville : royaume (→ capitale) et souverain.
+- `src/sim/culture.js` et `src/sim/realm.js` : la fiche d'un être renvoie les identifiants (`ids`, `home`, `homeName`, `kingdomCap`), la fiche d'une ville `rulerId`, `rulerGen`, `capitalId`, la liste des royaumes `rulerGen`.
+- Vu (jeu réel, souris réelle, ×50 jusqu'à un royaume) : liste des royaumes avec nom et souverain soulignés (`shots/d7-liste.png`) ; clic sur le nom de la reine : la liste se ferme, la caméra se centre sur elle, sa fiche s'ouvre (`shots/d7-apres-clic-chef.png`) ; clic sur « Habitation » : fiche de la maison ouverte (`shots/d7-apres-clic-habitation.png`). validate-data, build, syntaxe OK, aucune erreur dans la console.
+- Non vérifié : clic sur un mort (message) ; clic sur conjoint, enfants, ami, rival ; onglet Notables ; la chronique n'a pas de noms cliquables à l'intérieur de la phrase (la ligne entière emmène toujours au lieu) ; les listes des clans et des religions (le fondateur n'est qu'un texte dans les données) ; l'affichage en français.
+- À tester par Sonnet : un robot à la souris réelle sur ces clics (liste → nom → fiche), et la fiche d'un être avec beaucoup d'enfants (la hauteur de la fiche).
 
 **D.5 — « Soin léger » (`mend`) et « Grand retour » (`revival`) (fait).**
 - Cause trouvée : `mend` répare les bâtiments, éteint les feux et soigne les êtres autour du clic ; mais son effet de lancement était vide (`mend: none` dans `src/client/fx.js`), l'effet n'apparaissait que par bâtiment réparé, et soigner un être n'affichait rien. Sans bâtiment abîmé ni blessé à portée, le pouvoir semblait ne rien faire (et il renvoyait toujours « 1 »). `revival` relève les ruines et rappelle les morts des tombes : sans ruine ni tombe à portée, rien non plus.
